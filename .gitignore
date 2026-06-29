@@ -1,3 +1,6 @@
-git init
-git add .
-git commit -m "Day 1: Django project setup with PostgreSQL and app structure"
+venv/
+__pycache__/
+*.pyc
+.env
+db.sqlite3
+*.log
