@@ -1,0 +1,53 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products</title>
+    <link rel="stylesheet" href="{% static 'css/products.css' %}">
+</head>
+<body>
+    <div class="page">
+        <header class="page-header">
+            <h1>Products</h1>
+            <div class="actions">
+                <a class="btn primary" href="{% url 'products:create' %}">Add product</a>
+            </div>
+        </header>
+
+        {% if products %}
+            <div class="grid">
+                {% for product in products %}
+                    <article class="card">
+                        <div class="card-media">
+                            {% if product.image %}
+                                <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                            {% else %}
+                                <div class="placeholder">No image</div>
+                            {% endif %}
+                        </div>
+                        <div class="card-body">
+                            <h2 class="product-name"><a href="{% url 'products:detail' product.id %}">{{ product.name }}</a></h2>
+                            <div class="meta">
+                                <span class="sku">{{ product.sku }}</span>
+                                <span class="category">{{ product.category }}</span>
+                            </div>
+                            <div class="price-stock">
+                                <span class="price">₹{{ product.price }}</span>
+                                <span class="stock {% if product.stock == 0 %}out{% elif product.stock < 5 %}low{% endif %}">Stock: {{ product.stock }}</span>
+                            </div>
+                        </div>
+                        <footer class="card-footer">
+                            <a class="btn" href="{% url 'products:update' product.id %}">Edit</a>
+                            <a class="btn outline" href="{% url 'products:detail' product.id %}">View</a>
+                        </footer>
+                    </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty">No products found. <a href="{% url 'products:create' %}">Add a product</a></div>
+        {% endif %}
+    </div>
+</body>
+</html>

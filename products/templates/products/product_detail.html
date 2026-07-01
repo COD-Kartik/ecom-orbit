@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ product.name }}</title>
+</head>
+<body>
+    <h1>{{ product.name }}</h1>
+    <p><strong>SKU:</strong> {{ product.sku }}</p>
+    <p><strong>Category:</strong> {{ product.category }}</p>
+    <p><strong>Brand:</strong> {{ product.brand }}</p>
+    <p><strong>Price:</strong> {{ product.price }}</p>
+    <p><strong>Stock:</strong> {{ product.stock }}</p>
+    <p><strong>Status:</strong> {{ product.is_active|yesno:"Active,Inactive" }}</p>
+    <p><strong>Description:</strong></p>
+    <p>{{ product.description }}</p>
+
+    {% if product.image %}
+        <div>
+            <img src="{{ product.image.url }}" alt="{{ product.name }}" style="max-width: 400px; height: auto;" />
+        </div>
+    {% endif %}
+
+    <p>
+        <a href="{% url 'products:update' product.id %}">Edit product</a> |
+        <a href="{% url 'products:list' %}">Back to products</a>
+    </p>
+</body>
+</html>
