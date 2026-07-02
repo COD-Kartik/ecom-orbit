@@ -25,5 +25,6 @@ from accounts.views import landing_page
 urlpatterns = [
     path('', landing_page, name='landing'),
     path('admin/', admin.site.urls),
-    path('api/', include('products.urls')),
+    path('', include('products.urls')),
+    path('', include('channels_integration.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
