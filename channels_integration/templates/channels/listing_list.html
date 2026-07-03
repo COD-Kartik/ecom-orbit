@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Product Listings{% endblock %}
+{% block page_title %}Product Listings{% endblock %}
+{% block nav_channels %}active{% endblock %}
+
+{% block content %}
+
+<!-- Stats -->
+<div class="row g-3 mb-4">
+  <div class="col-sm-6 col-xl-3">
+    <div class="stat-card">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <div class="stat-icon" style="background:#ede9fe;">
+          <i class="bi bi-grid" style="color:#7c3aed;"></i>
+        </div>
+        <span class="badge-active">All</span>
+      </div>
+      <div class="stat-num">{{ total }}</div>
+      <div class="stat-label">Total Listings</div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="stat-card">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <div class="stat-icon" style="background:#dcfce7;">
+          <i class="bi bi-check-circle" style="color:#16a34a;"></i>
+        </div>
+        <span class="badge-active">Live</span>
+      </div>
+      <div class="stat-num">{{ published }}</div>
+      <div class="stat-label">Published</div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="stat-card">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <div class="stat-icon" style="background:#fef9c3;">
+          <i class="bi bi-clock" style="color:#ca8a04;"></i>
+        </div>
+        <span class="badge-pending">Wait</span>
+      </div>
+      <div class="stat-num">{{ pending }}</div>
+      <div class="stat-label">Pending</div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="stat-card">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <div class="stat-icon" style="background:#fee2e2;">
+          <i class="bi bi-x-circle" style="color:#dc2626;"></i>
+        </div>
+        <span class="badge-inactive">Error</span>
+      </div>
+      <div class="stat-num">{{ failed }}</div>
+      <div class="stat-label">Failed</div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <!-- Listings Table -->
+  <div class="col-lg-9">
+    <div class="data-table">
+      <div class="d-flex align-items-center justify-content-between p-3 border-bottom">
+        <h6 class="mb-0 fw-700" style="color:#1e1b4b;">All Product Listings</h6>
+        <a href="{% url 'product_list' %}" class="btn-primary-custom btn d-flex align-items-center gap-1">
+          <i class="bi bi-plus-lg"></i> Publish Product
+        </a>
+      </div>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Channel</th>
+            <th>Platform</th>
+            <th>Status</th>
+            <th>External ID</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for listing in listings %}
+          <tr>
+            <td>
+              <div class="fw-600" style="color:#1e1b4b;">{{ listing.product.title }}</div>
+              <div class="text-muted" style="font-size:0.78rem;">₹{{ listing.product.price }}</div>
+            </td>
+            <td>{{ listing.channel.name }}</td>
+            <td>
+              <span class="badge bg-light text-secondary">
+                {{ listing.channel.get_platform_type_display }}
+              </span>
+            </td>
+            <td>
+              {% if listing.status == 'published' %}
+                <span class="badge-active">Published</span>
+              {% elif listing.status == 'pending' %}
+                <span class="badge-pending">Pending</span>
+              {% else %}
+                <span class="badge-inactive">Failed</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if listing.external_id %}
+                <code style="font-size:0.78rem;">{{ listing.external_id }}</code>
+              {% else %}
+                <span class="text-muted">—</span>
+              {% endif %}
+            </td>
+            <td>
+              <div class="d-flex gap-2 align-items-center">
+                <form method="post" action="{% url 'listing_status_update' listing.id %}">
+                  {% csrf_token %}
+                  <select name="status" class="form-select form-select-sm"
+                          style="width:110px;"
+                          onchange="this.form.submit()">
+                    <option value="pending" {% if listing.status == 'pending' %}selected{% endif %}>Pending</option>
+                    <option value="published" {% if listing.status == 'published' %}selected{% endif %}>Published</option>
+                    <option value="failed" {% if listing.status == 'failed' %}selected{% endif %}>Failed</option>
+                  </select>
+                </form>
+                <a href="{% url 'listing_delete' listing.id %}"
+                   class="btn btn-sm btn-light border text-danger"
+                   onclick="return confirm('Remove this listing?')">
+                  <i class="bi bi-trash"></i>
+                </a>
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="6" class="text-center py-5">
+              <i class="bi bi-broadcast" style="font-size:2.5rem; color:#d1d5db;"></i>
+              <p class="mt-3 text-muted">No listings yet.
+                <a href="{% url 'product_list' %}">Go to products to publish.</a>
+              </p>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Quick Publish -->
+  <div class="col-lg-3">
+    <div class="form-card">
+      <h6 class="fw-700 mb-1" style="color:#1e1b4b;">
+        <i class="bi bi-send me-2" style="color:#7c3aed;"></i>
+        Quick Publish
+      </h6>
+      <p class="text-muted mb-3" style="font-size:0.83rem;">
+        Publish a product to all active channels instantly.
+      </p>
+      <div class="d-grid gap-2">
+        {% for product in products %}
+        <a href="{% url 'publish_product' product.id %}"
+           class="btn btn-light border text-start p-2 d-flex align-items-center gap-2">
+          <i class="bi bi-box-seam" style="color:#7c3aed;"></i>
+          <div>
+            <div style="font-size:0.85rem; font-weight:600; color:#1e1b4b;">
+              {{ product.title|truncatechars:22 }}
+            </div>
+            <div style="font-size:0.75rem; color:#6b7280;">₹{{ product.price }}</div>
+          </div>
+        </a>
+        {% empty %}
+        <p class="text-muted" style="font-size:0.85rem;">
+          No products yet. <a href="{% url 'product_add' %}">Add one first.</a>
+        </p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

@@ -136,6 +136,10 @@
                onclick="return confirm('Delete {{ product.title }}?')">
               <i class="bi bi-trash"></i>
             </a>
+            <a href="{% url 'publish_product' product.id %}" 
+              class="btn btn-sm btn-light border text-success" title="Publish to channels">
+              <i class="bi bi-send"></i>
+            </a>
           </div>
         </td>
       </tr>
