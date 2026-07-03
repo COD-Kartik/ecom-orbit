@@ -252,14 +252,14 @@
       <i class="bi bi-tags"></i> Categories
     </a>
     <div class="nav-section-label">Sales</div>
-    <a href="#" class="sidebar-link">
+    <a href="{% url 'channel_list' %}" class="sidebar-link {% block nav_channels %}{% endblock %}">
       <i class="bi bi-broadcast"></i> Channels
     </a>
-    <a href="#" class="sidebar-link">
+    <a href="#" class="sidebar-link {% block nav_orders %}{% endblock %} ">
       <i class="bi bi-cart3"></i> Orders
     </a>
     <div class="nav-section-label">Insights</div>
-    <a href="#" class="sidebar-link">
+    <a href="#" class="sidebar-link {% block nav_analytics %}{% endblock %}                                                 ">
       <i class="bi bi-bar-chart-line"></i> Analytics
     </a>
   </nav>

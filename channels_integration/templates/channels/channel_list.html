@@ -1,0 +1,254 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Channels{% endblock %}
+{% block page_title %}Channel Integration{% endblock %}
+{% block nav_channels %}active{% endblock %}
+
+{% block content %}
+
+<!-- Stats Row -->
+<div class="row g-3 mb-4">
+  <div class="col-sm-6 col-xl-3">
+    <div class="stat-card">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <div class="stat-icon" style="background:#ede9fe;">
+          <i class="bi bi-broadcast" style="color:#7c3aed;"></i>
+        </div>
+        <span class="badge-active">Total</span>
+      </div>
+      <div class="stat-num">{{ total_channels }}</div>
+      <div class="stat-label">Connected Channels</div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="stat-card">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <div class="stat-icon" style="background:#dcfce7;">
+          <i class="bi bi-check-circle" style="color:#16a34a;"></i>
+        </div>
+        <span class="badge-active">Live</span>
+      </div>
+      <div class="stat-num">{{ active_channels }}</div>
+      <div class="stat-label">Active Channels</div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="stat-card">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <div class="stat-icon" style="background:#fee2e2;">
+          <i class="bi bi-x-circle" style="color:#dc2626;"></i>
+        </div>
+        <span class="badge-inactive">Off</span>
+      </div>
+      <div class="stat-num">{{ total_channels|add:"-"|add:active_channels }}</div>
+      <div class="stat-label">Inactive Channels</div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="stat-card">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <div class="stat-icon" style="background:#fef9c3;">
+          <i class="bi bi-plug" style="color:#ca8a04;"></i>
+        </div>
+        <span class="badge-pending">Available</span>
+      </div>
+      <div class="stat-num">5</div>
+      <div class="stat-label">Supported Platforms</div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+
+  <!-- Left — Channel Cards -->
+  <div class="col-lg-8">
+
+    <!-- Supported Platforms Banner -->
+    <div class="p-3 mb-4 rounded-3 d-flex align-items-center gap-3 flex-wrap"
+         style="background:linear-gradient(135deg,#1e1b4b,#4f46e5);">
+      <span style="color:rgba(255,255,255,0.7); font-size:0.85rem; font-weight:600;">
+        SUPPORTED PLATFORMS:
+      </span>
+      {% for value, label in platform_choices %}
+      <span class="px-3 py-1 rounded-pill"
+            style="background:rgba(255,255,255,0.12); color:white;
+                   font-size:0.8rem; font-weight:600; border:1px solid rgba(255,255,255,0.2);">
+        {{ label }}
+      </span>
+      {% endfor %}
+    </div>
+
+    <!-- Channel Cards -->
+    {% if channels %}
+    <div class="row g-3">
+      {% for channel in channels %}
+      <div class="col-sm-6">
+        <div class="stat-card" style="border:1px solid #e5e7eb; position:relative;">
+
+          <!-- Platform color bar -->
+          <div style="position:absolute; top:0; left:0; right:0; height:4px; border-radius:14px 14px 0 0;
+            background:{% if channel.platform_type == 'facebook' %}#1877f2
+            {% elif channel.platform_type == 'instagram' %}linear-gradient(90deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)
+            {% elif channel.platform_type == 'google' %}#4285f4
+            {% elif channel.platform_type == 'shopify' %}#96bf48
+            {% elif channel.platform_type == 'ebay' %}#e53238
+            {% else %}#7c3aed{% endif %};"></div>
+
+          <div class="d-flex align-items-start justify-content-between mt-2">
+            <!-- Platform Icon -->
+            <div class="d-flex align-items-center gap-3">
+              <div class="stat-icon" style="width:48px; height:48px; border-radius:12px;
+                background:{% if channel.platform_type == 'facebook' %}#e7f0fd
+                {% elif channel.platform_type == 'instagram' %}#fce4ec
+                {% elif channel.platform_type == 'google' %}#e8f0fe
+                {% elif channel.platform_type == 'shopify' %}#f0f7ea
+                {% elif channel.platform_type == 'ebay' %}#fdecea
+                {% else %}#ede9fe{% endif %};">
+                <i class="bi
+                  {% if channel.platform_type == 'facebook' %}bi-facebook
+                  {% elif channel.platform_type == 'instagram' %}bi-instagram
+                  {% elif channel.platform_type == 'google' %}bi-google
+                  {% elif channel.platform_type == 'shopify' %}bi-bag
+                  {% elif channel.platform_type == 'ebay' %}bi-shop
+                  {% else %}bi-broadcast{% endif %}"
+                   style="font-size:1.3rem;
+                     color:{% if channel.platform_type == 'facebook' %}#1877f2
+                     {% elif channel.platform_type == 'instagram' %}#e1306c
+                     {% elif channel.platform_type == 'google' %}#4285f4
+                     {% elif channel.platform_type == 'shopify' %}#96bf48
+                     {% elif channel.platform_type == 'ebay' %}#e53238
+                     {% else %}#7c3aed{% endif %};">
+                </i>
+              </div>
+              <div>
+                <div class="fw-700" style="color:#1e1b4b; font-size:0.95rem;">
+                  {{ channel.name }}
+                </div>
+                <div style="color:#6b7280; font-size:0.78rem;">
+                  {{ channel.get_platform_type_display }}
+                </div>
+              </div>
+            </div>
+
+            <!-- Status Badge -->
+            {% if channel.is_active %}
+              <span class="badge-active">Active</span>
+            {% else %}
+              <span class="badge-inactive">Inactive</span>
+            {% endif %}
+          </div>
+
+          <!-- Channel Meta -->
+          <div class="mt-3 pt-3" style="border-top:1px solid #f3f4f6;">
+            <div class="d-flex align-items-center justify-content-between">
+              <div style="font-size:0.78rem; color:#9ca3af;">
+                <i class="bi bi-calendar3 me-1"></i>
+                Added {{ channel.created_at|date:"d M Y" }}
+              </div>
+              <!-- Actions -->
+              <div class="d-flex gap-2">
+                <a href="{% url 'channel_toggle' channel.id %}"
+                   class="btn btn-sm btn-light border"
+                   title="{% if channel.is_active %}Deactivate{% else %}Activate{% endif %}">
+                  <i class="bi {% if channel.is_active %}bi-pause-circle{% else %}bi-play-circle{% endif %}"></i>
+                </a>
+                <a href="{% url 'channel_delete' channel.id %}"
+                   class="btn btn-sm btn-light border text-danger"
+                   onclick="return confirm('Remove {{ channel.name }}?')"
+                   title="Remove channel">
+                  <i class="bi bi-trash"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    {% else %}
+    <!-- Empty State -->
+    <div class="text-center py-5" style="background:white; border-radius:14px; border:1px solid #e5e7eb;">
+      <i class="bi bi-broadcast" style="font-size:3rem; color:#d1d5db;"></i>
+      <h6 class="mt-3 fw-700" style="color:#374151;">No channels connected yet</h6>
+      <p class="text-muted" style="font-size:0.9rem;">
+        Connect your first platform to start publishing products everywhere.
+      </p>
+    </div>
+    {% endif %}
+
+  </div>
+
+  <!-- Right — Add Channel Form -->
+  <div class="col-lg-4">
+    <div class="form-card">
+      <h6 class="fw-700 mb-1" style="color:#1e1b4b;">
+        <i class="bi bi-plus-circle me-2" style="color:#7c3aed;"></i>
+        Connect a Channel
+      </h6>
+      <p class="text-muted mb-4" style="font-size:0.84rem;">
+        Link a selling platform to start publishing products there.
+      </p>
+
+      <form method="post">
+        {% csrf_token %}
+
+        <div class="mb-3">
+          <label class="form-label">Channel Name <span class="text-danger">*</span></label>
+          <input type="text" name="name" class="form-control"
+                 placeholder="e.g. My Instagram Shop" required>
+          <small class="text-muted">Give this connection a recognizable name.</small>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Platform <span class="text-danger">*</span></label>
+          <select name="platform_type" class="form-select" required>
+            <option value="">— Select Platform —</option>
+            {% for value, label in platform_choices %}
+            <option value="{{ value }}">{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label">Status</label>
+          <select name="is_active" class="form-select">
+            <option value="true">Active</option>
+            <option value="false">Inactive</option>
+          </select>
+        </div>
+
+        <button type="submit" class="btn-primary-custom btn w-100">
+          <i class="bi bi-plug me-1"></i> Connect Channel
+        </button>
+      </form>
+
+      <!-- Platform Guide -->
+      <div class="mt-4 p-3 rounded-2" style="background:#f9fafb; border:1px solid #e5e7eb;">
+        <div class="fw-700 mb-2" style="font-size:0.85rem; color:#374151;">
+          <i class="bi bi-info-circle me-1" style="color:#7c3aed;"></i>
+          Supported Platforms
+        </div>
+        {% for value, label in platform_choices %}
+        <div class="d-flex align-items-center gap-2 mb-1">
+          <i class="bi
+            {% if value == 'facebook' %}bi-facebook text-primary
+            {% elif value == 'instagram' %}bi-instagram text-danger
+            {% elif value == 'google' %}bi-google text-info
+            {% elif value == 'shopify' %}bi-bag text-success
+            {% elif value == 'ebay' %}bi-shop text-warning
+            {% else %}bi-broadcast text-secondary{% endif %}"
+             style="font-size:0.9rem;"></i>
+          <span style="font-size:0.83rem; color:#6b7280;">{{ label }}</span>
+        </div>
+        {% endfor %}
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}

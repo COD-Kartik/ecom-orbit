@@ -9,7 +9,7 @@ from .views import (
     channel_toggle,
 )
 
-app_name = "channels"
+
 
 router = DefaultRouter()
 router.register(
