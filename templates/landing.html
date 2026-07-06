@@ -1,475 +1,1005 @@
-<html class="light" lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>E-Com Orbit - Sell Everywhere, Manage Here</title>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;family=JetBrains+Mono:wght@100..900&amp;display=swap" rel="stylesheet"/>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<script id="tailwind-config">
-      tailwind.config = {
-        darkMode: "class",
-        theme: {
-          extend: {
-            "colors": {
-                    "surface-dim": "#d2d9f4",
-                    "surface-container": "#eaedff",
-                    "on-primary": "#ffffff",
-                    "on-error-container": "#93000a",
-                    "tertiary-fixed-dim": "#4edea3",
-                    "on-surface": "#131b2e",
-                    "surface-container-high": "#e2e7ff",
-                    "surface-variant": "#dae2fd",
-                    "error-container": "#ffdad6",
-                    "secondary-fixed-dim": "#c4c7c9",
-                    "on-secondary": "#ffffff",
-                    "surface-container-lowest": "#ffffff",
-                    "on-tertiary-fixed-variant": "#005236",
-                    "primary-fixed-dim": "#b4c5ff",
-                    "inverse-primary": "#b4c5ff",
-                    "primary-fixed": "#dbe1ff",
-                    "outline": "#737686",
-                    "on-tertiary": "#ffffff",
-                    "error": "#ba1a1a",
-                    "surface-tint": "#0053db",
-                    "on-background": "#131b2e",
-                    "tertiary": "#006242",
-                    "outline-variant": "#c3c6d7",
-                    "secondary-container": "#e0e3e5",
-                    "background": "#faf8ff",
-                    "on-secondary-fixed-variant": "#444749",
-                    "on-secondary-container": "#626567",
-                    "surface": "#faf8ff",
-                    "surface-container-low": "#f2f3ff",
-                    "on-tertiary-container": "#bdffdb",
-                    "on-error": "#ffffff",
-                    "secondary-fixed": "#e0e3e5",
-                    "tertiary-fixed": "#6ffbbe",
-                    "primary": "#004ac6",
-                    "on-primary-fixed-variant": "#003ea8",
-                    "on-surface-variant": "#434655",
-                    "inverse-on-surface": "#eef0ff",
-                    "inverse-surface": "#283044",
-                    "surface-container-highest": "#dae2fd",
-                    "on-tertiary-fixed": "#002113",
-                    "surface-bright": "#faf8ff",
-                    "primary-container": "#2563eb",
-                    "on-primary-container": "#eeefff",
-                    "on-primary-fixed": "#00174b",
-                    "secondary": "#5c5f61",
-                    "tertiary-container": "#007d55",
-                    "on-secondary-fixed": "#191c1e"
-            },
-            "borderRadius": {
-                    "DEFAULT": "0.25rem",
-                    "lg": "0.5rem",
-                    "xl": "0.75rem",
-                    "full": "9999px"
-            },
-            "spacing": {
-                    "max-width": "1440px",
-                    "margin-desktop": "48px",
-                    "gutter": "24px",
-                    "unit": "4px",
-                    "margin-mobile": "16px"
-            },
-            "fontFamily": {
-                    "label-md": ["JetBrains Mono"],
-                    "display": ["Geist"],
-                    "headline-lg-mobile": ["Geist"],
-                    "body-md": ["Geist"],
-                    "body-lg": ["Geist"],
-                    "headline-md": ["Geist"],
-                    "headline-lg": ["Geist"],
-                    "code-sm": ["JetBrains Mono"]
-            },
-            "fontSize": {
-                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "500"}],
-                    "display": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
-                    "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
-                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
-                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
-                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "500"}],
-                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
-                    "code-sm": ["13px", {"lineHeight": "18px", "fontWeight": "400"}]
-            }
-          },
-        },
-      }
-    </script>
-<style type="text/tailwindcss">
-        @layer utilities {
-            .glass {
-                @apply bg-white/40 backdrop-blur-xl border border-white/60 shadow-[0_8px_32px_rgba(0,83,219,0.08)];
-            }
-            .glass-heavy {
-                @apply bg-white/70 backdrop-blur-[40px] border border-white/80 shadow-[0_12px_48px_rgba(0,83,219,0.12)];
-            }
-            .btn-primary {
-                @apply bg-primary text-on-primary font-label-md text-label-md px-6 py-3 rounded-lg shadow-[0_4px_14px_0_rgba(0,74,198,0.39)] hover:bg-primary-container hover:shadow-[0_6px_20px_rgba(0,74,198,0.23)] transition-all flex items-center justify-center gap-2;
-            }
-            .btn-secondary {
-                @apply bg-surface-container-lowest text-on-surface font-label-md text-label-md px-6 py-3 rounded-lg border border-outline-variant hover:bg-surface-container-low transition-all flex items-center justify-center gap-2 shadow-sm;
-            }
-            .animate-fade-in {
-                animation: fadeSlideUp 0.8s ease-out forwards;
-                opacity: 0;
-            }
-            .delay-100 { animation-delay: 100ms; }
-            .delay-200 { animation-delay: 200ms; }
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Com Orbit - Multi-Platform E-Commerce Selling & Automation</title>
+    <meta name="description" content="Centralize your products, inventory, orders, and analytics across Facebook, Instagram, Google Shopping, Amazon, Shopify and more in one visual dashboard.">
+    <link rel="stylesheet" href="{% static 'css/landing.css' %}">
+</head>
+<body>
+
+    <!-- ==========================================================================
+         NAVIGATION HEADER (GLASSMORPHIC)
+         ========================================================================== -->
+    <header class="navbar" id="navbar">
+        <div class="container nav-container">
+            <a href="#" class="logo">
+                <!-- Brand logo planet SVG -->
+                <svg class="logo-icon" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="nav-orbit-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#00f2fe" />
+                            <stop offset="100%" stop-color="#6366f1" />
+                        </linearGradient>
+                    </defs>
+                    <ellipse cx="20" cy="20" rx="18" ry="6" fill="none" stroke="url(#nav-orbit-grad)" stroke-width="2" transform="rotate(-30 20 20)"/>
+                    <circle cx="20" cy="20" r="8" fill="url(#nav-orbit-grad)"/>
+                </svg>
+                <span class="logo-text">E-Com Orbit</span>
+            </a>
+
+            <!-- Nav Links -->
+            <ul class="nav-links">
+                <li><a href="#features">Features</a></li>
+                <li><a href="#showdown">Chaos vs Orbit</a></li>
+                <li><a href="#pipeline">How it Works</a></li>
+                <li><a href="#pricing">Pricing</a></li>
+                <li><a href="#testimonials">Success Stories</a></li>
+            </ul>
+
+            <!-- Header Actions: Log In & Sign Up side-by-side -->
+            <div class="nav-actions">
+                <a href="/auth/login/" class="btn btn-login">Log In</a>
+                <a href="/auth/register/business/" class="btn btn-primary">Sign Up</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- ==========================================================================
+         HERO SECTION (DARK SPACE THEME)
+         ========================================================================== -->
+    <section class="hero">
+        <div class="container hero-grid">
             
-            @keyframes fadeSlideUp {
-                from { opacity: 0; transform: translateY(30px); }
-                to { opacity: 1; transform: translateY(0); }
-            }
+            <!-- Left Info Column -->
+            <div class="hero-content">
+                <div class="hero-badge">Orbit version 2.0 is live</div>
+                <h1>Sell Everywhere.<br><span class="text-gradient">Manage Anywhere.</span></h1>
+                <p>Consolidate your listings, synchronize stock levels in real time, and fulfill orders from Facebook, Instagram, Google Shopping, Amazon, and Flipkart—all from a single visual dashboard.</p>
+                
+                <div class="hero-actions">
+                    <!-- CTA: Sign up for free (opens popup modal) -->
+                    <a href="/auth/register/business/" class="btn btn-primary btn-hero-lg">Create Free Account</a>
+                    
+                    <!-- View Live Demo (redirects to dashboard in a new tab) -->
+                    <a href="/dashboard/" class="btn-video" target="_blank" title="Open live interactive demo dashboard">
+                        <span class="video-play-icon" style="background-color: var(--primary); color: #fff; border-color: var(--primary)">
+                            <!-- Compass/Dashboard Icon -->
+                            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/>
+                            </svg>
+                        </span>
+                        Explore Live Demo Dashboard
+                    </a>
+                </div>
 
-            .hero-pattern {
-                background-image: radial-gradient(#004ac6 0.5px, transparent 0.5px);
-                background-size: 24px 24px;
-                opacity: 0.05;
-            }
+                <!-- Trust signals -->
+                <div class="hero-social-proof">
+                    <div class="avatar-stack">
+                        <!-- Stylized seller avatars -->
+                        <div class="avatar-stack-img" style="background-color:#4f46e5; display:flex; align-items:center; justify-content:center; color:white; font-size:10px; font-weight:700">A</div>
+                        <div class="avatar-stack-img" style="background-color:#10b981; display:flex; align-items:center; justify-content:center; color:white; font-size:10px; font-weight:700">R</div>
+                        <div class="avatar-stack-img" style="background-color:#f59e0b; display:flex; align-items:center; justify-content:center; color:white; font-size:10px; font-weight:700">S</div>
+                        <div class="avatar-stack-img" style="background-color:#ec4899; display:flex; align-items:center; justify-content:center; color:white; font-size:10px; font-weight:700">K</div>
+                    </div>
+                    <div class="hero-proof-text">
+                        Trusted by <strong>1,200+ high-growth sellers</strong> syncing over <strong>₹2.4M</strong> in sales monthly.
+                    </div>
+                </div>
+            </div>
 
-            .float-animation {
-                animation: float 6s ease-in-out infinite;
-            }
-            @keyframes float {
-                0%, 100% { transform: translateY(0px); }
-                50% { transform: translateY(-20px); }
-            }
+            <!-- Right Interactive Orbit System Column -->
+            <div class="hero-visual-wrapper">
+                <div class="orbit-system">
+                    
+                    <!-- Core Dashboard widget in center (links to dashboard in new tab for demo) -->
+                    <div class="orbit-core" onclick="window.open('/dashboard/', '_blank')" style="cursor:pointer;" title="Click to view live Demo Dashboard">
+                        <svg class="orbit-core-icon" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+                            <ellipse cx="20" cy="20" rx="18" ry="6" fill="none" stroke="#00f2fe" stroke-width="2" transform="rotate(-30 20 20)"/>
+                            <circle cx="20" cy="20" r="8" fill="#6366f1"/>
+                        </svg>
+                        <span>View Demo</span>
+                    </div>
 
-            .marquee {
-                display: flex;
-                overflow: hidden;
-                user-select: none;
-                gap: var(--gap);
+                    <!-- Inner Orbit Ring (Rotating Facebook, Instagram, Google Shopping, Shopify) -->
+                    <div class="orbit-track inner">
+                        <!-- Facebook satellite -->
+                        <div class="satellite fb" title="Facebook Shop Connected">
+                            <div class="satellite-inner">
+                                <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <!-- Instagram satellite -->
+                        <div class="satellite ig" title="Instagram Shop Connected">
+                            <div class="satellite-inner">
+                                <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <!-- Google Shopping satellite -->
+                        <div class="satellite google" title="Google Shopping Connected">
+                            <div class="satellite-inner">
+                                <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12.24 10.285V14.4h6.887c-.648 2.41-2.519 4.113-5.136 4.113-3.28 0-5.938-2.699-5.938-6.027 0-3.328 2.659-6.027 5.938-6.027 1.493 0 2.86.55 3.905 1.446l3.07-3.081C19.123 2.012 15.865 1 12.24 1 6.033 1 1 6.05 1 12.28 1 18.51 6.033 23.56 12.24 23.56z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <!-- Shopify satellite -->
+                        <div class="satellite shopify" title="Shopify Store Connected">
+                            <div class="satellite-inner">
+                                <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M18.89 2.76A1 1 0 0018 2.22l-5.69.75-5.6-1.74a1 1 0 00-.91.13L1.57 6.09a1 1 0 00-.47.84V19a1 1 0 00.59.91l8 3.59a1 1 0 00.82 0l9.33-4.18A1 1 0 0020 18.4V3.53a1 1 0 00-.06-.32z"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Outer Orbit Ring (Rotating Amazon, WooCommerce, Flipkart, eBay) -->
+                    <div class="orbit-track outer">
+                        <!-- Amazon satellite -->
+                        <div class="satellite amazon" title="Amazon Store Connected">
+                            <div class="satellite-outer">
+                                <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M15.42 13.41c-.42.27-.96.48-1.62.63-.66.15-1.41.22-2.25.22-.84 0-1.53-.12-2.07-.36-.54-.24-.9-.63-1.08-1.17.42-.09.93-.15 1.53-.18.6-.03 1.23-.09 1.89-.18.66-.09 1.23-.24 1.71-.45.48-.21.81-.54.99-.99-.06-.57-.3-1.02-.72-1.35-.42-.33-.99-.48-1.71-.48-.51 0-.96.09-1.35.27-.39.18-.72.48-.99.9L7.8 8.88c.45-.63 1.02-1.11 1.71-1.44.69-.33 1.53-.48 2.52-.48 1.47 0 2.58.39 3.33 1.17.75.78 1.12 1.86 1.12 3.24v2.79c0 .48.06.93.18 1.35h-1.92l-.32-.54z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <!-- WooCommerce satellite -->
+                        <div class="satellite woo" title="WooCommerce Connected">
+                            <div class="satellite-outer">
+                                <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 14.5h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <!-- Flipkart satellite -->
+                        <div class="satellite flipkart" title="Flipkart Connected">
+                            <div class="satellite-outer">
+                                <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 .587l3.668 7.431 8.2 1.192-5.934 5.784 1.4 8.168-7.334-3.856-7.334 3.856 1.4-8.168-5.934-5.784 8.2-1.192z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <!-- eBay satellite -->
+                        <div class="satellite ebay" title="eBay Connected">
+                            <div class="satellite-outer">
+                                <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M6.3 12c0-1.8 1.4-3.3 3.2-3.3s3.2 1.5 3.2 3.3c0 1.8-1.4 3.3-3.2 3.3S6.3 13.8 6.3 12m11.4-1.2v2.4h-1.6V12c0-.5-.3-.9-.7-.9s-.7.4-.7.9v1.2H13V10.8h1.6V11c.3-.4.8-.6 1.3-.6.9.1 1.8.8 1.8 1.6M1 10.8h1.6V12c0 .5.3.9.7.9s.7-.4.7-.9v-1.2h1.6v2.4H4v-.2c-.3.4-.8.6-1.3.6-.9-.1-1.7-.8-1.7-1.7zm22 0h-1.6v2.4H20v-.2c-.3.4-.8.6-1.3.6-.9-.1-1.7-.8-1.7-1.7 0-1.8 1.4-3.3 3.2-3.3s3.2 1.5 3.2 3.3v1.3H23z" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Floating overlay graphics -->
+                    <div class="floating-metric fm-sales">
+                        <div class="fm-icon green">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+                            </svg>
+                        </div>
+                        <div class="fm-info">
+                            <div>Sales Sync</div>
+                            <span>₹2,45,680</span>
+                        </div>
+                    </div>
+
+                    <div class="floating-metric fm-stock">
+                        <div class="fm-icon blue">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75"/>
+                            </svg>
+                        </div>
+                        <div class="fm-info">
+                            <div>Stock Synced</div>
+                            <span>100% Live</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ==========================================================================
+         SPLIT PANEL: CHAOS VS ORBIT
+         ========================================================================== -->
+    <section class="showdown" id="showdown">
+        <div class="container">
+            
+            <div class="section-header">
+                <h2>Why Sellers Are Moving to the Orbit</h2>
+                <p>Selling on multiple channels generates high revenue but breeds massive operational friction. See how E-Com Orbit fixes the workflow chaos.</p>
+            </div>
+
+            <div class="showdown-grid">
+                
+                <!-- Left: The Chaos -->
+                <div class="showdown-card chaos">
+                    <div class="showdown-title">
+                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                        </svg>
+                        The Channel Chaos
+                    </div>
+                    <ul class="showdown-list">
+                        <li class="showdown-item">
+                            <svg class="showdown-item-icon" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                            <div class="showdown-item-text">
+                                <h4>Repetitive Listings</h4>
+                                <p>Manually copying product titles, photos, descriptions, and SKU pricing onto Facebook, Instagram, and Amazon separately.</p>
+                            </div>
+                        </li>
+                        <li class="showdown-item">
+                            <svg class="showdown-item-icon" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                            <div class="showdown-item-text">
+                                <h4>Inventory Mismatches</h4>
+                                <p>Selling a product on Instagram and overselling it on Shopify before you have a chance to manually adjust the quantities.</p>
+                            </div>
+                        </li>
+                        <li class="showdown-item">
+                            <svg class="showdown-item-icon" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                            <div class="showdown-item-text">
+                                <h4>Scattered Order Books</h4>
+                                <p>Logging into 5 separate administrative panels daily to gather invoices, pack shipments, and track client delivery dates.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Right: The Orbit Solution -->
+                <div class="showdown-card orbit">
+                    <div class="showdown-title">
+                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        The Orbit Integration
+                    </div>
+                    <ul class="showdown-list">
+                        <li class="showdown-item">
+                            <svg class="showdown-item-icon" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+                            <div class="showdown-item-text">
+                                <h4>One-Click Multi-Publishing</h4>
+                                <p>Upload a product details form once, choose your target platforms, and publish instantly across connected stores.</p>
+                            </div>
+                        </li>
+                        <li class="showdown-item">
+                            <svg class="showdown-item-icon" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+                            <div class="showdown-item-text">
+                                <h4>Real-Time Auto Stock Sync</h4>
+                                <p>Stock counts are automatically updated across all channels as soon as an order is processed on any storefront.</p>
+                            </div>
+                        </li>
+                        <li class="showdown-item">
+                            <svg class="showdown-item-icon" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+                            <div class="showdown-item-text">
+                                <h4>Unified Fulfillment Hub</h4>
+                                <p>Gather customer details, channel tags, delivery addresses, and invoices into a single streamlined table.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ==========================================================================
+         CORE FEATURES SECTION
+         ========================================================================== -->
+    <section id="features">
+        <div class="container">
+            
+            <div class="section-header">
+                <h2>Built for Omni-channel Growth</h2>
+                <p>Everything you need to list products, sync inventory, fulfill orders, and track business analytics globally.</p>
+            </div>
+
+            <div class="features-grid">
+                
+                <!-- Feature 1 -->
+                <div class="feature-card">
+                    <div class="feature-icon-wrapper">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+                        </svg>
+                    </div>
+                    <h3>Central Product Hub</h3>
+                    <p>Add a product details sheet once to your central catalog, modify it instantly, and automatically map it to each sales platform.</p>
+                </div>
+
+                <!-- Feature 2 -->
+                <div class="feature-card">
+                    <div class="feature-icon-wrapper">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M19.5 12c0-1.232-.046-2.453-.138-3.662a4.006 4.006 0 00-3.7-3.7 48.656 48.656 0 00-7.324 0 4.006 4.006 0 00-3.7 3.7c-.017.22-.032.441-.046.662M19.5 12l3-3m-3 3l-3-3M4.5 12c0 1.232.046 2.453.138 3.662a4.006 4.006 0 003.7 3.7 48.656 48.656 0 007.324 0 4.006 4.006 0 003.7-3.7c.017-.22.032-.441.046-.662M4.5 12l-3 3m3-3l3-3" />
+                        </svg>
+                    </div>
+                    <h3>Inventory Sync</h3>
+                    <p>Prevent overselling. When an order is completed on Google, E-Com Orbit instantly updates inventory on Facebook and Shopify.</p>
+                </div>
+
+                <!-- Feature 3 -->
+                <div class="feature-card">
+                    <div class="feature-icon-wrapper">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9 12h3.75M9 15h3.75M9 9h.75m.75 0h.75m.75 0h.75m-6.75-3H18.75c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18V7.125C3 6.504 3.504 6 4.125 6z" />
+                        </svg>
+                    </div>
+                    <h3>Combined Order Desk</h3>
+                    <p>Fulfill, tag, cancel, or refund orders from various connected storefronts inside one streamlined order table.</p>
+                </div>
+
+                <!-- Feature 4 -->
+                <div class="feature-card">
+                    <div class="feature-icon-wrapper">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+                        </svg>
+                    </div>
+                    <h3>Omni-Channel Analytics</h3>
+                    <p>Understand which channel is performing best. Track aggregated sales, conversion rates, and revenue trends in one chart.</p>
+                </div>
+
+                <!-- Feature 5 -->
+                <div class="feature-card">
+                    <div class="feature-icon-wrapper">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9.813 15.904L9 21l8.904-4.437M18 10a3 3 0 11-6 0 3 3 0 016 0zM4 10h.008v.008H4V10zm5.244-6.853a8.25 8.25 0 1110.512 10.511" />
+                        </svg>
+                    </div>
+                    <h3>Automated Synced Logs</h3>
+                    <p>Run automated checks on stock, status, and shipping logs. Reduce manual administrative hours by 85%.</p>
+                </div>
+
+                <!-- Feature 6 -->
+                <div class="feature-card">
+                    <div class="feature-icon-wrapper">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M14.25 9.75v-4.5m0 4.5h4.5m-4.5 0l6-6M3 5.25a2.25 2.25 0 012.25-2.25H9a2.25 2.25 0 012.25 2.25v3.75a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 9V5.25zM3 18.75V15a2.25 2.25 0 012.25-2.25H9A2.25 2.25 0 0110.25 15v3.75A2.25 2.25 0 019 21H5.25A2.25 2.25 0 013 18.75z" />
+                        </svg>
+                    </div>
+                    <h3>Help & Resource Desk</h3>
+                    <p>Access our built-in help center, tutorials, and round-the-clock support desk directly inside your dashboard.</p>
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ==========================================================================
+         HOW IT WORKS WALKTHROUGH
+         ========================================================================== -->
+    <section class="walkthrough" id="pipeline">
+        <div class="container">
+            
+            <div class="section-header">
+                <h2>Set Up Your Orbit in 3 Steps</h2>
+                <p>E-Com Orbit connects seamlessly to your existing workflows. No complicated setups, no code required.</p>
+            </div>
+
+            <div class="pipeline">
+                
+                <!-- Step 1 -->
+                <div class="pipeline-step">
+                    <div class="pipeline-num">01</div>
+                    <h3>Connect Channels</h3>
+                    <p>Log in and connect Facebook, Instagram, Google Shopping, Amazon, or Shopify in seconds.</p>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="pipeline-step">
+                    <div class="pipeline-num">02</div>
+                    <h3>Centralize Catalog</h3>
+                    <p>Import your existing catalog from Shopify, or upload your products directly to the Orbit center.</p>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="pipeline-step">
+                    <div class="pipeline-num">03</div>
+                    <h3>Sell & Automate</h3>
+                    <p>Our automation engines sync stock levels, compile orders, and track sales charts in real time.</p>
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ==========================================================================
+         PRICING PLANS SECTION (4 Tiers, Lower Pricing, Free Signup Option)
+         ========================================================================== -->
+    <section id="pricing">
+        <div class="container">
+            
+            <div class="pricing-header">
+                <div class="section-header" style="margin-bottom: 30px">
+                    <h2>Low & Affordable Pricing Plans</h2>
+                    <p>Choose an affordable plan to power your multi-channel sales. Sign up for the free plan to test listings.</p>
+                </div>
+
+                <!-- Monthly / Annual Toggle Switch -->
+                <div class="billing-toggle-wrapper">
+                    <span class="billing-label active" id="label-monthly" onclick="setBilling(false)">Monthly</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="billing-checkbox" onchange="toggleBilling()">
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <span class="billing-label" id="label-annual" onclick="setBilling(true)">
+                        Annual
+                        <span class="discount-badge">Save 20%</span>
+                    </span>
+                </div>
+            </div>
+
+            <!-- Pricing cards grid (4 Columns) -->
+            <div class="pricing-grid">
+                
+                <!-- Card 0: Free Plan (New Option) -->
+                <div class="pricing-card">
+                    <h3 class="pricing-plan-name">Free Plan</h3>
+                    <p class="pricing-plan-desc">For testing out listings and basic sync configurations.</p>
+                    <div class="pricing-plan-price">₹0<span class="price-term">/ forever</span></div>
+                    
+                    <ul class="pricing-features-list">
+                        <li class="pricing-feature-item">
+                            <svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                            1 connected sales channel
+                        </li>
+                        <li class="pricing-feature-item">
+                            <svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                            10 synced orders/month
+                        </li>
+                        <li class="pricing-feature-item">
+                            <svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                            Core catalog uploads
+                        </li>
+                        <li class="pricing-feature-item disabled">
+                            <svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                            Analytics & reporting dashboard
+                        </li>
+                        <li class="pricing-feature-item disabled">
+                            <svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                            Priority help desk support
+                        </li>
+                    </ul>
+
+                    <a href="#" class="btn btn-outline btn-pricing-cta" onclick="openAuthModal('signup'); return false;">Sign Up Free</a>
+                </div>
+
+                <!-- Card 1: Starter (Lower Price: ₹490) -->
+                <div class="pricing-card">
+                    <h3 class="pricing-plan-name">Starter</h3>
+                    <p class="pricing-plan-desc">For sellers growing on social marketplaces.</p>
+                    <div class="pricing-plan-price" id="price-starter">₹490<span class="price-term">/ month</span></div>
+                    
+                    <ul class="pricing-features-list">
+                        <li class="pricing-feature-item">
+                            <svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                            Up to 3 connected channels
+                        </li>
+                        <li class="pricing-feature-item">
+                            <svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                            150 synced orders/month
+                        </li>
+                        <li class="pricing-feature-item">
+                            <svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                            Real-time inventory sync
+                        </li>
+                        <li class="pricing-feature-item disabled">
+                            <svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                            Analytics & reporting dashboard
+                        </li>
+                        <li class="pricing-feature-item disabled">
+                            <svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                            Priority help desk support
+                        </li>
+                    </ul>
+
+                    <a href="#" class="btn btn-outline btn-pricing-cta" onclick="openAuthModal('signup'); return false;">Select Starter</a>
+                </div>
+
+                <!-- Card 2: Pro Seller (Lower Price: ₹1,290) -->
+                <div class="pricing-card recommended">
+                    <h3 class="pricing-plan-name">Pro Seller</h3>
+                    <p class="pricing-plan-desc">For scaling omni-channel e-commerce brands.</p>
+                    <div class="pricing-plan-price" id="price-pro">₹1,290<span class="price-term">/ month</span></div>
+                    
+                    <ul class="pricing-features-list">
+                        <li class="pricing-feature-item">
+                            <svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                            <strong>Unlimited</strong> connected channels
+                        </li>
+                        <li class="pricing-feature-item">
+                            <svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                            <strong>1,500</strong> synced orders/month
+                        </li>
+                        <li class="pricing-feature-item">
+                            <svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                            Real-time inventory sync
+                        </li>
+                        <li class="pricing-feature-item">
+                            <svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                            Advanced Analytics dashboard
+                        </li>
+                        <li class="pricing-feature-item">
+                            <svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                            Priority help desk support
+                        </li>
+                    </ul>
+
+                    <a href="#" class="btn btn-primary btn-pricing-cta" onclick="openAuthModal('signup'); return false;">Select Pro</a>
+                </div>
+
+                <!-- Card 3: Enterprise (Lower Price: ₹4,990) -->
+                <div class="pricing-card">
+                    <h3 class="pricing-plan-name">Enterprise</h3>
+                    <p class="pricing-plan-desc">For large multi-million seller operations.</p>
+                    <div class="pricing-plan-price" id="price-enterprise">₹4,990<span class="price-term">/ month</span></div>
+                    
+                    <ul class="pricing-features-list">
+                        <li class="pricing-feature-item">
+                            <svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                            <strong>Unlimited</strong> connected channels
+                        </li>
+                        <li class="pricing-feature-item">
+                            <svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                            <strong>Unlimited</strong> synced orders/month
+                        </li>
+                        <li class="pricing-feature-item">
+                            <svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                            Real-time inventory sync
+                        </li>
+                        <li class="pricing-feature-item">
+                            <svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                            Custom reports & API access
+                        </li>
+                        <li class="pricing-feature-item">
+                            <svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                            24/7 Account manager
+                        </li>
+                    </ul>
+
+                    <a href="#" class="btn btn-outline btn-pricing-cta" onclick="openAuthModal('signup'); return false;">Contact Sales</a>
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ==========================================================================
+         TESTIMONIALS SECTION
+         ========================================================================== -->
+    <section class="testimonials" id="testimonials">
+        <div class="container">
+            
+            <div class="section-header">
+                <h2>Real Results from Real Sellers</h2>
+                <p>E-Com Orbit powers operations for hundreds of growing merchants. Here is what they have to say.</p>
+            </div>
+
+            <!-- Testimonial card bubble -->
+            <div class="testimonial-card">
+                <div class="testimonial-stars">
+                    <!-- 5 stars -->
+                    <svg viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                    <svg viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                    <svg viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                    <svg viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                    <svg viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                </div>
+                <p class="testimonial-text">"Before E-Com Orbit, I spent hours daily listing new items to Instagram Shop and Facebook Shop, copy-pasting customer addresses into shipping forms, and adjusting inventory numbers manually. We lost countless sales due to stock mismatches. Since connecting E-Com Orbit, everything syncs in the background automatically. Our operations are completely automated, and sales grew by 18.6% last month alone!"</p>
+                
+                <div class="testimonial-author">
+                    <div class="author-info">
+                        <div class="author-avatar">
+                            <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 01-.437-.695z" clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                        <div class="author-details">
+                            <h4 id="testimonial-author-name">Kartik Mathur</h4>
+                            <p>Founder, Kartik's Store (Pro Seller)</p>
+                        </div>
+                    </div>
+                    
+                    <div class="testimonial-metric-pill">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25"></path>
+                        </svg>
+                        +18.6% sales growth
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ==========================================================================
+         FINAL CTA BANNER CARD
+         ========================================================================== -->
+    <section>
+        <div class="container">
+            <div class="cta-banner">
+                <h2>Ready to enter the Orbit?</h2>
+                <p>Consolidate your selling platforms, eliminate stock mismatches, and automate your administrative workload today. Sign up for a free account now.</p>
+                <a href="#" class="btn btn-primary btn-hero-lg btn-cta-lg" onclick="openAuthModal('signup'); return false;">Sign Up Free Now</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==========================================================================
+         FOOTER SECTION
+         ========================================================================== -->
+    <footer class="footer">
+        <div class="container">
+            
+            <div class="footer-grid">
+                
+                <!-- Brand details column -->
+                <div class="footer-brand">
+                    <a href="#" class="logo">
+                        <svg class="logo-icon" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+                            <ellipse cx="20" cy="20" rx="18" ry="6" fill="none" stroke="#00f2fe" stroke-width="2" transform="rotate(-30 20 20)"/>
+                            <circle cx="20" cy="20" r="8" fill="#6366f1"/>
+                        </svg>
+                        <span class="logo-text">E-Com Orbit</span>
+                    </a>
+                    <p class="footer-brand-text">A centralized social commerce and multi-platform selling platform designed to automate inventory, orders, listings, and analytics globally.</p>
+                    
+                    <div class="footer-socials">
+                        <a href="#" class="social-icon">
+                            <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/></svg>
+                        </a>
+                        <a href="#" class="social-icon">
+                            <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069z"/></svg>
+                        </a>
+                        <a href="#" class="social-icon">
+                            <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.779-1.75-1.75s.784-1.75 1.75-1.75 1.75.779 1.75 1.75-.784 1.75-1.75 1.75zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Footer Columns Links -->
+                <div class="footer-col">
+                    <h3>Product</h3>
+                    <ul>
+                        <li><a href="#features">Features</a></li>
+                        <li><a href="#pricing">Pricing Plans</a></li>
+                        <li><a href="/dashboard/" target="_blank">Live Demo Dashboard</a></li>
+                        <li><a href="#pipeline">Walkthrough</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-col">
+                    <h3>Integrations</h3>
+                    <ul>
+                        <li><a href="#features">Facebook Shop</a></li>
+                        <li><a href="#features">Instagram Shop</a></li>
+                        <li><a href="#features">Google Shopping</a></li>
+                        <li><a href="#features">Amazon Store</a></li>
+                        <li><a href="#features">Shopify Integrations</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-col">
+                    <h3>Company</h3>
+                    <ul>
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Careers</a></li>
+                        <li><a href="#">Security</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                    </ul>
+                </div>
+
+                <!-- Newsletter subscriber form -->
+                <div class="footer-newsletter">
+                    <h3>Stay Synced</h3>
+                    <p class="footer-brand-text">Subscribe to our newsletter for omni-channel sales tips and updates.</p>
+                    <form class="newsletter-form" onsubmit="event.preventDefault(); alert('Subscribed successfully!');">
+                        <input type="email" class="newsletter-input" placeholder="Enter your business email" required>
+                        <button type="submit" class="btn btn-primary btn-newsletter">Subscribe</button>
+                    </form>
+                </div>
+
+            </div>
+
+            <!-- Footer bottom details -->
+            <div class="footer-bottom">
+                <div>&copy; 2026 E-Com Orbit Inc. All rights reserved. Built with pride for sellers.</div>
+                <div class="footer-bottom-links">
+                    <a href="#">Terms of Service</a>
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Cookie Policy</a>
+                </div>
+            </div>
+
+        </div>
+    </footer>
+
+    <!-- ==========================================================================
+         INTERACTIVE LOGIN & SIGNUP MODAL (NEW)
+         ========================================================================== -->
+    <div class="auth-modal-overlay" id="auth-modal" onclick="closeAuthModalOnOverlay(event)">
+        <div class="auth-modal-card">
+            <!-- Close Button -->
+            <button class="auth-modal-close" onclick="closeAuthModal()" title="Close details">
+                <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+            
+            <!-- Auth Tab Buttons -->
+            <div class="auth-modal-tabs">
+                <button class="auth-modal-tab" id="tab-signup" onclick="switchAuthTab('signup')">Sign Up Free</button>
+                <button class="auth-modal-tab" id="tab-login" onclick="switchAuthTab('login')">Log In</button>
+            </div>
+
+            <!-- SIGN UP SCREEN PANE -->
+            <div class="auth-modal-pane" id="pane-signup">
+                <form onsubmit="handleAuthSubmit(event, 'signup')">
+                    <div class="auth-form-group">
+                        <label for="signup-name">Your Full Name</label>
+                        <input type="text" id="signup-name" class="auth-form-input" placeholder="e.g. Kartik Mathur" required>
+                    </div>
+                    <div class="auth-form-group">
+                        <label for="signup-store">Your Store/Brand Name</label>
+                        <input type="text" id="signup-store" class="auth-form-input" placeholder="e.g. Kartik's Apparel Hub" required>
+                    </div>
+                    <div class="auth-form-group">
+                        <label for="signup-email">Business Email Address</label>
+                        <input type="email" id="signup-email" class="auth-form-input" placeholder="name@company.com" required>
+                    </div>
+                    <div class="auth-form-group">
+                        <label for="signup-password">Secure Password</label>
+                        <input type="password" id="signup-password" class="auth-form-input" placeholder="Create a strong password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-auth-submit">Create Free Account</button>
+                </form>
+                <div class="auth-modal-footer">
+                    Already registered? <a href="#" href="/auth/login/">Log In here</a>
+                </div>
+            </div>
+
+            <!-- LOG IN SCREEN PANE -->
+            <div class="auth-modal-pane" id="pane-login">
+                <form onsubmit="handleAuthSubmit(event, 'login')">
+                    <div class="auth-form-group">
+                        <label for="login-email">Business Email Address</label>
+                        <input type="email" id="login-email" class="auth-form-input" placeholder="name@company.com" required>
+                    </div>
+                    <div class="auth-form-group">
+                        <label for="login-password">Password</label>
+                        <input type="password" id="login-password" class="auth-form-input" placeholder="Enter password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-auth-submit">Access Command Center</button>
+                </form>
+                <div class="auth-modal-footer">
+                    New to E-Com Orbit? <a href="#" href="/auth/register/business/">Sign Up Free here</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================================================
+         JAVASCRIPT LOGIC
+         ========================================================================== -->
+    <script>
+        // Adjust Header Style on Scroll
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
             }
-            .marquee__group {
-                flex-shrink: 0;
-                display: flex;
-                align-items: center;
-                justify-content: space-around;
-                gap: var(--gap);
-                min-width: 100%;
-                animation: scroll var(--duration) linear infinite;
-            }
-            @keyframes scroll {
-                from { transform: translateX(0); }
-                to { transform: translateX(calc(-100% - var(--gap))); }
+        });
+
+        // Toggle Billing logic (Monthly vs Annual - 20% discount on Starter, Pro, Enterprise)
+        function toggleBilling() {
+            const isAnnual = document.getElementById('billing-checkbox').checked;
+            
+            const starterPrice = document.getElementById('price-starter');
+            const proPrice = document.getElementById('price-pro');
+            const enterprisePrice = document.getElementById('price-enterprise');
+            
+            const labelMonthly = document.getElementById('label-monthly');
+            const labelAnnual = document.getElementById('label-annual');
+
+            if (isAnnual) {
+                // Annual Billing discount (20% off)
+                starterPrice.innerHTML = '₹392<span class="price-term">/ month, billed annually</span>';
+                proPrice.innerHTML = '₹1,032<span class="price-term">/ month, billed annually</span>';
+                enterprisePrice.innerHTML = '₹3,992<span class="price-term">/ month, billed annually</span>';
+                
+                labelAnnual.classList.add('active');
+                labelMonthly.classList.remove('active');
+            } else {
+                // Standard Monthly Pricing (Affordable tiers)
+                starterPrice.innerHTML = '₹490<span class="price-term">/ month</span>';
+                proPrice.innerHTML = '₹1,290<span class="price-term">/ month</span>';
+                enterprisePrice.innerHTML = '₹4,990<span class="price-term">/ month</span>';
+                
+                labelMonthly.classList.add('active');
+                labelAnnual.classList.remove('active');
             }
         }
-    </style>
-</head>
-<body class="bg-background text-on-surface font-body-md antialiased overflow-x-hidden relative">
-<!-- Background Elements -->
-<div class="fixed inset-0 hero-pattern -z-10 pointer-events-none"></div>
-<div class="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/5 blur-[120px] rounded-full -z-10"></div>
-<div class="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-secondary/5 blur-[120px] rounded-full -z-10"></div>
-<!-- TopNavBar -->
-<header class="bg-surface/60 backdrop-blur-xl border-b border-outline-variant/30 text-primary font-body-md text-body-md top-0 sticky z-50 transition-all">
-<div class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-4 max-w-max-width mx-auto">
-<div class="flex items-center gap-3">
-<img alt="E-Com Orbit Logo" class="h-10 w-10 object-contain" src="https://lh3.googleusercontent.com/aida/AP1WRLup2Gki2rfjPuVpCRbCTUFd7G4kuDguT_r8_9AipfJnP5ni1AQ9a8OqvmLATDXfLLJz_ezT96zM9QRIFnyqX5yHUGlRKi0cwQdC9cvz7jbG705KvF3uUfP8_Vw_GcMLoHidDD_wsRymTpPVKQDHsV51s05XwWBbSj6t0mQfH42mrEw6mhzYKYxQX5OTRJ7DzhWCOKMkz5s7fR-gNiSlyZ8vinz8ufEoSpUAEVqm4orwbPic4GwcRg_Wsw"/>
-<span class="font-headline-md text-headline-md font-bold text-on-surface tracking-tight">E-Com Orbit</span>
-</div>
-<nav class="hidden md:flex items-center gap-8">
-<a class="text-on-surface-variant hover:text-primary transition-colors px-3 py-1.5 rounded-md" href="#">Features</a>
-<a class="text-on-surface-variant hover:text-primary transition-colors px-3 py-1.5 rounded-md" href="#">About</a>
-<a class="text-on-surface-variant hover:text-primary transition-colors px-3 py-1.5 rounded-md" href="#">Solutions</a>
-<a class="text-on-surface-variant hover:text-primary transition-colors px-3 py-1.5 rounded-md" href="#">Pricing</a>
-</nav>
-<div class="flex items-center gap-4">
-<div class="hidden lg:flex items-center relative mr-2">
-<span class="material-symbols-outlined absolute left-3 text-on-surface-variant text-sm" data-icon="search">search</span>
-<input class="pl-9 pr-4 py-2 bg-surface-container-lowest border border-outline-variant/50 rounded-full text-sm focus:outline-none focus:border-primary w-40 transition-all text-on-surface" placeholder="Search..." type="text"/>
-</div>
-<a class="text-on-surface-variant hover:text-primary transition-colors font-label-md hidden sm:block" href="#">Login</a>
-<a class="btn-primary" href="#">Get Started</a>
-</div>
-</div>
-</header>
-<main>
-<!-- Hero Section -->
-<section class="relative pt-20 pb-32 px-margin-mobile md:px-margin-desktop overflow-hidden min-h-[90vh] flex items-center">
-<!-- 3D Logo Background Element -->
-<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] opacity-[0.08] pointer-events-none -z-10 mix-blend-multiply">
-<img alt="" class="w-full h-full object-contain float-animation" src="https://lh3.googleusercontent.com/aida/AP1WRLup2Gki2rfjPuVpCRbCTUFd7G4kuDguT_r8_9AipfJnP5ni1AQ9a8OqvmLATDXfLLJz_ezT96zM9QRIFnyqX5yHUGlRKi0cwQdC9cvz7jbG705KvF3uUfP8_Vw_GcMLoHidDD_wsRymTpPVKQDHsV51s05XwWBbSj6t0mQfH42mrEw6mhzYKYxQX5OTRJ7DzhWCOKMkz5s7fR-gNiSlyZ8vinz8ufEoSpUAEVqm4orwbPic4GwcRg_Wsw"/>
-</div>
-<div class="max-w-5xl mx-auto text-center z-10 relative animate-fade-in">
-<div class="inline-flex items-center gap-2 px-4 py-2 rounded-full glass mb-8 font-label-md text-label-md text-primary shadow-sm">
-<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
-                Now Syncing with 50+ Platforms
-            </div>
-<h1 class="font-display text-5xl md:text-7xl text-on-surface mb-6 tracking-tight leading-[1.1]">
-                Sell Everywhere, <br class="hidden md:block"/>
-<span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary-container">Manage Here</span>
-</h1>
-<p class="font-body-lg text-body-lg md:text-xl text-on-surface-variant mb-12 max-w-2xl mx-auto">
-                Manage products, inventory, and orders across Facebook, Instagram, Google, and more from one unified dashboard. Eliminate manual work and scale your multi-channel sales effortlessly.
-            </p>
-<div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-20">
-<button class="btn-primary w-full sm:w-auto text-lg px-8 py-4">
-                    Start Selling Today
-                    <span class="material-symbols-outlined" data-icon="arrow_forward">arrow_forward</span>
-</button>
-<button class="btn-secondary w-full sm:w-auto text-lg px-8 py-4">
-                    Book a Demo
-                </button>
-</div>
-<!-- Repeating Displays / Slideshow -->
-<div class="relative w-full max-w-4xl mx-auto overflow-hidden">
-<div class="marquee" style="--gap: 32px; --duration: 40s;">
-<div class="marquee__group">
-<!-- Platform Integration Card -->
-<div class="glass-heavy p-6 rounded-2xl flex items-center gap-6 border-primary/10 min-w-[320px]">
-<div class="grid grid-cols-2 gap-3">
-<div class="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center shadow-inner">
-<img alt="Google" class="w-6 h-6 grayscale hover:grayscale-0 transition-all" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAw6TT8ANd2bp-kPoqkx2V4sZcRdn95rToOy-LqKqTTB6wQHuZYFOIj8GLbv_wyrTrxZF_Yd_4K2szI2vh0_vZXw6cO23gcB1AmAKrxxhAe1hBdmuOqcnXCfcatH-dpEDjtUAZ7kZ8fuN2R0qw4T5Wu3RLCm85NaA7xpsD0s-WKQfGdIMcxXn-YT0WmdnpMh4D7yD2zqM84A0gi8O7y4ELsFdKvwkzM1xun9NHJNm3fk0ippP91U1uGgymD3PBXLm7d-_r7jicByJM"/>
-</div>
-<div class="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center shadow-inner">
-<span class="material-symbols-outlined text-blue-600" data-icon="facebook">facebook</span>
-</div>
-<div class="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center shadow-inner">
-<span class="material-symbols-outlined text-pink-600" data-icon="photo_camera">photo_camera</span>
-</div>
-<div class="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center shadow-inner">
-<span class="material-symbols-outlined text-green-600" data-icon="shopping_bag">shopping_bag</span>
-</div>
-</div>
-<div class="text-left">
-<div class="text-sm font-bold text-on-surface">Omnichannel Sync</div>
-<div class="text-xs text-on-surface-variant">Live on 12 Platforms</div>
-</div>
-</div>
-<!-- Real-time Stats Card -->
-<div class="glass-heavy p-6 rounded-2xl flex items-center gap-6 border-primary/10 min-w-[320px]">
-<div class="w-14 h-14 rounded-full border-4 border-primary/20 border-t-primary animate-spin-slow flex items-center justify-center">
-<span class="material-symbols-outlined text-primary" data-icon="sync">sync</span>
-</div>
-<div class="text-left">
-<div class="text-sm font-bold text-on-surface">Real-Time Update</div>
-<div class="text-xs text-on-surface-variant">Stock synced 2s ago</div>
-</div>
-</div>
-<!-- Order Card -->
-<div class="glass-heavy p-6 rounded-2xl flex items-center gap-4 border-primary/10 min-w-[320px]">
-<div class="bg-primary/10 p-3 rounded-xl">
-<span class="material-symbols-outlined text-primary" data-icon="shopping_cart">shopping_cart</span>
-</div>
-<div class="text-left flex-1">
-<div class="text-sm font-bold text-on-surface">New Order: #8291</div>
-<div class="text-xs text-on-surface-variant">From Instagram Shop</div>
-</div>
-<div class="text-sm font-bold text-primary">$124.00</div>
-</div>
-</div>
-<!-- Duplicate for infinite scroll -->
-<div class="marquee__group">
-<div class="glass-heavy p-6 rounded-2xl flex items-center gap-6 border-primary/10 min-w-[320px]">
-<div class="grid grid-cols-2 gap-3">
-<div class="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center shadow-inner">
-<img alt="Google" class="w-6 h-6 grayscale hover:grayscale-0 transition-all" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCjoS765iqFSI5YfXsPbjllal1_qOQ0jnKa-F7sk21TUcSTEOKWzFJ9CQ_ExZbxd9bEXdQ4Aaovibm11vjv_bCN2pq22EKE98ZKIJueNBqiFL2xVyn1-5fk9S9CKn3O8rv54vVdpC5drWpzS_usqmvpdIlEXh5sT153QZsEND5yuEuNr8aRWbGG3ZuGVWBD_Qx96UpwgVuAhGwPwqcU1zzR9VjHJBjiC5Ipicc34bTRwTuHFl1BGNWHqUps483W4F3ZA9qWWBEp7QM"/>
-</div>
-<div class="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center shadow-inner">
-<span class="material-symbols-outlined text-blue-600" data-icon="facebook">facebook</span>
-</div>
-<div class="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center shadow-inner">
-<span class="material-symbols-outlined text-pink-600" data-icon="photo_camera">photo_camera</span>
-</div>
-<div class="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center shadow-inner">
-<span class="material-symbols-outlined text-green-600" data-icon="shopping_bag">shopping_bag</span>
-</div>
-</div>
-<div class="text-left">
-<div class="text-sm font-bold text-on-surface">Omnichannel Sync</div>
-<div class="text-xs text-on-surface-variant">Live on 12 Platforms</div>
-</div>
-</div>
-<div class="glass-heavy p-6 rounded-2xl flex items-center gap-6 border-primary/10 min-w-[320px]">
-<div class="w-14 h-14 rounded-full border-4 border-primary/20 border-t-primary flex items-center justify-center">
-<span class="material-symbols-outlined text-primary" data-icon="sync">sync</span>
-</div>
-<div class="text-left">
-<div class="text-sm font-bold text-on-surface">Real-Time Update</div>
-<div class="text-xs text-on-surface-variant">Stock synced 2s ago</div>
-</div>
-</div>
-<div class="glass-heavy p-6 rounded-2xl flex items-center gap-4 border-primary/10 min-w-[320px]">
-<div class="bg-primary/10 p-3 rounded-xl">
-<span class="material-symbols-outlined text-primary" data-icon="shopping_cart">shopping_cart</span>
-</div>
-<div class="text-left flex-1">
-<div class="text-sm font-bold text-on-surface">New Order: #8291</div>
-<div class="text-xs text-on-surface-variant">From Instagram Shop</div>
-</div>
-<div class="text-sm font-bold text-primary">$124.00</div>
-</div>
-</div>
-</div>
-</div>
-</div>
-</section>
-<!-- About Section -->
-<section class="py-24 px-margin-mobile md:px-margin-desktop relative">
-<div class="max-w-max-width mx-auto animate-fade-in delay-100">
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-<div>
-<h2 class="font-headline-lg text-4xl text-on-surface mb-6">One Dashboard, Many Channels</h2>
-<p class="font-body-lg text-body-lg text-on-surface-variant mb-6">
-                        Stop logging into multiple platforms to update stock or process orders. E-Com Orbit centralizes your operations, solving the chaos of manual multi-channel selling. 
-                    </p>
-<p class="font-body-md text-body-md text-on-surface-variant mb-8">
-                        Our engine synchronizes your data in real-time, ensuring that when an item sells on Instagram, inventory is immediately updated on Google and Facebook. Prevent stockouts, reduce errors, and reclaim your time.
-                    </p>
-<ul class="space-y-4 font-body-md text-on-surface">
-<li class="flex items-start gap-3">
-<span class="material-symbols-outlined text-primary mt-0.5" data-icon="check_circle" data-weight="fill">check_circle</span>
-<span>Single source of truth for inventory.</span>
-</li>
-<li class="flex items-start gap-3">
-<span class="material-symbols-outlined text-primary mt-0.5" data-icon="check_circle" data-weight="fill">check_circle</span>
-<span>Unified customer communication inbox.</span>
-</li>
-<li class="flex items-start gap-3">
-<span class="material-symbols-outlined text-primary mt-0.5" data-icon="check_circle" data-weight="fill">check_circle</span>
-<span>Automated listing updates across all linked channels.</span>
-</li>
-</ul>
-</div>
-<!-- Interactive Slideshow/Dashboard Preview -->
-<div class="relative h-[500px]" id="dashboard-slideshow">
-<div class="glass-heavy rounded-2xl p-8 h-full flex flex-col relative overflow-hidden shadow-2xl shadow-primary/10">
-<!-- Slide 1: Product Catalog -->
-<div class="slide absolute inset-0 p-8 flex flex-col opacity-100 transition-opacity duration-500" data-slide="0">
-<div class="flex items-center justify-between mb-8">
-<div class="flex items-center gap-3">
-<div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center border border-primary/20">
-<span class="material-symbols-outlined text-primary" data-icon="inventory_2">inventory_2</span>
-</div>
-<span class="font-headline-md text-xl font-bold text-on-surface">Centralized Catalog</span>
-</div>
-<span class="px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-label-md border border-green-200">Sync Active</span>
-</div>
-<div class="grid grid-cols-2 gap-4 flex-1">
-<div class="glass p-4 rounded-xl flex flex-col gap-3">
-<div class="w-full h-24 bg-surface-dim/30 rounded-lg animate-pulse"></div>
-<div class="h-4 w-3/4 bg-surface-dim/50 rounded"></div>
-<div class="h-4 w-1/2 bg-surface-dim/40 rounded"></div>
-</div>
-<div class="glass p-4 rounded-xl border-primary/20 bg-primary/5">
-<div class="flex items-center justify-between mb-4">
-<span class="text-xs font-bold text-primary">Channel Map</span>
-<span class="material-symbols-outlined text-sm text-primary" data-icon="hub">hub</span>
-</div>
-<div class="space-y-2">
-<div class="flex items-center gap-2 text-xs text-on-surface-variant"><span class="w-2 h-2 rounded-full bg-green-500"></span> Instagram Shop</div>
-<div class="flex items-center gap-2 text-xs text-on-surface-variant"><span class="w-2 h-2 rounded-full bg-green-500"></span> Google Merchant</div>
-<div class="flex items-center gap-2 text-xs text-on-surface-variant"><span class="w-2 h-2 rounded-full bg-green-500"></span> FB Marketplace</div>
-</div>
-</div>
-<div class="col-span-2 glass p-4 rounded-xl flex items-center justify-between">
-<div class="flex flex-col">
-<span class="text-xs text-on-surface-variant">Global Inventory</span>
-<span class="text-lg font-bold text-on-surface">1,420 Units</span>
-</div>
-<div class="flex -space-x-2">
-<div class="w-8 h-8 rounded-full bg-white border border-outline-variant flex items-center justify-center text-[10px] font-bold">FB</div>
-<div class="w-8 h-8 rounded-full bg-white border border-outline-variant flex items-center justify-center text-[10px] font-bold">IG</div>
-<div class="w-8 h-8 rounded-full bg-white border border-outline-variant flex items-center justify-center text-[10px] font-bold">GO</div>
-</div>
-</div>
-</div>
-<p class="text-sm text-on-surface-variant mt-6">Add items once, map attributes intelligently, and publish everywhere instantly.</p>
-</div>
-</div>
-</div>
-</div>
-</div>
-</section>
-<!-- Partners / Channels -->
-<section class="py-16 border-y border-outline-variant/30 bg-surface-container-low/30">
-<div class="max-w-max-width mx-auto px-margin-mobile md:px-margin-desktop">
-<div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8 opacity-60">
-<div class="flex items-center justify-center font-bold tracking-tighter text-xl text-on-surface">FACEBOOK</div>
-<div class="flex items-center justify-center font-bold tracking-tighter text-xl text-on-surface">INSTAGRAM</div>
-<div class="flex items-center justify-center font-bold tracking-tighter text-xl text-on-surface">GOOGLE</div>
-<div class="flex items-center justify-center font-bold tracking-tighter text-xl text-on-surface">SHOPIFY</div>
-<div class="flex items-center justify-center font-bold tracking-tighter text-xl text-on-surface">TIKTOK</div>
-<div class="flex items-center justify-center font-bold tracking-tighter text-xl text-on-surface">EBAY</div>
-</div>
-</div>
-</section>
-</main>
-<footer class="bg-surface-container-high py-20 px-margin-mobile md:px-margin-desktop border-t border-outline-variant/30">
-<div class="max-w-max-width mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
-<div class="col-span-1 md:col-span-1">
-<div class="flex items-center gap-3 mb-6">
-<img alt="E-Com Orbit Logo" class="h-10 w-10 object-contain" src="https://lh3.googleusercontent.com/aida/AP1WRLup2Gki2rfjPuVpCRbCTUFd7G4kuDguT_r8_9AipfJnP5ni1AQ9a8OqvmLATDXfLLJz_ezT96zM9QRIFnyqX5yHUGlRKi0cwQdC9cvz7jbG705KvF3uUfP8_Vw_GcMLoHidDD_wsRymTpPVKQDHsV51s05XwWBbSj6t0mQfH42mrEw6mhzYKYxQX5OTRJ7DzhWCOKMkz5s7fR-gNiSlyZ8vinz8ufEoSpUAEVqm4orwbPic4GwcRg_Wsw"/>
-<span class="font-headline-md text-headline-md font-bold text-on-surface tracking-tight">E-Com Orbit</span>
-</div>
-<p class="text-on-surface-variant text-sm mb-6 leading-relaxed">
-                Empowering retailers to scale globally by simplifying the complexities of multi-channel commerce.
-            </p>
-<div class="flex gap-4">
-<a class="w-10 h-10 rounded-full bg-white border border-outline-variant flex items-center justify-center hover:bg-primary/5 transition-colors" href="#">
-<span class="material-symbols-outlined text-on-surface-variant text-lg" data-icon="share">share</span>
-</a>
-<a class="w-10 h-10 rounded-full bg-white border border-outline-variant flex items-center justify-center hover:bg-primary/5 transition-colors" href="#">
-<span class="material-symbols-outlined text-on-surface-variant text-lg" data-icon="mail">mail</span>
-</a>
-</div>
-</div>
-<div>
-<h4 class="font-bold text-on-surface mb-6">Product</h4>
-<ul class="space-y-4 text-sm text-on-surface-variant">
-<li><a class="hover:text-primary transition-colors" href="#">Features</a></li>
-<li><a class="hover:text-primary transition-colors" href="#">Integrations</a></li>
-<li><a class="hover:text-primary transition-colors" href="#">Pricing</a></li>
-<li><a class="hover:text-primary transition-colors" href="#">Changelog</a></li>
-</ul>
-</div>
-<div>
-<h4 class="font-bold text-on-surface mb-6">Company</h4>
-<ul class="space-y-4 text-sm text-on-surface-variant">
-<li><a class="hover:text-primary transition-colors" href="#">About Us</a></li>
-<li><a class="hover:text-primary transition-colors" href="#">Careers</a></li>
-<li><a class="hover:text-primary transition-colors" href="#">Privacy Policy</a></li>
-<li><a class="hover:text-primary transition-colors" href="#">Terms of Service</a></li>
-</ul>
-</div>
-<div>
-<h4 class="font-bold text-on-surface mb-6">Support</h4>
-<ul class="space-y-4 text-sm text-on-surface-variant">
-<li><a class="hover:text-primary transition-colors" href="#">Help Center</a></li>
-<li><a class="hover:text-primary transition-colors" href="#">API Docs</a></li>
-<li><a class="hover:text-primary transition-colors" href="#">System Status</a></li>
-<li><a class="hover:text-primary transition-colors" href="#">Contact Support</a></li>
-</ul>
-</div>
-</div>
-<div class="max-w-max-width mx-auto pt-8 border-t border-outline-variant/30 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-on-surface-variant">
-<p>© 2024 E-Com Orbit Inc. All rights reserved.</p>
-<div class="flex gap-8">
-<a class="hover:text-on-surface transition-colors" href="#">Privacy</a>
-<a class="hover:text-on-surface transition-colors" href="#">Terms</a>
-<a class="hover:text-on-surface transition-colors" href="#">Cookies</a>
-</div>
-</div>
-</footer>
-<script>
-    // Logic for dashboard preview rotation
-    const slides = document.querySelectorAll('.slide');
-    let currentSlide = 0;
 
-    function nextSlide() {
-        slides[currentSlide].classList.remove('opacity-100');
-        slides[currentSlide].classList.add('opacity-0');
-        currentSlide = (currentSlide + 1) % slides.length;
-        slides[currentSlide].classList.remove('opacity-0');
-        slides[currentSlide].classList.add('opacity-100');
-    }
+        // Direct Toggle handler helper
+        function setBilling(annualState) {
+            const checkbox = document.getElementById('billing-checkbox');
+            if (checkbox.checked !== annualState) {
+                checkbox.checked = annualState;
+                toggleBilling();
+            }
+        }
 
-    // Auto-advance every 5 seconds if multiple slides were present
-    if (slides.length > 1) {
-        setInterval(nextSlide, 5000);
-    }
-</script>
-</body></html>
+        // --- AUTH MODAL SYSTEM ACTIONS ---
+        function openAuthModal(mode) {
+            const modal = document.getElementById('auth-modal');
+            modal.classList.add('active');
+            switchAuthTab(mode);
+        }
+
+        function closeAuthModal() {
+            const modal = document.getElementById('auth-modal');
+            modal.classList.remove('active');
+        }
+
+        function closeAuthModalOnOverlay(e) {
+            if (e.target.id === 'auth-modal') {
+                closeAuthModal();
+            }
+        }
+
+        function switchAuthTab(mode) {
+            const tabSignup = document.getElementById('tab-signup');
+            const tabLogin = document.getElementById('tab-login');
+            const paneSignup = document.getElementById('pane-signup');
+            const paneLogin = document.getElementById('pane-login');
+
+            if (mode === 'signup') {
+                tabSignup.classList.add('active');
+                tabLogin.classList.remove('active');
+                paneSignup.classList.add('active');
+                paneLogin.classList.remove('active');
+            } else {
+                tabLogin.classList.add('active');
+                tabSignup.classList.remove('active');
+                paneLogin.classList.add('active');
+                paneSignup.classList.remove('active');
+            }
+        }
+
+        function handleAuthSubmit(e, mode) {
+            e.preventDefault();
+    
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.disabled = true;
+            btn.textContent = mode === 'signup' ? 'Creating account...' : 'Signing in...';
+
+            if (mode === 'signup') {
+                const fullName  = document.getElementById('signup-name').value.trim();
+                const storeName = document.getElementById('signup-store').value.trim();
+                const email     = document.getElementById('signup-email').value.trim();
+                const password  = document.getElementById('signup-password').value;
+
+                // Basic validation
+                if (!fullName || !storeName || !email || !password) {
+                    showModalError('Please fill in all fields.');
+                    btn.disabled = false;
+                    btn.textContent = 'Create Free Account';
+                    return;
+                }
+                if (password.length < 8) {
+                    showModalError('Password must be at least 8 characters.');
+                    btn.disabled = false;
+                    btn.textContent = 'Create Free Account';
+                    return;
+                }
+
+                // Generate username from email
+                const username = email.split('@')[0].replace(/[^a-zA-Z0-9]/g, '') + Math.floor(Math.random() * 100);
+
+                const formData = new FormData();
+                formData.append('username', username);
+                formData.append('email', email);
+                formData.append('password', password);
+                formData.append('password2', password);
+                formData.append('business_name', storeName);
+                formData.append('csrfmiddlewaretoken', getCookie('csrftoken'));
+
+                fetch('/auth/register/business/', {
+                    method: 'POST',
+                    body: formData,
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                }).then(response => {
+                    if (response.redirected || response.ok) {
+                        window.location.href = '/dashboard/';
+                    } else {
+                        return response.text().then(html => {
+                            showModalError('Registration failed. Email or username may already exist.');
+                            btn.disabled = false;
+                            btn.textContent = 'Create Free Account';
+                        });
+                    }
+                }).catch(() => {
+                    showModalError('Something went wrong. Please try again.');
+                    btn.disabled = false;
+                    btn.textContent = 'Create Free Account';
+                });
+
+            } else {
+                const email    = document.getElementById('login-email').value.trim();
+                const password = document.getElementById('login-password').value;
+
+                if (!email || !password) {
+                    showModalError('Please enter your email and password.');
+                    btn.disabled = false;
+                    btn.textContent = 'Access Command Center';
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append('username', email);
+                formData.append('password', password);
+                formData.append('csrfmiddlewaretoken', getCookie('csrftoken'));
+
+                fetch('/auth/login/', {
+                    method: 'POST',
+                    body: formData,
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                }).then(response => {
+                    if (response.redirected || response.ok) {
+                        window.location.href = '/dashboard/';
+                    } else {
+                        showModalError('Invalid email or password.');
+                        btn.disabled = false;
+                        btn.textContent = 'Access Command Center';
+                    }
+                }).catch(() => {
+                    showModalError('Something went wrong. Please try again.');
+                    btn.disabled = false;
+                    btn.textContent = 'Access Command Center';
+                });
+            }
+        }
+
+        function showModalError(msg) {
+            let err = document.getElementById('modal-error');
+            if (!err) {
+                err = document.createElement('div');
+                err.id = 'modal-error';
+                err.style.cssText = 'background:#fef2f2;border:1px solid #fecaca;color:#dc2626;padding:10px 14px;border-radius:8px;font-size:0.88rem;margin-bottom:14px;display:flex;align-items:center;gap:8px;';
+                const activePane = document.querySelector('.auth-modal-pane.active form');
+                if (activePane) activePane.prepend(err);
+            }
+            err.innerHTML = '&#9888; ' + msg;
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+
+</body>
+</html>

@@ -2,6 +2,12 @@ from django.db import models
 from accounts.models import BusinessProfile
 
 class Category(models.Model):
+    business = models.ForeignKey(
+        'accounts.BusinessProfile',
+        on_delete=models.CASCADE,
+        related_name='categories',
+        null=True, blank=True
+    )
     name = models.CharField(max_length=100)
     slug = models.SlugField(unique=True)
 

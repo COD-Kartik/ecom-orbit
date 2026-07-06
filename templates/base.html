@@ -267,7 +267,7 @@
     </a>
   </nav>
   <div class="sidebar-footer">
-    <a href="#"><i class="bi bi-box-arrow-left"></i> Logout</a>
+    <a href="{% url 'logout' %}"><i class="bi bi-box-arrow-left"></i> Logout</a>
   </div>
 </div>
 
@@ -277,7 +277,7 @@
     <div class="topbar-title">{% block page_title %}Dashboard{% endblock %}</div>
     <div class="topbar-right">
       <i class="bi bi-bell text-secondary fs-5"></i>
-      <div class="topbar-avatar">K</div>
+      <div class="topbar-avatar">{{ request.user.username|first|upper }}</div>
     </div>
   </div>
   <div class="page-body">

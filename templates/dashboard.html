@@ -11,8 +11,14 @@
 <div class="p-4 mb-4 rounded-3" style="background:linear-gradient(135deg,#4f46e5,#7c3aed); color:white;">
   <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
     <div>
-      <h5 class="fw-800 mb-1">Welcome back! 👋</h5>
-      <p class="mb-0 opacity-75">Here's what's happening with your store today.</p>
+      <h5 class="fw-800 mb-1">Welcome back, {{ request.user.first_name|default:request.user.username }}! 👋</h5>
+      <p class="mb-0 opacity-75">
+        {% if business %}
+          {{ business.business_name }} — Here's what's happening with your store today.
+        {% else %}
+          Here's what's happening with your store today.
+        {% endif %}
+      </p>
     </div>
     <a href="{% url 'product_add' %}" class="btn btn-light fw-600" style="color:#4f46e5;">
       <i class="bi bi-plus-lg me-1"></i> Add Product

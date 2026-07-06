@@ -1,56 +1,73 @@
 from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
 from django.utils.text import slugify
 from .models import Product, Category, ProductVariant
+from accounts.models import BusinessProfile
 
+def get_user_business(user):
+    """Helper — gets business profile for logged in user or None"""
+    try:
+        return BusinessProfile.objects.get(user=user)
+    except BusinessProfile.DoesNotExist:
+        return None
+
+@login_required
 def dashboard(request):
-    total_products = Product.objects.count()
-    low_stock = Product.objects.filter(stock__lte=5).count()
-    recent_products = Product.objects.order_by('-created_at')[:5]
+    business = get_user_business(request.user)
+    if business:
+        products = Product.objects.filter(business=business)
+    else:
+        products = Product.objects.none()
+    total_products = products.count()
+    low_stock      = products.filter(stock__lte=5).count()
+    recent_products= products.order_by('-created_at')[:5]
     return render(request, 'dashboard.html', {
-        'total_products': total_products,
-        'low_stock': low_stock,
+        'business'       : business,
+        'total_products' : total_products,
+        'low_stock'      : low_stock,
         'recent_products': recent_products,
     })
 
+@login_required
 def product_list(request):
-    products = Product.objects.all().order_by('-created_at')
-    total_products = products.count()
-    active_products = products.filter(is_active=True).count()
-    low_stock = products.filter(stock__lte=5).count()
+    business = get_user_business(request.user)
+    if business:
+        products = Product.objects.filter(business=business).order_by('-created_at')
+    else:
+        products = Product.objects.none()
+    total_products   = products.count()
+    active_products  = products.filter(is_active=True).count()
+    low_stock        = products.filter(stock__lte=5).count()
     total_categories = Category.objects.count()
     return render(request, 'products/product_list.html', {
-        'products': products,
-        'total_products': total_products,
-        'active_products': active_products,
-        'low_stock': low_stock,
+        'products'        : products,
+        'total_products'  : total_products,
+        'active_products' : active_products,
+        'low_stock'       : low_stock,
         'total_categories': total_categories,
+        'business'        : business,
     })
 
+@login_required
 def product_add(request):
+    business   = get_user_business(request.user)
     categories = Category.objects.all()
     if request.method == 'POST':
-        title = request.POST.get('title')
+        title       = request.POST.get('title')
         description = request.POST.get('description', '')
-        price = request.POST.get('price')
-        stock = request.POST.get('stock')
+        price       = request.POST.get('price')
+        stock       = request.POST.get('stock')
         category_id = request.POST.get('category')
-        is_active = request.POST.get('is_active') == 'true'
-        image = request.FILES.get('image')
-
-        category = Category.objects.get(id=category_id) if category_id else None
-
+        is_active   = request.POST.get('is_active') == 'true'
+        image       = request.FILES.get('image')
+        category    = Category.objects.get(id=category_id) if category_id else None
         product = Product.objects.create(
-            title=title,
-            description=description,
-            price=price,
-            stock=stock,
-            category=category,
-            is_active=is_active,
-            image=image,
+            title=title, description=description,
+            price=price, stock=stock,
+            category=category, is_active=is_active,
+            image=image, business=business,
         )
-
-        # Handle variants
-        names = request.POST.getlist('variant_name[]')
+        names  = request.POST.getlist('variant_name[]')
         prices = request.POST.getlist('variant_price[]')
         stocks = request.POST.getlist('variant_stock[]')
         for n, p, s in zip(names, prices, stocks):
@@ -59,20 +76,23 @@ def product_add(request):
                     product=product, name=n,
                     price=p or 0, stock=s or 0
                 )
-
         return redirect('product_list')
+    return render(request, 'products/product_form.html', {
+        'categories': categories,
+        'business'  : business,
+    })
 
-    return render(request, 'products/product_form.html', {'categories': categories})
-
+@login_required
 def product_edit(request, pk):
-    product = get_object_or_404(Product, pk=pk)
+    business = get_user_business(request.user)
+    product  = get_object_or_404(Product, pk=pk, business=business)
     categories = Category.objects.all()
     if request.method == 'POST':
-        product.title = request.POST.get('title')
+        product.title       = request.POST.get('title')
         product.description = request.POST.get('description', '')
-        product.price = request.POST.get('price')
-        product.stock = request.POST.get('stock')
-        product.is_active = request.POST.get('is_active') == 'true'
+        product.price       = request.POST.get('price')
+        product.stock       = request.POST.get('stock')
+        product.is_active   = request.POST.get('is_active') == 'true'
         category_id = request.POST.get('category')
         product.category = Category.objects.get(id=category_id) if category_id else None
         if request.FILES.get('image'):
@@ -80,39 +100,55 @@ def product_edit(request, pk):
         product.save()
         return redirect('product_list')
     return render(request, 'products/product_form.html', {
-        'product': product,
-        'categories': categories
+        'product'   : product,
+        'categories': categories,
+        'business'  : business,
     })
 
+@login_required
 def product_delete(request, pk):
-    product = get_object_or_404(Product, pk=pk)
+    business = get_user_business(request.user)
+    product  = get_object_or_404(Product, pk=pk, business=business)
     product.delete()
     return redirect('product_list')
 
+@login_required
 def category_list(request):
-    categories = Category.objects.all()
+    business = get_user_business(request.user)
+    categories = Category.objects.filter(business=business)
     if request.method == 'POST':
-        action = request.POST.get('action')
-        if action == 'add':
-            name = request.POST.get('name')
-            slug = request.POST.get('slug') or slugify(name)
-            Category.objects.create(name=name, slug=slug)
-            return redirect('category_list')
-    return render(request, 'products/category_list.html', {'categories': categories})
+        name = request.POST.get('name')
+        slug = request.POST.get('slug') or slugify(name)
+        # Make slug unique
+        original_slug = slug
+        counter = 1
+        while Category.objects.filter(slug=slug).exists():
+            slug = f"{original_slug}-{counter}"
+            counter += 1
+        Category.objects.create(name=name, slug=slug, business=business)
+        return redirect('category_list')
+    return render(request, 'products/category_list.html', {
+        'categories': categories,
+        'business'  : business,
+    })
 
+@login_required
 def category_edit(request, pk):
-    category = get_object_or_404(Category, pk=pk)
+    business = get_user_business(request.user)
+    category = get_object_or_404(Category, pk=pk, business=business)
     if request.method == 'POST':
         category.name = request.POST.get('name')
         category.slug = request.POST.get('slug') or slugify(category.name)
         category.save()
         return redirect('category_list')
     return render(request, 'products/category_list.html', {
-        'categories': Category.objects.all(),
-        'edit_category': category
+        'categories'   : Category.objects.filter(business=business),
+        'edit_category': category,
+        'business'     : business,
     })
 
+@login_required
 def category_delete(request, pk):
-    category = get_object_or_404(Category, pk=pk)
-    category.delete()
+    business = get_user_business(request.user)
+    get_object_or_404(Category, pk=pk, business=business).delete()
     return redirect('category_list')
