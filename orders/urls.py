@@ -16,4 +16,9 @@ urlpatterns = [
     path('dashboard/orders/export/', views.export_orders_csv, name='export_orders_csv'),
     path('dashboard/customers/', views.customer_list, name='customer_list'),
     path('api/', include(router.urls)),
+    path('dashboard/notifications/', views.notifications_view, name='notifications_view'),
+    path('dashboard/reports/', views.reports_view, name='reports_view'),
+    path('dashboard/reports/export/inventory/', views.export_inventory_csv, name='export_inventory_csv'),
+    path('dashboard/reports/export/customers/', views.export_customers_csv, name='export_customers_csv'),
 ]
+    

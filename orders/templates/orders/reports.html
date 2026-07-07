@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Reports{% endblock %}
+{% block page_title %}Reports{% endblock %}
+
+{% block content %}
+
+<section class="metrics-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 32px;">
+    <div class="metric-card">
+        <div class="metric-icon-box orders"><i class="bi bi-cart3"></i></div>
+        <div class="metric-info">
+            <div class="metric-title">Total Orders</div>
+            <div class="metric-value">{{ total_orders }}</div>
+        </div>
+    </div>
+    <div class="metric-card">
+        <div class="metric-icon-box sales"><i class="bi bi-box-seam"></i></div>
+        <div class="metric-info">
+            <div class="metric-title">Total Products</div>
+            <div class="metric-value">{{ total_products }}</div>
+        </div>
+    </div>
+    <div class="metric-card">
+        <div class="metric-icon-box customers"><i class="bi bi-people"></i></div>
+        <div class="metric-info">
+            <div class="metric-title">Total Customers</div>
+            <div class="metric-value">{{ total_customers }}</div>
+        </div>
+    </div>
+</section>
+
+<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:24px;">
+
+    <!-- Sales Report -->
+    <div class="dashboard-card" style="padding:28px;">
+        <div style="width:48px; height:48px; border-radius:12px; background:#eef2ff; color:#4f46e5; display:flex; align-items:center; justify-content:center; margin-bottom:16px;">
+            <i class="bi bi-graph-up" style="font-size:1.3rem;"></i>
+        </div>
+        <h3 style="font-size:1.05rem; font-weight:700; color:var(--text-dark); margin-bottom:6px;">Sales Report</h3>
+        <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:20px; line-height:1.5;">
+            Complete order history including customer details, channel, amount, and fulfillment status.
+        </p>
+        <a href="{% url 'export_orders_csv' %}" class="btn-primary-custom btn w-100 d-flex align-items-center justify-content-center gap-2" style="text-decoration:none;">
+            <i class="bi bi-download"></i> Download CSV
+        </a>
+    </div>
+
+    <!-- Inventory Report -->
+    <div class="dashboard-card" style="padding:28px;">
+        <div style="width:48px; height:48px; border-radius:12px; background:#ecfdf5; color:#10b981; display:flex; align-items:center; justify-content:center; margin-bottom:16px;">
+            <i class="bi bi-box-seam" style="font-size:1.3rem;"></i>
+        </div>
+        <h3 style="font-size:1.05rem; font-weight:700; color:var(--text-dark); margin-bottom:6px;">Inventory Report</h3>
+        <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:20px; line-height:1.5;">
+            Full product catalog with category, price, current stock levels, and active status.
+        </p>
+        <a href="{% url 'export_inventory_csv' %}" class="btn-primary-custom btn w-100 d-flex align-items-center justify-content-center gap-2" style="text-decoration:none;">
+            <i class="bi bi-download"></i> Download CSV
+        </a>
+    </div>
+
+    <!-- Customer Report -->
+    <div class="dashboard-card" style="padding:28px;">
+        <div style="width:48px; height:48px; border-radius:12px; background:#fef3c7; color:#f59e0b; display:flex; align-items:center; justify-content:center; margin-bottom:16px;">
+            <i class="bi bi-people" style="font-size:1.3rem;"></i>
+        </div>
+        <h3 style="font-size:1.05rem; font-weight:700; color:var(--text-dark); margin-bottom:6px;">Customer Report</h3>
+        <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:20px; line-height:1.5;">
+            Every customer who's ordered from you, with total orders, spend, and last order date.
+        </p>
+        <a href="{% url 'export_customers_csv' %}" class="btn-primary-custom btn w-100 d-flex align-items-center justify-content-center gap-2" style="text-decoration:none;">
+            <i class="bi bi-download"></i> Download CSV
+        </a>
+    </div>
+
+</div>
+
+{% endblock %}

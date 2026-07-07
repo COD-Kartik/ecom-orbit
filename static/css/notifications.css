@@ -1,0 +1,85 @@
+/* ==========================================================================
+   E-Com Orbit - Notifications Page CSS Stylesheet
+   Uses the same CSS variables already defined in dashboard.css
+   ========================================================================== */
+
+.filter-bar { display: flex; gap: 8px; margin-bottom: 4px; }
+.filter-pill {
+    background-color: #ffffff; border: 1px solid var(--border-color);
+    padding: 8px 18px; border-radius: 9999px; font-size: 0.82rem; font-weight: 700;
+    color: var(--text-medium); cursor: pointer; transition: all var(--transition-fast);
+    font-family: inherit; text-decoration: none; display: inline-block;
+}
+.filter-pill:hover { border-color: var(--text-muted); color: var(--text-dark); }
+.filter-pill.active {
+    background-color: var(--primary); border-color: var(--primary); color: #ffffff;
+    box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.15);
+}
+
+.notifications-feed {
+    display: flex; flex-direction: column; background-color: #ffffff;
+    border-radius: var(--radius-lg); box-shadow: var(--card-shadow);
+    border: 1px solid var(--border-color); overflow: hidden;
+    max-width: 900px; margin: 0 auto;
+}
+
+.notification-row {
+    display: flex; align-items: center; gap: 20px; padding: 20px 24px;
+    border-bottom: 1px solid var(--border-color); position: relative;
+    transition: background-color var(--transition-fast);
+}
+.notification-row:last-child { border-bottom: none; }
+.notification-row:hover { background-color: var(--bg-main); }
+
+.notif-icon-box {
+    width: 44px; height: 44px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.notif-icon-box.low-stock { background-color: var(--warning-light); color: var(--warning); }
+.notif-icon-box.new-order { background-color: var(--success-light); color: var(--success); }
+.notif-icon-box svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; }
+
+.notif-body { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+.notif-title { font-size: 0.92rem; font-weight: 800; color: var(--text-dark); display: flex; align-items: center; gap: 8px; }
+.notif-desc { font-size: 0.84rem; color: var(--text-medium); line-height: 1.5; }
+.notif-desc strong { color: var(--text-dark); font-weight: 700; }
+
+.notif-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; flex-shrink: 0; }
+.notif-time { font-size: 0.76rem; color: var(--text-light); font-weight: 600; }
+
+.btn-action {
+    display: inline-flex; align-items: center; gap: 6px; background-color: #ffffff;
+    border: 1.5px solid var(--border-color); padding: 8px 14px; border-radius: var(--radius-sm);
+    font-size: 0.8rem; font-weight: 700; color: var(--text-medium); text-decoration: none;
+    cursor: pointer; transition: all var(--transition-fast);
+}
+.btn-action:hover { border-color: var(--primary); color: var(--primary); background-color: var(--primary-light); transform: translateY(-0.5px); }
+.btn-action svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2.2; }
+
+.channel-badge {
+    font-size: 0.72rem; font-weight: 600; padding: 2px 6px; border-radius: 4px;
+    background-color: var(--bg-main); border: 1px solid var(--border-color);
+    color: var(--text-medium); display: inline-block; margin-left: 4px;
+}
+
+.empty-state-card {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 64px 32px; text-align: center; background-color: #ffffff;
+    border-radius: var(--radius-lg); border: 1px dashed var(--text-light);
+    max-width: 900px; margin: 0 auto;
+}
+.empty-icon-wrapper {
+    width: 60px; height: 60px; background-color: var(--success-light); color: var(--success);
+    border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 18px;
+}
+.empty-icon-wrapper svg { width: 28px; height: 28px; fill: none; stroke: currentColor; stroke-width: 2; }
+.empty-title { font-size: 1.1rem; font-weight: 800; color: var(--text-dark); margin-bottom: 6px; }
+.empty-desc { font-size: 0.85rem; color: var(--text-muted); max-width: 320px; line-height: 1.5; }
+
+@media (max-width: 576px) {
+    .notification-row { flex-direction: column; align-items: flex-start; gap: 12px; padding: 18px 16px; }
+    .notif-meta {
+        flex-direction: row; justify-content: space-between; align-items: center; width: 100%;
+        border-top: 1px solid var(--border-color); padding-top: 12px; margin-top: 2px;
+    }
+}

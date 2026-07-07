@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Notifications{% endblock %}
+{% block page_title %}Notification Feed{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/notifications.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="filter-bar">
+    <a href="?filter=all" class="filter-pill {% if current_filter == 'all' %}active{% endif %}">All Notifications</a>
+    <a href="?filter=low-stock" class="filter-pill {% if current_filter == 'low-stock' %}active{% endif %}">Low Stock</a>
+    <a href="?filter=new-order" class="filter-pill {% if current_filter == 'new-order' %}active{% endif %}">New Orders</a>
+</div>
+
+{% if notifications %}
+<div class="notifications-feed">
+    {% for n in notifications %}
+    <div class="notification-row {{ n.type }}">
+        <div class="notif-icon-box {{ n.type }}">
+            {% if n.type == 'new-order' %}
+            <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z" /></svg>
+            {% else %}
+            <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" /></svg>
+            {% endif %}
+        </div>
+
+        <div class="notif-body">
+            {% if n.type == 'new-order' %}
+            <span class="notif-title">New Order Received <span class="channel-badge">{{ n.channel_name }}</span></span>
+            <span class="notif-desc">Order <strong>#ORD-{{ n.order_id }}</strong> placed by <strong>{{ n.customer_name }}</strong> for a total value of <strong>₹{{ n.amount }}</strong>.</span>
+            {% else %}
+            <span class="notif-title">Low Stock Alert</span>
+            <span class="notif-desc">Product <strong>{{ n.product_title }}</strong> is running low. Only <strong>{{ n.stock }} units left</strong> in stock.</span>
+            {% endif %}
+        </div>
+
+        <div class="notif-meta">
+            <span class="notif-time">{{ n.time_label }}</span>
+            {% if n.type == 'new-order' %}
+            <a href="{% url 'order_detail' n.order_id %}" class="btn-action">
+                <span>View Order</span>
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"></path></svg>
+            </a>
+            {% else %}
+            <a href="{% url 'product_edit' n.product_id %}" class="btn-action">
+                <span>View Product</span>
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"></path></svg>
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state-card">
+    <div class="empty-icon-wrapper">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" />
+        </svg>
+    </div>
+    <h4 class="empty-title">You're all caught up!</h4>
+    <p class="empty-desc">There are no new alerts at the moment. All inventory thresholds and channels are synced.</p>
+</div>
+{% endif %}
+
+{% endblock %}

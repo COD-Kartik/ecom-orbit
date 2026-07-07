@@ -8,6 +8,10 @@ from .models import Order, OrderItem
 from .serializers import OrderSerializer
 from accounts.models import BusinessProfile
 import json
+from django.utils import timezone
+from products.models import Product
+
+
 
 
 def get_user_business(user):
@@ -228,4 +232,143 @@ def customer_list(request):
         'sort_by': sort_by,
         'has_customers': total_customers > 0,
         'business': business,
+    })
+
+
+
+def _relative_time(dt):
+    diff = timezone.now() - dt
+    seconds = diff.total_seconds()
+    if seconds < 60:
+        return "Just now"
+    minutes = int(seconds // 60)
+    if minutes < 60:
+        return f"{minutes} minute{'s' if minutes != 1 else ''} ago"
+    hours = int(seconds // 3600)
+    if hours < 24:
+        return f"{hours} hour{'s' if hours != 1 else ''} ago"
+    days = int(seconds // 86400)
+    return f"{days} day{'s' if days != 1 else ''} ago"
+
+
+@login_required
+def notifications_view(request):
+    business = get_user_business(request.user)
+    current_filter = request.GET.get('filter', 'all')
+
+    notifications = []
+
+    if business:
+        # Low stock alerts — using created_at as a proxy timestamp,
+        # since Product has no updated_at field to track exact low-stock moment.
+        low_stock_products = Product.objects.filter(business=business, stock__lte=5).order_by('-created_at')
+        for p in low_stock_products:
+            notifications.append({
+                'type': 'low-stock',
+                'product_id': p.id,
+                'product_title': p.title,
+                'stock': p.stock,
+                'timestamp': p.created_at,
+                'time_label': _relative_time(p.created_at),
+            })
+
+        # New order notifications
+        recent_orders = Order.objects.filter(business=business).order_by('-created_at')[:20]
+        for o in recent_orders:
+            notifications.append({
+                'type': 'new-order',
+                'order_id': o.id,
+                'customer_name': o.customer_name,
+                'amount': o.total_amount,
+                'channel_name': o.channel.name if o.channel else 'Manual',
+                'timestamp': o.created_at,
+                'time_label': _relative_time(o.created_at),
+            })
+
+    # Sort combined feed by timestamp, most recent first
+    notifications.sort(key=lambda x: x['timestamp'], reverse=True)
+
+    if current_filter != 'all':
+        notifications = [n for n in notifications if n['type'] == current_filter]
+
+    return render(request, 'orders/notifications.html', {
+        'notifications': notifications,
+        'current_filter': current_filter,
+    })
+
+
+@login_required
+def export_inventory_csv(request):
+    business = get_user_business(request.user)
+    products = Product.objects.filter(business=business).order_by('title') if business else Product.objects.none()
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="inventory_report.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(['Product', 'Category', 'Price', 'Stock', 'Status', 'Date Added'])
+
+    for p in products:
+        writer.writerow([
+            p.title,
+            p.category.name if p.category else 'Uncategorized',
+            p.price,
+            p.stock,
+            'Active' if p.is_active else 'Inactive',
+            p.created_at.strftime('%Y-%m-%d'),
+        ])
+
+    return response
+
+
+@login_required
+def export_customers_csv(request):
+    business = get_user_business(request.user)
+    orders_qs = Order.objects.filter(business=business).exclude(customer_email__isnull=True).exclude(customer_email='') if business else Order.objects.none()
+
+    grouped = (
+        orders_qs.values('customer_email', 'customer_name', 'customer_phone')
+        .annotate(total_orders=Count('id'), total_spent=Sum('total_amount'), last_order_date=Max('created_at'))
+        .order_by('-total_spent')
+    )
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="customer_report.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(['Customer Name', 'Email', 'Phone', 'Total Orders', 'Total Spent', 'Last Order Date'])
+
+    for c in grouped:
+        writer.writerow([
+            c['customer_name'],
+            c['customer_email'],
+            c['customer_phone'] or '',
+            c['total_orders'],
+            c['total_spent'],
+            c['last_order_date'].strftime('%Y-%m-%d') if c['last_order_date'] else '',
+        ])
+
+    return response
+
+@login_required
+def reports_view(request):
+    business = get_user_business(request.user)
+    if business:
+        total_orders = Order.objects.filter(business=business).count()
+        total_products = Product.objects.filter(business=business).count()
+        total_customers = (
+            Order.objects.filter(business=business)
+            .exclude(customer_email__isnull=True)
+            .exclude(customer_email='')
+            .values('customer_email')
+            .distinct()
+            .count()
+        )
+    else:
+        total_orders = total_products = total_customers = 0
+
+    return render(request, 'orders/reports.html', {
+        'total_orders': total_orders,
+        'total_products': total_products,
+        'total_customers': total_customers,
     })
