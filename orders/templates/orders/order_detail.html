@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Order #{{ order.id }}{% endblock %}
+{% block page_title %}Order #ORD-{{ order.id }}{% endblock %}
+{% block nav_orders %}active{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/orders.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="orders-page-container" style="max-width: 1000px; margin: 0 auto;">
+
+  <!-- Navigation / Back Link -->
+  <div style="margin-bottom: 20px;">
+    <a href="{% url 'order_list' %}" style="color: var(--text-muted); text-decoration: none; font-size: 0.88rem; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; transition: color var(--transition-fast);">
+      <i class="bi bi-arrow-left"></i> Back to Orders
+    </a>
+  </div>
+
+  <!-- Cards Grid (Customer Info & Delivery Address) -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; margin-bottom: 24px;">
+    
+    <!-- Customer Info Card -->
+    <div class="dashboard-card" style="padding: 24px;">
+      <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); font-weight: 700; margin-bottom: 16px;">
+        Customer Information
+      </div>
+      <div style="font-size: 1.15rem; color: var(--text-dark); font-weight: 700; margin-bottom: 12px;">
+        {{ order.customer_name }}
+      </div>
+      
+      <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px;">
+        <div style="font-size: 0.88rem; color: var(--text-medium); display: flex; align-items: center; gap: 8px;">
+          <i class="bi bi-envelope" style="color: var(--text-light); font-size: 1rem; width: 20px; text-align: center;"></i>
+          <span>{{ order.customer_email|default:"No email registered" }}</span>
+        </div>
+        <div style="font-size: 0.88rem; color: var(--text-medium); display: flex; align-items: center; gap: 8px;">
+          <i class="bi bi-telephone" style="color: var(--text-light); font-size: 1rem; width: 20px; text-align: center;"></i>
+          <span>{{ order.customer_phone|default:"No phone registered" }}</span>
+        </div>
+      </div>
+      
+      <span style="font-size: 0.78rem; padding: 4px 10px; border-radius: 6px; display: inline-block; background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-muted); font-weight: 600;">
+        Sales Channel: {{ order.channel.name|default:"Manual" }}
+      </span>
+    </div>
+
+    <!-- Shipping Address Card -->
+    <div class="dashboard-card" style="padding: 24px;">
+      <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); font-weight: 700; margin-bottom: 16px;">
+        Shipping Address
+      </div>
+      <div style="font-size: 0.9rem; color: var(--text-medium); line-height: 1.6; white-space: pre-line; min-height: 80px;">
+        {{ order.shipping_address|default:"No shipping address provided." }}
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Itemized Products Table -->
+  <div class="dashboard-card" style="padding: 24px; margin-bottom: 24px;">
+    <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); font-weight: 700; margin-bottom: 16px;">
+      Items Purchased
+    </div>
+    
+    <div style="overflow-x: auto;">
+      <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+        <thead>
+          <tr style="text-align: left; color: var(--text-muted); border-bottom: 1px solid var(--border-color); font-size: 0.72rem; text-transform: uppercase;">
+            <th style="padding: 12px 8px; font-weight: 700;">Product</th>
+            <th style="padding: 12px 12px; text-align: center; font-weight: 700;">Price</th>
+            <th style="padding: 12px 12px; text-align: center; font-weight: 700;">Qty</th>
+            <th style="padding: 12px 8px; text-align: right; font-weight: 700;">Subtotal</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in order.items.all %}
+          <tr style="border-bottom: 1px solid var(--border-color); color: var(--text-medium);">
+            <td style="padding: 14px 8px; font-weight: 600; color: var(--text-dark);">
+              {{ item.product.title|default:"Deleted Product" }}
+            </td>
+            <td style="padding: 14px 12px; text-align: center;">₹{{ item.unit_price }}</td>
+            <td style="padding: 14px 12px; text-align: center; font-weight: 600;">{{ item.quantity }}</td>
+            <td style="padding: 14px 8px; text-align: right; font-weight: 700; color: var(--text-dark);">
+              ₹{{ item.subtotal }}
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="4" style="text-align: center; padding: 32px; color: var(--text-muted);">
+              No items in this order.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Total Area -->
+    <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
+      <div style="width: 240px; border-top: 1px dashed var(--border-color); padding-top: 16px;">
+        <div style="display: flex; justify-content: space-between; font-size: 1.1rem; font-weight: 800; color: var(--text-dark);">
+          <span>Total Amount:</span>
+          <span style="color: var(--primary);">₹{{ order.total_amount }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Status & Delete Panel -->
+  <div class="dashboard-card" style="padding: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 24px;">
+    
+    <!-- Fulfillment Status Dropdown -->
+    <div style="flex: 1; min-width: 260px;">
+      <label style="display: block; color: var(--text-muted); font-size: 0.72rem; text-transform: uppercase; font-weight: 700; margin-bottom: 8px; letter-spacing: 0.5px;">
+        Fulfillment Status
+      </label>
+      <form method="post" action="{% url 'order_status_update' order.id %}" style="margin: 0;">
+        {% csrf_token %}
+        <select name="status" class="order-input badge-status badge-{{ order.status }}" onchange="this.form.submit()" style="border: 1px solid rgba(0, 0, 0, 0.05); font-weight: 600; cursor: pointer; outline: none; padding: 10px 14px; border-radius: var(--radius-sm); font-size: 0.88rem; max-width: 240px;">
+          <option value="pending" {% if order.status == 'pending' %}selected{% endif %}>Pending</option>
+          <option value="processing" {% if order.status == 'processing' %}selected{% endif %}>Processing</option>
+          <option value="shipped" {% if order.status == 'shipped' %}selected{% endif %}>Shipped</option>
+          <option value="delivered" {% if order.status == 'delivered' %}selected{% endif %}>Delivered</option>
+          <option value="cancelled" {% if order.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+        </select>
+      </form>
+    </div>
+
+    <!-- Danger Zone Delete Button -->
+    <div>
+      <a href="{% url 'order_delete' order.id %}" onclick="return confirm('Are you sure you want to permanently delete this order?')" style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.2); color: var(--danger); padding: 12px 24px; border-radius: var(--radius-sm); font-size: 0.88rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: all var(--transition-fast);" class="delete-btn">
+        <i class="bi bi-trash"></i> Delete Order
+      </a>
+    </div>
+
+  </div>
+
+  <!-- Timestamps meta info -->
+  <div style="font-size: 0.8rem; color: var(--text-light); text-align: center; margin-top: 24px; border-top: 1px solid var(--border-color); padding-top: 16px;">
+    Order placed on {{ order.created_at|date:"d M Y, H:i" }} &middot; Last updated {{ order.updated_at|date:"d M Y, H:i" }}
+  </div>
+
+</div>
+{% endblock %}

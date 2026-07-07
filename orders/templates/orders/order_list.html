@@ -1,0 +1,218 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Orders{% endblock %}
+{% block page_title %}Orders{% endblock %}
+{% block nav_orders %}active{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/orders.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="orders-page-container">
+
+  <!-- Stats Cards Row (5 cards) -->
+  <section class="metrics-grid">
+    <div class="metric-card">
+      <div class="metric-icon-box total">
+        <i class="bi bi-cart3"></i>
+      </div>
+      <div class="metric-info">
+        <div class="metric-title">Total Orders</div>
+        <div class="metric-value">{{ total_orders }}</div>
+      </div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-icon-box pending">
+        <i class="bi bi-clock"></i>
+      </div>
+      <div class="metric-info">
+        <div class="metric-title">Pending</div>
+        <div class="metric-value">{{ pending_count }}</div>
+      </div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-icon-box processing">
+        <i class="bi bi-box-seam"></i>
+      </div>
+      <div class="metric-info">
+        <div class="metric-title">Processing</div>
+        <div class="metric-value">{{ processing_count }}</div>
+      </div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-icon-box shipped">
+        <i class="bi bi-truck"></i>
+      </div>
+      <div class="metric-info">
+        <div class="metric-title">Shipped</div>
+        <div class="metric-value">{{ shipped_count }}</div>
+      </div>
+    </div>
+
+    <div class="metric-card">
+      <div class="metric-icon-box delivered">
+        <i class="bi bi-check-circle"></i>
+      </div>
+      <div class="metric-info">
+        <div class="metric-title">Delivered</div>
+        <div class="metric-value">{{ delivered_count }}</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Layout Grid -->
+  <div class="orders-grid">
+
+    <!-- Left Column: Orders List Table -->
+    <div class="dashboard-card" style="padding: 0; overflow: hidden;">
+      <!-- Search & Filter Bar -->
+      <div class="card-header-bar" style="padding: 20px 24px;">
+        <span class="card-title-text">Orders List</span>
+        
+        <form method="get" style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+          <div style="position: relative; display: flex; align-items: center;">
+            <input type="text" name="q" value="{{ search_query }}" placeholder="Search customer..." class="order-input" style="padding: 8px 12px; width: 220px; font-size: 0.85rem;">
+          </div>
+          
+          <select name="status" class="status-dropdown" onchange="this.form.submit()" style="padding: 8px 12px; font-size: 0.85rem;">
+            <option value="">All Statuses</option>
+            <option value="pending" {% if current_status == 'pending' %}selected{% endif %}>Pending</option>
+            <option value="processing" {% if current_status == 'processing' %}selected{% endif %}>Processing</option>
+            <option value="shipped" {% if current_status == 'shipped' %}selected{% endif %}>Shipped</option>
+            <option value="delivered" {% if current_status == 'delivered' %}selected{% endif %}>Delivered</option>
+            <option value="cancelled" {% if current_status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+          </select>
+          
+          <button type="submit" class="btn" style="background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-medium); padding: 8px 16px; border-radius: var(--radius-sm); font-size: 0.85rem; font-weight: 600; cursor: pointer;">
+            Filter
+          </button>
+        </form>
+      </div>
+
+      <!-- Table Container -->
+      <div class="orders-table-container" style="overflow-x: auto; padding: 0 12px 12px;">
+        <table class="orders-table" style="width: 100%; border-collapse: collapse; min-width: 800px;">
+          <thead>
+            <tr style="text-align: left; border-bottom: 1px solid var(--border-color);">
+              <th style="padding: 14px 16px; font-size: 0.72rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Order ID</th>
+              <th style="padding: 14px 16px; font-size: 0.72rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Date</th>
+              <th style="padding: 14px 16px; font-size: 0.72rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Customer</th>
+              <th style="padding: 14px 16px; font-size: 0.72rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Channel</th>
+              <th style="padding: 14px 16px; font-size: 0.72rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Fulfillment Status</th>
+              <th style="padding: 14px 16px; font-size: 0.72rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Amount</th>
+              <th style="padding: 14px 16px; font-size: 0.72rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; text-align: right;">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for order in orders %}
+            <tr style="border-bottom: 1px solid var(--border-color); font-size: 0.88rem; color: var(--text-medium);">
+              <td style="padding: 14px 16px;">
+                <a href="{% url 'order_detail' order.id %}" style="font-weight: 700; color: var(--primary); text-decoration: none;">#ORD-{{ order.id }}</a>
+              </td>
+              <td style="padding: 14px 16px; color: var(--text-light); font-size: 0.8rem;">
+                {{ order.created_at|date:"Y-m-d H:i" }}
+              </td>
+              <td style="padding: 14px 16px;">
+                <div style="font-weight: 600; color: var(--text-dark);">{{ order.customer_name }}</div>
+                <div style="font-size: 0.72rem; color: var(--text-muted);">{{ order.customer_email|default:"No email" }}</div>
+              </td>
+              <td style="padding: 14px 16px;">
+                <span style="font-size: 0.75rem; padding: 4px 8px; border-radius: 6px; font-weight: 500; background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-medium);">
+                  {{ order.channel.name|default:"Manual" }}
+                </span>
+              </td>
+              <td style="padding: 14px 16px;">
+                <!-- Status Update Dropdown (Inline Form) -->
+                <form method="post" action="{% url 'order_status_update' order.id %}" style="display: inline-block; margin: 0;">
+                  {% csrf_token %}
+                  <select name="status" class="status-dropdown badge-status badge-{{ order.status }}" onchange="this.form.submit()" style="border: 1px solid rgba(0, 0, 0, 0.05); border-radius: 6px; cursor: pointer; outline: none; font-size: 0.75rem; font-weight: 600; padding: 4px 10px;">
+                    <option value="pending" {% if order.status == 'pending' %}selected{% endif %}>Pending</option>
+                    <option value="processing" {% if order.status == 'processing' %}selected{% endif %}>Processing</option>
+                    <option value="shipped" {% if order.status == 'shipped' %}selected{% endif %}>Shipped</option>
+                    <option value="delivered" {% if order.status == 'delivered' %}selected{% endif %}>Delivered</option>
+                    <option value="cancelled" {% if order.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                  </select>
+                </form>
+              </td>
+              <td style="padding: 14px 16px; font-weight: 700; color: var(--text-dark);">
+                ₹{{ order.total_amount }}
+              </td>
+              <td style="padding: 14px 16px; text-align: right;">
+                <a href="{% url 'order_detail' order.id %}" class="action-btn-orders" style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border-color); background: var(--bg-main); color: var(--text-medium); transition: all var(--transition-fast); text-decoration: none;" title="View Details">
+                  <i class="bi bi-eye"></i>
+                </a>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="7" style="text-align: center; padding: 48px; color: var(--text-muted); font-size: 0.9rem;">
+                No orders yet.
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Right Column: Add Manual Order Form Panel -->
+    <div class="dashboard-card">
+      <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-dark); margin-bottom: 6px; display: flex; align-items: center; gap: 8px;">
+        <i class="bi bi-plus-circle" style="color: var(--primary);"></i> Add Manual Order
+      </h3>
+      <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 24px;">Create a new manual order (e.g. WhatsApp, phone, retail).</p>
+
+      <form method="post" action="{% url 'order_add' %}">
+        {% csrf_token %}
+        
+        <div class="orders-form-group">
+          <label>Customer Name *</label>
+          <input type="text" name="customer_name" class="order-input" placeholder="e.g. Rohan Sharma" required>
+        </div>
+        
+        <div class="orders-form-group">
+          <label>Email Address</label>
+          <input type="email" name="customer_email" class="order-input" placeholder="e.g. rohan@gmail.com">
+        </div>
+        
+        <div class="orders-form-group">
+          <label>Phone Number</label>
+          <input type="text" name="customer_phone" class="order-input" placeholder="e.g. +91 9876543210">
+        </div>
+        
+        <div class="orders-form-group">
+          <label>Shipping Address *</label>
+          <textarea name="shipping_address" class="order-input" rows="3" placeholder="Enter delivery details..." required></textarea>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 12px; margin-bottom: 24px;">
+          <div class="orders-form-group" style="margin-bottom: 0;">
+            <label>Product *</label>
+            <select name="product_id[]" class="order-input" required>
+              <option value="">Select product</option>
+              {% for product in products %}
+              <option value="{{ product.id }}">{{ product.title }} (₹{{ product.price }})</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="orders-form-group" style="margin-bottom: 0;">
+            <label>Quantity *</label>
+            <input type="number" name="quantity[]" class="order-input" value="1" min="1" required>
+          </div>
+        </div>
+
+        <button type="submit" class="btn" style="background: var(--primary); border: 1.5px solid var(--primary); color: white; padding: 12px; border-radius: var(--radius-sm); font-size: 0.88rem; font-weight: 700; width: 100%; cursor: pointer; transition: all var(--transition-fast);">
+          Create Order
+        </button>
+      </form>
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}

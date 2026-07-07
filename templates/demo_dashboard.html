@@ -1,0 +1,279 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Com Orbit - Live Demo Dashboard</title>
+    <meta name="description" content="See how E-Com Orbit's seller dashboard looks in action.">
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+    <style>
+        /* Demo banner */
+        .demo-banner {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            text-align: center;
+            padding: 10px 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            z-index: 300;
+        }
+        .demo-banner a {
+            color: white;
+            text-decoration: underline;
+            font-weight: 700;
+            margin-left: 4px;
+        }
+        .sidebar {
+            top: 40px !important;
+            height: calc(100vh - 40px) !important;
+        }
+        .main-content {
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="demo-banner">
+    🚀 Live Demo — <a href="{% url 'register' %}">Create your free account</a> to start managing your own store
+</div>
+
+    <aside class="sidebar" id="sidebar-panel">
+        <div class="brand">
+            <div class="brand-logo">
+                <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="orbit-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#00f2fe" />
+                            <stop offset="100%" stop-color="#4f46e5" />
+                        </linearGradient>
+                    </defs>
+                    <ellipse cx="20" cy="20" rx="18" ry="6" fill="none" stroke="url(#orbit-grad)" stroke-width="2" transform="rotate(-30 20 20)"/>
+                    <ellipse cx="20" cy="20" rx="14" ry="4" fill="none" stroke="#a5b4fc" stroke-width="1" opacity="0.6" transform="rotate(45 20 20)"/>
+                    <circle cx="20" cy="20" r="8" fill="url(#orbit-grad)"/>
+                    <circle cx="9" cy="14" r="2" fill="#00f2fe" />
+                    <circle cx="31" cy="26" r="2" fill="#ffffff" />
+                </svg>
+            </div>
+            <div class="brand-info">
+                <h1>E-Com Orbit</h1>
+                <p>Sell Everywhere, Manage Anywhere</p>
+            </div>
+        </div>
+
+        <div class="profile-card">
+            <div class="profile-avatar-wrapper">
+                <img class="profile-img" src="data:image/svg+xml;utf8,<svg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'><circle cx='50' cy='50' r='50' fill='%236366f1'/><circle cx='50' cy='40' r='18' fill='%23ffffff'/><path d='M22 76 C22 58, 78 58, 78 76' fill='%23ffffff' opacity='0.95'/></svg>" alt="Demo Avatar">
+            </div>
+            <div class="profile-info">
+                <div class="profile-name">Urban Threads</div>
+                <div class="profile-badge">Pro Seller</div>
+            </div>
+        </div>
+
+        <ul class="sidebar-menu">
+            <li class="menu-item active">
+                <a href="#"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" /></svg><span>Dashboard</span></a>
+            </li>
+            <li class="menu-item">
+                <a href="#"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" /></svg><span>Products</span></a>
+            </li>
+            <li class="menu-item">
+                <a href="#"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 20.25h12m-12-3h12m-12-3h12m-12-3h12m-12-3h12m-12-3h12" opacity="0.3"/><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h14.25c.621 0 1.125.504 1.125 1.125v14.25c0 .621-.504 1.125-1.125 1.125H4.875c-.621 0-1.125-.504-1.125-1.125V4.875z" /><path stroke-linecap="round" stroke-linejoin="round" d="M9 7.5h6m-6 3h6m-6 3h6m-6 3h6" /></svg><span>Inventory</span></a>
+            </li>
+            <li class="menu-item">
+                <a href="#"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 9h.75m.75 0h.75m.75 0h.75m-6.75-3H18.75c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18V7.125C3 6.504 3.504 6 4.125 6z" /></svg><span>Orders</span><span class="menu-badge purple">24</span></a>
+            </li>
+            <li class="menu-item">
+                <a href="#"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z" /></svg><span>Channels</span></a>
+            </li>
+            <li class="menu-item">
+                <a href="#"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" /></svg><span>Marketing</span><span class="menu-badge green">New</span></a>
+            </li>
+            <li class="menu-item">
+                <a href="#"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" /></svg><span>Analytics</span></a>
+            </li>
+        </ul>
+
+        <div class="plan-card">
+            <div class="plan-title">Current Plan</div>
+            <div class="plan-name">Pro Seller</div>
+            <button class="plan-btn">View Plan Details</button>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="topbar">
+            <div class="topbar-left">
+                <div class="page-title">
+                    <h2>Dashboard</h2>
+                    <div class="breadcrumbs"><a href="#">Home</a><span class="separator">&gt;</span><a href="#" class="active">Dashboard</a></div>
+                </div>
+            </div>
+            <div class="topbar-right">
+                <div class="date-selector" style="cursor:default;">
+                    <span>May 20 – Jun 19, 2026</span>
+                </div>
+                <button class="notification-bell">
+                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"></path></svg>
+                    <span class="bell-badge">12</span>
+                </button>
+                <div class="user-account">
+                    <div class="user-avatar-wrapper">
+                        <img class="profile-img" src="data:image/svg+xml;utf8,<svg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'><circle cx='50' cy='50' r='50' fill='%234f46e5'/><circle cx='50' cy='40' r='18' fill='%23ffffff'/><path d='M22 76 C22 58, 78 58, 78 76' fill='%23ffffff' opacity='0.95'/></svg>" alt="Demo User">
+                    </div>
+                    <div class="user-details">
+                        <span class="user-name">Priya Sharma</span>
+                        <span class="user-role">Business Owner</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <section class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-icon-box sales"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" /></svg></div>
+                <div class="metric-info"><div class="metric-title">Total Sales</div><div class="metric-value">₹2,45,680</div>
+                    <div class="metric-trend up"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25"></path></svg>18.6% <span class="trend-text">vs last 30 days</span></div>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon-box orders"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" /></svg></div>
+                <div class="metric-info"><div class="metric-title">Total Orders</div><div class="metric-value">248</div>
+                    <div class="metric-trend up"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25"></path></svg>12.4% <span class="trend-text">vs last 30 days</span></div>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon-box customers"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.109A9.342 9.342 0 0012 20.25a9.34 9.34 0 00-3.011-.514v-.108c0-1.112-.285-2.16-.786-3.07M11.25 12.75A4.5 4.5 0 117 8.25m4.25 4.5a4.5 4.5 0 01-4.25-4.5m4.25 4.5A4.5 4.5 0 0012 17.25a4.5 4.5 0 003.582-1.776M11.25 12.75a4.5 4.5 0 01-3.667-1.897M12 17.25a4.5 4.5 0 01-3.667-1.897m7.167.397a4.5 4.5 0 003.582-1.776M15.502 12h.008v.008h-.008V12zM18 12h.008v.008H18V12z" /></svg></div>
+                <div class="metric-info"><div class="metric-title">Total Customers</div><div class="metric-value">1,245</div>
+                    <div class="metric-trend up"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25"></path></svg>10.3% <span class="trend-text">vs last 30 days</span></div>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon-box conversion"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" /></svg></div>
+                <div class="metric-info"><div class="metric-title">Conversion Rate</div><div class="metric-value">3.42%</div>
+                    <div class="metric-trend up"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25"></path></svg>8.7% <span class="trend-text">vs last 30 days</span></div>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon-box revenue"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a2.25 2.25 0 00-2.25-2.25H15a3 3 0 11-6 0H5.25A2.25 2.25 0 003 12m18 0v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6m18 0V9M3 12V9m18 0a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 9m18 0V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v3" /></svg></div>
+                <div class="metric-info"><div class="metric-title">Total Revenue</div><div class="metric-value">₹2,45,680</div>
+                    <div class="metric-trend up"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25"></path></svg>18.6% <span class="trend-text">vs last 30 days</span></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="dashboard-grid">
+            <div class="dashboard-card sales-overview-card">
+                <div class="card-header"><span class="card-title">Sales Overview</span></div>
+                <div class="chart-container">
+                    <svg class="chart-svg" viewBox="0 0 540 220" preserveAspectRatio="none">
+                        <defs><linearGradient id="chart-gradient" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#4f46e5" /><stop offset="100%" stop-color="#4f46e5" stop-opacity="0" /></linearGradient></defs>
+                        <line class="chart-grid-line" x1="40" y1="20" x2="520" y2="20" /><line class="chart-grid-line" x1="40" y1="92" x2="520" y2="92" /><line class="chart-grid-line" x1="40" y1="164" x2="520" y2="164" />
+                        <path class="chart-gradient-fill" d="M 40 200 L 40 170 C 80 140, 110 165, 136 155 C 160 145, 200 85, 232 110 C 260 130, 300 100, 328 120 C 360 140, 390 70, 424 100 C 450 120, 490 55, 520 70 L 520 200 Z" />
+                        <path class="chart-path-main" d="M 40 170 C 80 140, 110 165, 136 155 C 160 145, 200 85, 232 110 C 260 130, 300 100, 328 120 C 360 140, 390 70, 424 100 C 450 120, 490 55, 520 70" />
+                    </svg>
+                </div>
+            </div>
+            <div class="dashboard-card order-summary-card">
+                <div class="card-header" style="width: 100%"><span class="card-title">Order Summary</span></div>
+                <div class="donut-chart-container">
+                    <svg class="donut-svg" viewBox="0 0 140 140" width="100%" height="100%">
+                        <circle class="donut-segment" cx="70" cy="70" r="55" stroke="#f1f5f9" stroke-width="15" />
+                        <circle class="donut-segment" cx="70" cy="70" r="55" stroke="#10b981" stroke-width="16" stroke-dasharray="217.4 345.5" />
+                        <circle class="donut-segment" cx="70" cy="70" r="55" stroke="#4f46e5" stroke-width="16" stroke-dasharray="78.1 345.5" stroke-dashoffset="-217.4" />
+                        <circle class="donut-segment" cx="70" cy="70" r="55" stroke="#f59e0b" stroke-width="16" stroke-dasharray="33.5 345.5" stroke-dashoffset="-295.5" />
+                    </svg>
+                    <div class="donut-center"><span class="donut-center-val">248</span><span class="donut-center-lbl">Total Orders</span></div>
+                </div>
+            </div>
+            <div class="dashboard-card channels-card">
+                <div class="card-header"><span class="card-title">Connected Channels</span></div>
+                <div class="channels-list">
+                    <div class="channel-row"><div class="channel-info"><div class="channel-logo fb"><svg fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></div><div><div class="channel-name">Facebook Shop</div><div class="channel-status">Connected</div></div></div><span class="channel-indicator"></span></div>
+                    <div class="channel-row"><div class="channel-info"><div class="channel-logo ig"><svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069z"/></svg></div><div><div class="channel-name">Instagram Shop</div><div class="channel-status">Connected</div></div></div><span class="channel-indicator"></span></div>
+                    <div class="channel-row"><div class="channel-info"><div class="channel-logo google"><svg fill="currentColor" viewBox="0 0 24 24"><path d="M12.24 10.285V14.4h6.887c-.648 2.41-2.519 4.113-5.136 4.113-3.28 0-5.938-2.699-5.938-6.027 0-3.328 2.659-6.027 5.938-6.027 1.493 0 2.86.55 3.905 1.446l3.07-3.081C19.123 2.012 15.865 1 12.24 1 6.033 1 1 6.05 1 12.28 1 18.51 6.033 23.56 12.24 23.56c5.787 0 10.871-4.103 10.871-10.428 0-.589-.06-1.332-.22-1.847H12.24z"/></svg></div><div><div class="channel-name">Google Shopping</div><div class="channel-status">Connected</div></div></div><span class="channel-indicator"></span></div>
+                    <div class="channel-row"><div class="channel-info"><div class="channel-logo amazon"><svg fill="currentColor" viewBox="0 0 24 24"><path d="M15.42 13.41c-.42.27-.96.48-1.62.63-.66.15-1.41.22-2.25.22-.84 0-1.53-.12-2.07-.36-.54-.24-.9-.63-1.08-1.17.42-.09.93-.15 1.53-.18.6-.03 1.23-.09 1.89-.18.66-.09 1.23-.24 1.71-.45.48-.21.81-.54.99-.99-.06-.57-.3-1.02-.72-1.35-.42-.33-.99-.48-1.71-.48-.51 0-.96.09-1.35.27-.39.18-.72.48-.99.9L7.8 8.88c.45-.63 1.02-1.11 1.71-1.44.69-.33 1.53-.48 2.52-.48 1.47 0 2.58.39 3.33 1.17.75.78 1.12 1.86 1.12 3.24v2.79c0 .48.06.93.18 1.35h-1.92l-.32-.54z"/></svg></div><div><div class="channel-name">Amazon</div><div class="channel-status">Connected</div></div></div><span class="channel-indicator"></span></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="dashboard-grid" style="margin-top: 0">
+            <div class="dashboard-card recent-orders-card" style="grid-column: span 1">
+                <div class="card-header"><span class="card-title">Recent Orders</span></div>
+                <div class="table-container">
+                    <table class="dashboard-table">
+                        <thead><tr><th>Order ID</th><th>Customer</th><th>Channel</th><th>Date</th><th>Amount</th><th>Status</th></tr></thead>
+                        <tbody>
+                            <tr><td><a href="#" class="order-id">#ORD-1250</a></td><td>Rohan Sharma</td><td>Instagram</td><td>Jun 19, 2026</td><td style="font-weight:600">₹2,450</td><td><span class="badge completed">Completed</span></td></tr>
+                            <tr><td><a href="#" class="order-id">#ORD-1249</a></td><td>Neha Verma</td><td>Facebook</td><td>Jun 19, 2026</td><td style="font-weight:600">₹1,250</td><td><span class="badge processing">Processing</span></td></tr>
+                            <tr><td><a href="#" class="order-id">#ORD-1248</a></td><td>Amit Singh</td><td>Google</td><td>Jun 18, 2026</td><td style="font-weight:600">₹3,650</td><td><span class="badge completed">Completed</span></td></tr>
+                            <tr><td><a href="#" class="order-id">#ORD-1247</a></td><td>Priya Patel</td><td>Amazon</td><td>Jun 18, 2026</td><td style="font-weight:600">₹950</td><td><span class="badge pending">Pending</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="dashboard-card top-products-card">
+                <div class="card-header"><span class="card-title">Top Performing Products</span></div>
+                <div class="table-container">
+                    <table class="dashboard-table">
+                        <thead><tr><th>Product</th><th>Sales</th><th>Revenue</th></tr></thead>
+                        <tbody>
+                            <tr><td>Wireless Headphones</td><td>120</td><td style="font-weight:600">₹1,20,000</td></tr>
+                            <tr><td>Smart Watch Series 5</td><td>98</td><td style="font-weight:600">₹98,000</td></tr>
+                            <tr><td>Premium Backpack</td><td>86</td><td style="font-weight:600">₹68,800</td></tr>
+                            <tr><td>Running Shoes</td><td>75</td><td style="font-weight:600">₹60,000</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="right-panel-column">
+                <div class="dashboard-card" style="flex-grow: 1">
+                    <div class="card-header"><span class="card-title">Notifications</span></div>
+                    <div class="notifications-list">
+                        <div class="notification-item"><div class="notif-icon-box low-stock"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg></div><div class="notif-details"><div class="notif-text">Low stock alert: Premium Backpack</div><div class="notif-time">5 mins ago</div></div></div>
+                        <div class="notification-item"><div class="notif-icon-box order"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg></div><div class="notif-details"><div class="notif-text">Order #ORD-1249 received</div><div class="notif-time">15 mins ago</div></div></div>
+                    </div>
+                </div>
+                <div class="dashboard-card">
+                    <div class="card-header" style="margin-bottom: 12px"><span class="card-title">Quick Actions</span></div>
+                    <div class="quick-actions-grid">
+                        <div class="action-item"><div class="action-icon add-product"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></div><span class="action-name">Add Product</span></div>
+                        <div class="action-item"><div class="action-icon campaign"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" /></svg></div><span class="action-name">Create Campaign</span></div>
+                        <div class="action-item"><div class="action-icon analytics"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg></div><span class="action-name">View Analytics</span></div>
+                        <div class="action-item"><div class="action-icon inventory"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg></div><span class="action-name">Manage Inventory</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bottom-banner">
+                <div class="banner-left">
+                    <div class="rocket-svg-wrapper">
+                        <svg viewBox="0 0 32 32"><path d="M16 2C16 2 24 9 24 16C24 23 20 27 16 30C12 27 8 23 8 16C8 9 16 2 16 2Z" fill="#ffffff"/><path d="M16 2C16 2 16 16 16 30C12 27 8 23 8 16C8 9 16 2 16 2Z" fill="#e2e8f0"/><path d="M8 18C8 18 2 20 3 24C4 28 8 26 8 26" fill="#6366f1"/><path d="M24 18C24 18 30 20 29 24C28 28 24 26 24 26" fill="#4f46e5"/><path d="M16 28C14 28 13 32 16 32C19 32 18 28 16 28Z" fill="#f59e0b"/></svg>
+                    </div>
+                    <div class="banner-info">
+                        <h3>This is what YOUR dashboard could look like!</h3>
+                        <p>Create your free account and start selling everywhere today.</p>
+                    </div>
+                </div>
+                <a class="banner-btn" href="{% url 'register' %}">
+                    Create Free Account
+                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"></path></svg>
+                </a>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

@@ -16,16 +16,32 @@ def dashboard(request):
     business = get_user_business(request.user)
     if business:
         products = Product.objects.filter(business=business)
+        from channels_integration.models import Channel
+        channels      = Channel.objects.filter(business=business)
+        user_channels = channels.filter(is_active=True)[:5]
+        active_channels = channels.filter(is_active=True).count()
     else:
-        products = Product.objects.none()
-    total_products = products.count()
-    low_stock      = products.filter(stock__lte=5).count()
-    recent_products= products.order_by('-created_at')[:5]
+        products        = Product.objects.none()
+        user_channels   = []
+        active_channels = 0
+
+    total_products  = products.count()
+    low_stock       = products.filter(stock__lte=5).count()
+    recent_products = products.order_by('-created_at')[:5]
+    top_products    = products.order_by('-stock')[:5]
+
     return render(request, 'dashboard.html', {
         'business'       : business,
         'total_products' : total_products,
         'low_stock'      : low_stock,
+        'active_channels': active_channels,
         'recent_products': recent_products,
+        'top_products'   : top_products,
+        'user_channels'  : user_channels,
+        'total_orders'   : 0,
+        'total_customers': 0,
+        'total_revenue'  : 0,
+        'recent_orders'  : [],
     })
 
 @login_required
@@ -152,3 +168,4 @@ def category_delete(request, pk):
     business = get_user_business(request.user)
     get_object_or_404(Category, pk=pk, business=business).delete()
     return redirect('category_list')
+
