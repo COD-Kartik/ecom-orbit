@@ -15,15 +15,25 @@ def get_user_business(user):
 # ── API ViewSets ──────────────────────────────────────────────────
 class ChannelViewSet(viewsets.ModelViewSet):
     serializer_class = ChannelSerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticated]
+
     def get_queryset(self):
-        return Channel.objects.all()
+        business = get_user_business(self.request.user)
+        return Channel.objects.filter(business=business) if business else Channel.objects.none()
+
+    def perform_create(self, serializer):
+        business = get_user_business(self.request.user)
+        serializer.save(business=business)
+
 
 class ProductListingViewSet(viewsets.ModelViewSet):
     serializer_class = ProductListingSerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticated]
+
     def get_queryset(self):
-        return ProductListing.objects.all()
+        business = get_user_business(self.request.user)
+        channels = Channel.objects.filter(business=business) if business else Channel.objects.none()
+        return ProductListing.objects.filter(channel__in=channels)
 
 # ── UI Views ──────────────────────────────────────────────────────
 @login_required

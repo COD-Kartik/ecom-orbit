@@ -4,21 +4,38 @@ from rest_framework import viewsets, permissions
 from . import views
 from .models import Category, Product
 from .serializers import CategorySerializer, ProductSerializer
+from .views import get_user_business
+
 
 class ProductViewSet(viewsets.ModelViewSet):
     serializer_class = ProductSerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticated]
+
     def get_queryset(self):
-        return Product.objects.all()
+        business = get_user_business(self.request.user)
+        return Product.objects.filter(business=business) if business else Product.objects.none()
+
+    def perform_create(self, serializer):
+        business = get_user_business(self.request.user)
+        serializer.save(business=business)
+
 
 class CategoryViewSet(viewsets.ModelViewSet):
-    queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        business = get_user_business(self.request.user)
+        return Category.objects.filter(business=business) if business else Category.objects.none()
+
+    def perform_create(self, serializer):
+        business = get_user_business(self.request.user)
+        serializer.save(business=business)
+
 
 router = DefaultRouter()
 router.register(r'products', ProductViewSet, basename='product')
-router.register(r'categories', CategoryViewSet)
+router.register(r'categories', CategoryViewSet, basename='category')
 
 urlpatterns = [
     # Dashboard UI

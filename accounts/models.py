@@ -8,12 +8,15 @@ class User(AbstractUser):
         ('seller', 'Seller'),
     )
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='seller')
+    email = models.EmailField(unique=True)
     phone = models.CharField(max_length=15, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    verification_code = models.CharField(max_length=6, blank=True, null=True)
+    verification_code_created_at = models.DateTimeField(blank=True, null=True)
+    profile_picture = models.ImageField(upload_to='avatars/', blank=True, null=True)
 
     def __str__(self):
         return f"{self.username} ({self.role})"
-
 class BusinessProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='business_profile')
     business_name = models.CharField(max_length=255)
@@ -23,7 +26,7 @@ class BusinessProfile(models.Model):
     logo = models.ImageField(upload_to='business_logos/', blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
-
+    business_phone = models.CharField(max_length=20, blank=True, null=True)
     def __str__(self):
         return self.business_name
 

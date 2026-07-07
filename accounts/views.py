@@ -1,14 +1,44 @@
+import random
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from .models import User, BusinessProfile, SellerProfile
+from django.core.mail import send_mail
+from django.conf import settings
+from django.utils import timezone
 from django.utils.text import slugify
+from datetime import timedelta
+from .models import User, BusinessProfile
+
+
+def get_user_business(user):
+    try:
+        return BusinessProfile.objects.get(user=user)
+    except BusinessProfile.DoesNotExist:
+        return None
+
 
 def landing_page(request):
     if request.user.is_authenticated:
         return redirect('dashboard')
     return render(request, 'landing.html')
+
+
+def generate_and_send_code(user):
+    code = str(random.randint(100000, 999999))
+    user.verification_code = code
+    user.verification_code_created_at = timezone.now()
+    user.save()
+
+    subject = "Your E-Com Orbit verification code"
+    message = (
+        f"Hi {user.first_name or user.username},\n\n"
+        f"Your verification code is: {code}\n\n"
+        f"This code expires in 10 minutes.\n\n"
+        f"If you didn't request this, you can ignore this email."
+    )
+    send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email])
+
 
 # ── Login ─────────────────────────────────────────────────────────
 def login_view(request):
@@ -17,32 +47,32 @@ def login_view(request):
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
-        # Allow email login
+
         try:
             user_obj = User.objects.get(email=username)
             username = user_obj.username
         except User.DoesNotExist:
-            pass
+            user_obj = None
+
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                from django.http import JsonResponse
-                return JsonResponse({'success': True, 'redirect': '/dashboard/'})
             return redirect('dashboard')
         else:
-            messages.error(request, 'Invalid email or password.')
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                from django.http import JsonResponse
-                return JsonResponse({'success': False}, status=400)
+            if user_obj and not user_obj.is_active:
+                messages.error(request, 'Please verify your email before signing in.')
+            else:
+                messages.error(request, 'Incorrect email or password. Please try again.')
     return render(request, 'auth/login.html')
+
 
 # ── Logout ────────────────────────────────────────────────────────
 def logout_view(request):
     logout(request)
     return redirect('login')
 
-# ── Register (Unified — Option A) ─────────────────────────────────
+
+# ── Register ──────────────────────────────────────────────────────
 def register_view(request):
     if request.user.is_authenticated:
         return redirect('dashboard')
@@ -54,7 +84,6 @@ def register_view(request):
         password      = request.POST.get('password', '')
         password2     = request.POST.get('password2', '')
 
-        # Validation
         if not all([full_name, business_name, email, password, password2]):
             messages.error(request, 'All fields are required.')
             return render(request, 'auth/register.html')
@@ -71,7 +100,6 @@ def register_view(request):
             messages.error(request, 'An account with this email already exists.')
             return render(request, 'auth/register.html')
 
-        # Generate unique username from email
         base_username = email.split('@')[0].lower()
         username = base_username
         counter = 1
@@ -79,20 +107,18 @@ def register_view(request):
             username = f"{base_username}{counter}"
             counter += 1
 
-        # Create user
         user = User.objects.create_user(
             username=username,
             email=email,
             password=password,
             role='business_owner',
         )
-        # Set full name
+        user.is_active = False
         names = full_name.strip().split(' ', 1)
         user.first_name = names[0]
         user.last_name  = names[1] if len(names) > 1 else ''
         user.save()
 
-        # Create BusinessProfile
         slug = slugify(business_name)
         original_slug = slug
         counter = 1
@@ -106,22 +132,154 @@ def register_view(request):
             slug=slug,
         )
 
-        # Log them in
-        login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-
-        # Handle AJAX (from landing page modal)
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            from django.http import JsonResponse
-            return JsonResponse({'success': True, 'redirect': '/dashboard/'})
-
-        messages.success(request, f'Welcome to E-Com Orbit, {business_name}!')
-        return redirect('dashboard')
+        generate_and_send_code(user)
+        request.session['pending_verification_email'] = email
+        return redirect('verify_code')
 
     return render(request, 'auth/register.html')
 
-# ── Keep old views as aliases for backward compatibility ───────────
-def register_business(request):
-    return register_view(request)
 
-def register_seller(request):
-    return register_view(request)
+# ── Code Verification ────────────────────────────────────────────
+def verify_code_view(request):
+    email = request.session.get('pending_verification_email')
+    if not email:
+        return redirect('register')
+
+    if request.method == 'POST':
+        entered_code = request.POST.get('code', '').strip()
+        try:
+            user = User.objects.get(email=email, is_active=False)
+        except User.DoesNotExist:
+            messages.error(request, 'Something went wrong. Please register again.')
+            return redirect('register')
+
+        if not user.verification_code:
+            messages.error(request, 'No verification code found. Please request a new one.')
+            return render(request, 'auth/verify_code.html', {'email': email})
+
+        expiry_time = user.verification_code_created_at + timedelta(minutes=10)
+        if timezone.now() > expiry_time:
+            messages.error(request, 'This code has expired. Please request a new one.')
+            return render(request, 'auth/verify_code.html', {'email': email})
+
+        if entered_code == user.verification_code:
+            user.is_active = True
+            user.verification_code = None
+            user.save()
+            del request.session['pending_verification_email']
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+            messages.success(request, 'Email verified! Welcome to E-Com Orbit.')
+            return redirect('dashboard')
+        else:
+            messages.error(request, 'Incorrect code. Please try again.')
+
+    return render(request, 'auth/verify_code.html', {'email': email})
+
+
+def resend_verification(request):
+    email = request.session.get('pending_verification_email') or request.POST.get('email')
+    if email:
+        try:
+            user = User.objects.get(email=email, is_active=False)
+            generate_and_send_code(user)
+            messages.success(request, 'A new verification code has been sent.')
+        except User.DoesNotExist:
+            pass
+    return render(request, 'auth/verify_code.html', {'email': email})
+
+
+def demo_dashboard(request):
+    return render(request, 'demo_dashboard.html')
+
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.hashers import check_password
+
+
+@login_required
+def settings_view(request):
+    business = get_user_business(request.user)
+    return render(request, 'accounts/settings.html', {
+        'business': business,
+    })
+
+
+@login_required
+def update_profile(request):
+    if request.method == 'POST':
+        user = request.user
+        full_name = request.POST.get('full_name', '').strip()
+        phone = request.POST.get('phone', '').strip()
+
+        names = full_name.split(' ', 1)
+        user.first_name = names[0]
+        user.last_name = names[1] if len(names) > 1 else ''
+        user.phone = phone
+
+        if request.FILES.get('profile_picture'):
+            user.profile_picture = request.FILES.get('profile_picture')
+
+        user.save()
+        messages.success(request, 'Profile updated successfully.')
+    return redirect('settings')
+
+
+@login_required
+def update_business(request):
+    business = get_user_business(request.user)
+    if request.method == 'POST' and business:
+        business.business_name = request.POST.get('business_name', business.business_name).strip()
+        business.business_phone = request.POST.get('business_phone', '').strip()
+        business.address = request.POST.get('address', '').strip()
+        business.tax_id = request.POST.get('tax_id', '').strip()
+        business.description = request.POST.get('description', '').strip()
+
+        if request.FILES.get('logo'):
+            business.logo = request.FILES.get('logo')
+
+        business.save()
+        messages.success(request, 'Business information updated successfully.')
+    return redirect('settings')
+
+
+@login_required
+def change_password(request):
+    if request.method == 'POST':
+        current_password = request.POST.get('current_password')
+        new_password = request.POST.get('new_password')
+        confirm_password = request.POST.get('confirm_password')
+
+        if not check_password(current_password, request.user.password):
+            messages.error(request, 'Current password is incorrect.')
+            return redirect('settings')
+
+        if new_password != confirm_password:
+            messages.error(request, 'New passwords do not match.')
+            return redirect('settings')
+
+        if len(new_password) < 8:
+            messages.error(request, 'New password must be at least 8 characters.')
+            return redirect('settings')
+
+        request.user.set_password(new_password)
+        request.user.save()
+        update_session_auth_hash(request, request.user)  # keeps user logged in after password change
+        messages.success(request, 'Password updated successfully.')
+    return redirect('settings')
+
+
+@login_required
+def delete_account(request):
+    if request.method == 'POST':
+        business = get_user_business(request.user)
+        typed_name = request.POST.get('confirm_business_name', '').strip()
+
+        if business and typed_name == business.business_name:
+            user = request.user
+            logout(request)
+            user.delete()  # cascades to delete BusinessProfile, Products, Orders, etc.
+            messages.success(request, 'Your account has been permanently deleted.')
+            return redirect('landing')
+        else:
+            messages.error(request, 'Business name did not match. Account not deleted.')
+            return redirect('settings')
+    return redirect('settings')

@@ -7,141 +7,364 @@
 
 {% block content %}
 
-<!-- Welcome Banner -->
-<div class="p-4 mb-4 rounded-3" style="background:linear-gradient(135deg,#4f46e5,#7c3aed); color:white;">
-  <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
-    <div>
-      <h5 class="fw-800 mb-1">Welcome back, {{ request.user.first_name|default:request.user.username }}! 👋</h5>
-      <p class="mb-0 opacity-75">
-        {% if business %}
-          {{ business.business_name }} — Here's what's happening with your store today.
-        {% else %}
-          Here's what's happening with your store today.
-        {% endif %}
-      </p>
-    </div>
-    <a href="{% url 'product_add' %}" class="btn btn-light fw-600" style="color:#4f46e5;">
-      <i class="bi bi-plus-lg me-1"></i> Add Product
-    </a>
-  </div>
-</div>
+<!-- ==========================================================================
+     METRICS SECTION (5 CARDS ROW)
+     ========================================================================== -->
+<section class="metrics-grid">
 
-<!-- Stats Row -->
-<div class="row g-3 mb-4">
-  <div class="col-sm-6 col-xl-3">
-    <div class="stat-card">
-      <div class="d-flex align-items-center justify-content-between mb-3">
-        <div class="stat-icon" style="background:#ede9fe;">
-          <i class="bi bi-box-seam" style="color:#7c3aed;"></i>
+    <!-- Card 1: Total Products -->
+    <div class="metric-card">
+        <div class="metric-icon-box sales">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+            </svg>
         </div>
-      </div>
-      <div class="stat-num">{{ total_products }}</div>
-      <div class="stat-label">Total Products</div>
-    </div>
-  </div>
-  <div class="col-sm-6 col-xl-3">
-    <div class="stat-card">
-      <div class="d-flex align-items-center justify-content-between mb-3">
-        <div class="stat-icon" style="background:#dcfce7;">
-          <i class="bi bi-cart3" style="color:#16a34a;"></i>
+        <div class="metric-info">
+            <div class="metric-title">Total Products</div>
+            <div class="metric-value">{{ total_products }}</div>
+            {% if total_products > 0 %}
+            <div class="metric-trend up">
+                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25"></path>
+                </svg>
+                <span class="trend-text">Added this month</span>
+            </div>
+            {% else %}
+            <div class="metric-trend" style="color:#9ca3af;">
+                <span class="trend-text">No products yet</span>
+            </div>
+            {% endif %}
         </div>
-      </div>
-      <div class="stat-num">0</div>
-      <div class="stat-label">Total Orders</div>
     </div>
-  </div>
-  <div class="col-sm-6 col-xl-3">
-    <div class="stat-card">
-      <div class="d-flex align-items-center justify-content-between mb-3">
-        <div class="stat-icon" style="background:#fef9c3;">
-          <i class="bi bi-broadcast" style="color:#ca8a04;"></i>
-        </div>
-      </div>
-      <div class="stat-num">0</div>
-      <div class="stat-label">Active Channels</div>
-    </div>
-  </div>
-  <div class="col-sm-6 col-xl-3">
-    <div class="stat-card">
-      <div class="d-flex align-items-center justify-content-between mb-3">
-        <div class="stat-icon" style="background:#fee2e2;">
-          <i class="bi bi-exclamation-triangle" style="color:#dc2626;"></i>
-        </div>
-      </div>
-      <div class="stat-num">{{ low_stock }}</div>
-      <div class="stat-label">Low Stock Alerts</div>
-    </div>
-  </div>
-</div>
 
-<!-- Recent Products -->
-<div class="row g-4">
-  <div class="col-lg-8">
-    <div class="data-table">
-      <div class="d-flex align-items-center justify-content-between p-3 border-bottom">
-        <h6 class="mb-0 fw-700" style="color:#1e1b4b;">Recent Products</h6>
-        <a href="{% url 'product_list' %}" class="text-decoration-none" style="color:#7c3aed; font-size:0.88rem;">
-          View all <i class="bi bi-arrow-right"></i>
-        </a>
-      </div>
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Product</th>
-            <th>Price</th>
-            <th>Stock</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for product in recent_products %}
-          <tr>
-            <td>
-              <div class="d-flex align-items-center gap-3">
-                {% if product.image %}
-                  <img src="{{ product.image.url }}" class="product-thumb">
-                {% else %}
-                  <div class="product-thumb-placeholder"><i class="bi bi-image"></i></div>
-                {% endif %}
-                <div>
-                  <div class="fw-600" style="color:#1e1b4b;">{{ product.title }}</div>
-                  <div class="text-muted" style="font-size:0.78rem;">{{ product.category.name|default:"No category" }}</div>
+    <!-- Card 2: Total Orders -->
+    <div class="metric-card">
+        <div class="metric-icon-box orders">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+            </svg>
+        </div>
+        <div class="metric-info">
+            <div class="metric-title">Total Orders</div>
+            <div class="metric-value">{{ total_orders|default:"0" }}</div>
+            {% if total_orders > 0 %}
+            <div class="metric-trend up">
+                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25"></path>
+                </svg>
+                <span class="trend-text">vs last 30 days</span>
+            </div>
+            {% else %}
+            <div class="metric-trend" style="color:#9ca3af;">
+                <span class="trend-text">No orders yet</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Card 3: Total Customers -->
+    <div class="metric-card">
+        <div class="metric-icon-box customers">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.109A9.342 9.342 0 0012 20.25a9.34 9.34 0 00-3.011-.514v-.108c0-1.112-.285-2.16-.786-3.07M11.25 12.75A4.5 4.5 0 117 8.25m4.25 4.5a4.5 4.5 0 01-4.25-4.5m4.25 4.5A4.5 4.5 0 0012 17.25a4.5 4.5 0 003.582-1.776M11.25 12.75a4.5 4.5 0 01-3.667-1.897M12 17.25a4.5 4.5 0 01-3.667-1.897m7.167.397a4.5 4.5 0 003.582-1.776M15.502 12h.008v.008h-.008V12zM18 12h.008v.008H18V12z" />
+            </svg>
+        </div>
+        <div class="metric-info">
+            <div class="metric-title">Total Customers</div>
+            <div class="metric-value">{{ total_customers|default:"0" }}</div>
+            {% if total_customers > 0 %}
+            <div class="metric-trend up">
+                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25"></path>
+                </svg>
+                <span class="trend-text">vs last 30 days</span>
+            </div>
+            {% else %}
+            <div class="metric-trend" style="color:#9ca3af;">
+                <span class="trend-text">No customers yet</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Card 4: Active Channels -->
+    <div class="metric-card">
+        <div class="metric-icon-box conversion">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" />
+            </svg>
+        </div>
+        <div class="metric-info">
+            <div class="metric-title">Active Channels</div>
+            <div class="metric-value">{{ active_channels|default:"0" }}</div>
+            {% if active_channels > 0 %}
+            <div class="metric-trend up">
+                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25"></path>
+                </svg>
+                <span class="trend-text">connected</span>
+            </div>
+            {% else %}
+            <div class="metric-trend" style="color:#9ca3af;">
+                <span class="trend-text">None connected yet</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Card 5: Low Stock Items -->
+    <div class="metric-card">
+        <div class="metric-icon-box revenue">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a2.25 2.25 0 00-2.25-2.25H15a3 3 0 11-6 0H5.25A2.25 2.25 0 003 12m18 0v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6m18 0V9M3 12V9m18 0a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 9m18 0V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v3" />
+            </svg>
+        </div>
+        <div class="metric-info">
+            <div class="metric-title">Low Stock Items</div>
+            <div class="metric-value">{{ low_stock }}</div>
+            {% if low_stock > 0 %}
+            <div class="metric-trend" style="color:#dc2626;">
+                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
+                </svg>
+                <span class="trend-text">Need restocking</span>
+            </div>
+            {% else %}
+            <div class="metric-trend" style="color:#9ca3af;">
+                <span class="trend-text">All stock healthy</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+</section>
+
+<!-- ==========================================================================
+     MIDDLE GRID SECTION (CHARTS & CHANNELS)
+     ========================================================================== -->
+<section class="dashboard-grid">
+
+    <!-- Column 1: Sales Overview -->
+    <div class="dashboard-card sales-overview-card">
+        <div class="card-header">
+            <span class="card-title">Sales Overview</span>
+        </div>
+        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:220px; color:#9ca3af;">
+            <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="margin-bottom:12px; opacity:0.5;">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/>
+            </svg>
+            <p style="font-size:0.9rem; margin:0;">No sales data yet</p>
+            <p style="font-size:0.78rem; margin:4px 0 0;">Chart will appear once you have orders</p>
+        </div>
+    </div>
+
+    <!-- Column 2: Order Summary -->
+    <div class="dashboard-card order-summary-card">
+        <div class="card-header" style="width: 100%">
+            <span class="card-title">Order Summary</span>
+        </div>
+        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; flex:1; color:#9ca3af; padding:20px 0;">
+            <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="margin-bottom:12px; opacity:0.5;">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 9h.75m.75 0h.75m.75 0h.75m-6.75-3H18.75c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18V7.125C3 6.504 3.504 6 4.125 6z"/>
+            </svg>
+            <p style="font-size:0.9rem; margin:0;">No orders yet</p>
+            <p style="font-size:0.78rem; margin:4px 0 0; text-align:center;">Order breakdown will appear here once customers start buying</p>
+        </div>
+        <a href="{% url 'order_list' %}" class="card-footer-btn" style="text-decoration:none; text-align:center;">View All Orders</a>
+    </div>
+
+    <!-- Column 3: Connected Channels -->
+    <div class="dashboard-card channels-card">
+        <div class="card-header">
+            <span class="card-title">Connected Channels</span>
+            <a href="{% url 'channel_list' %}" class="card-action-link">Manage All</a>
+        </div>
+
+        <div class="channels-list">
+            {% for channel in user_channels %}
+            <div class="channel-row">
+                <div class="channel-info">
+                    <div class="channel-logo {% if channel.platform_type == 'facebook' %}fb{% elif channel.platform_type == 'instagram' %}ig{% elif channel.platform_type == 'google' %}google{% else %}amazon{% endif %}">
+                        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+                    </div>
+                    <div>
+                        <div class="channel-name">{{ channel.name }}</div>
+                        <div class="channel-status">{% if channel.is_active %}Connected{% else %}Inactive{% endif %}</div>
+                    </div>
                 </div>
-              </div>
-            </td>
-            <td><strong>₹{{ product.price }}</strong></td>
-            <td>
-              {% if product.stock <= 5 %}
-                <span style="color:#dc2626; font-weight:600;">{{ product.stock }} ⚠</span>
-              {% else %}
-                {{ product.stock }}
-              {% endif %}
-            </td>
-            <td>
-              {% if product.is_active %}
-                <span class="badge-active">Active</span>
-              {% else %}
-                <span class="badge-inactive">Inactive</span>
-              {% endif %}
-            </td>
-          </tr>
-          {% empty %}
-          <tr>
-            <td colspan="4" class="text-center py-4 text-muted">
-              No products yet. <a href="{% url 'product_add' %}">Add one!</a>
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  </div>
+                <span class="channel-indicator" {% if not channel.is_active %}style="background:#ef4444"{% endif %}></span>
+            </div>
+            {% empty %}
+            <div style="text-align:center; padding:20px; color:#9ca3af; font-size:0.88rem;">No channels connected yet.</div>
+            {% endfor %}
+        </div>
 
-  <!-- Quick Actions -->
-  <div class="col-lg-4">
-    <div class="form-card">
-      <h6 class="fw-700 mb-4" style="color:#1e1b4b;">Quick Actions</h6>
-      <div class="d-grid gap-2">
-        <a href="{% url 'product_add' %}" class="btn btn-light border text-start d-flex align-items-center gap-3 p-3">
+        <a href="{% url 'channel_list' %}" class="add-channel-btn" style="text-decoration:none; display:flex; align-items:center; gap:6px; justify-content:center;">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"></path>
+            </svg>
+            Add New Channel
+        </a>
+    </div>
+
+</section>
+
+<!-- ==========================================================================
+     BOTTOM LAYOUT ROW
+     ========================================================================== -->
+<section class="dashboard-grid" style="margin-top: 0">
+
+    <!-- Column 1: Recent Orders Table -->
+    <div class="dashboard-card recent-orders-card" style="grid-column: span 1">
+        <div class="card-header">
+            <span class="card-title">Recent Orders</span>
+            <a href="{% url 'order_list' %}" class="card-action-link">View All</a>
+        </div>
+
+        <div class="table-container">
+            <table class="dashboard-table">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Channel</th>
+                        <th>Date</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in recent_orders %}
+                    <tr>
+                        <td><a href="{% url 'order_detail' order.id %}" class="order-id">#ORD-{{ order.id }}</a></td>
+                        <td><div class="customer-cell">{{ order.customer_name }}</div></td>
+                        <td><div class="customer-cell">{{ order.channel }}</div></td>
+                        <td>{{ order.created_at|date:"M d, Y" }}</td>
+                        <td style="font-weight:600">₹{{ order.total_amount }}</td>
+                        <td><span class="badge {{ order.status }}">{{ order.status|title }}</span></td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="6" style="text-align:center; padding:24px; color:#9ca3af;">No orders yet.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <a href="{% url 'order_list' %}" class="card-footer-btn" style="margin-top: auto; text-decoration:none; text-align:center; display:block;">View All Orders</a>
+    </div>
+
+    <!-- Column 2: Top Performing Products -->
+    <div class="dashboard-card top-products-card">
+        <div class="card-header">
+            <span class="card-title">Top Performing Products</span>
+            <a href="{% url 'product_list' %}" class="card-action-link">View All</a>
+        </div>
+
+        <div class="table-container">
+            <table class="dashboard-table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Sales</th>
+                        <th>Revenue</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for product in top_products %}
+                    <tr>
+                        <td>
+                            <div class="product-cell">
+                                <div class="product-img">
+                                    {% if product.image %}
+                                    <img src="{{ product.image.url }}" style="width:100%;height:100%;object-fit:cover;border-radius:6px;">
+                                    {% else %}
+                                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5"/></svg>
+                                    {% endif %}
+                                </div>
+                                <span class="product-name" title="{{ product.title }}">{{ product.title }}</span>
+                            </div>
+                        </td>
+                        <td>{{ product.stock }}</td>
+                        <td style="font-weight: 600">₹{{ product.price }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="3" style="text-align:center; padding:24px; color:#9ca3af;">No products yet.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Column 3: Notifications + Quick Actions -->
+    <div class="right-panel-column">
+
+        <div class="dashboard-card" style="flex-grow: 1">
+            <div class="card-header">
+                <span class="card-title">Notifications</span>
+            </div>
+            <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:30px 10px; color:#9ca3af;">
+                {% if low_stock > 0 %}
+                <div class="notification-item" style="width:100%;">
+                    <div class="notif-icon-box low-stock">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                    </div>
+                    <div class="notif-details">
+                        <div class="notif-text">{{ low_stock }} product(s) running low on stock</div>
+                        <div class="notif-time">Check your inventory</div>
+                    </div>
+                </div>
+                {% else %}
+                <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="opacity:0.5; margin-bottom:10px;">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"/>
+                </svg>
+                <p style="font-size:0.85rem; margin:0;">No notifications yet</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="dashboard-card">
+            <div class="card-header" style="margin-bottom: 12px">
+                <span class="card-title">Quick Actions</span>
+            </div>
+
+            <div class="quick-actions-grid">
+                <a class="action-item" href="{% url 'product_add' %}">
+                    <div class="action-icon add-product">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <span class="action-name">Add Product</span>
+                </a>
+                <a class="action-item" href="{% url 'order_add' %}">
+                    <div class="action-icon campaign">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
+                        </svg>
+                    </div>
+                    <span class="action-name">Add Order</span>
+                </a>
+                <a class="action-item" href="{% url 'analytics_view' %}">
+                    <div class="action-icon analytics">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                    </div>
+                    <span class="action-name">View Analytics</span>
+                </a>
+                <a class="action-item" href="{% url 'product_list' %}">
+                    <div class="action-icon inventory">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                        </svg>
+                    </div>
+                    <span class="action-name">Manage Inventory</span>
+                </a>
+            </div>
+        </div>
+
+    </div>
+
+</section>
 
 {% endblock %}
