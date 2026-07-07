@@ -1,0 +1,244 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Customers{% endblock %}
+{% block page_title %}Customer Directory{% endblock %}
+{% block nav_customers %}active{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/customers.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<!-- 1. TOP STAT CARDS -->
+<section class="metrics-row">
+    <div class="metric-card">
+        <div class="metric-header">
+            <div class="metric-icon total">
+                <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.109A9.342 9.342 0 0012 20.25a9.34 9.34 0 00-3.011-.514v-.108c0-1.112-.285-2.16-.786-3.07M11.25 12.75A4.5 4.5 0 117 8.25m4.25 4.5a4.5 4.5 0 01-4.25-4.5m4.25 4.5A4.5 4.5 0 0012 17.25a4.5 4.5 0 003.582-1.776M11.25 12.75a4.5 4.5 0 01-3.667-1.897M12 17.25a4.5 4.5 0 01-3.667-1.897m7.167.397a4.5 4.5 0 003.582-1.776M15.502 12h.008v.008h-.008V12z" /></svg>
+            </div>
+        </div>
+        <div class="metric-body">
+            <span class="metric-title-text">Total Customers</span>
+            <span class="metric-value-text">{{ total_customers }}</span>
+        </div>
+    </div>
+
+    <div class="metric-card">
+        <div class="metric-header">
+            <div class="metric-icon new">
+                <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            </div>
+        </div>
+        <div class="metric-body">
+            <span class="metric-title-text">New Customers</span>
+            <span class="metric-value-text">{{ new_count }}</span>
+        </div>
+    </div>
+
+    <div class="metric-card">
+        <div class="metric-header">
+            <div class="metric-icon repeat">
+                <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12c0-1.232-.046-2.453-.138-3.662a4.006 4.006 0 00-3.7-3.7 48.656 48.656 0 00-7.324 0 4.006 4.006 0 00-3.7 3.7C4.547 9.547 4.5 10.768 4.5 12s.047 2.453.138 3.662a4.006 4.006 0 003.7 3.7 48.656 48.656 0 007.324 0 4.006 4.006 0 003.7-3.7c.092-1.209.138-2.43.138-3.662z" /><path stroke-linecap="round" stroke-linejoin="round" d="M9 10.5l3 3 6-6" /></svg>
+            </div>
+        </div>
+        <div class="metric-body">
+            <span class="metric-title-text">Repeat Customer Rate</span>
+            <span class="metric-value-text">{{ repeat_rate }}%</span>
+        </div>
+    </div>
+
+    <div class="metric-card">
+        <div class="metric-header">
+            <div class="metric-icon clv">
+                <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 10.136 12 10.513 12 9.5c0-.987.904-1.724 2.12-1.48M6.75 19.5a12.75 12.75 0 0110.5 0v-15a12.75 12.75 0 01-10.5 0v15z" /></svg>
+            </div>
+        </div>
+        <div class="metric-body">
+            <span class="metric-title-text">Avg. Customer LTV</span>
+            <span class="metric-value-text">₹{{ avg_ltv }}</span>
+        </div>
+    </div>
+</section>
+
+{% if has_customers %}
+<div class="customers-card">
+    <div class="table-filter-bar">
+        <form method="get" style="display:flex; gap:10px; flex-wrap:wrap; width:100%;">
+            <div class="search-box-wrapper">
+                <svg class="search-icon-svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                <input type="text" name="q" value="{{ search_query }}" placeholder="Search customers by name or email..." class="search-input">
+            </div>
+            <select name="sort" class="dropdown-filter" onchange="this.form.submit()">
+                <option value="spent-desc" {% if sort_by == 'spent-desc' %}selected{% endif %}>Sort by: Total Spent (High to Low)</option>
+                <option value="spent-asc" {% if sort_by == 'spent-asc' %}selected{% endif %}>Sort by: Total Spent (Low to High)</option>
+                <option value="orders-desc" {% if sort_by == 'orders-desc' %}selected{% endif %}>Sort by: Total Orders</option>
+                <option value="date-desc" {% if sort_by == 'date-desc' %}selected{% endif %}>Sort by: Last Order Date</option>
+            </select>
+            <button type="submit" class="dropdown-filter" style="cursor:pointer;">Filter</button>
+        </form>
+    </div>
+
+    <div class="table-wrapper">
+        <table class="customers-table">
+            <thead>
+                <tr>
+                    <th>Customer</th>
+                    <th>Total Orders</th>
+                    <th>Total Spent</th>
+                    <th>Last Order Date</th>
+                    <th>Status</th>
+                    <th style="text-align: right;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in customers %}
+                <tr class="customer-row"
+                    data-name="{{ c.name }}"
+                    data-email="{{ c.email }}"
+                    data-phone="{{ c.phone }}"
+                    data-orders="{{ c.total_orders }}"
+                    data-spent="₹{{ c.total_spent }}"
+                    data-lastdate="{{ c.last_order_date }}"
+                    data-status="{{ c.status }}"
+                    data-history='{{ c.order_history_json|escapejs }}'>
+                    <td>
+                        <div class="customer-identity">
+                            <div class="avatar-initials {% cycle 'color-1' 'color-2' 'color-3' 'color-4' 'color-5' 'color-6' 'color-7' 'color-8' %}">{{ c.name|slice:":2"|upper }}</div>
+                            <div class="customer-meta-text">
+                                <span class="customer-name">{{ c.name }}</span>
+                                <span class="customer-contact">{{ c.email }} &middot; {{ c.phone }}</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td style="font-weight: 600;">{{ c.total_orders }}</td>
+                    <td style="font-weight: 700; color: var(--text-dark);">₹{{ c.total_spent }}</td>
+                    <td style="color: var(--text-muted); font-size: 0.82rem;">{{ c.last_order_date }}</td>
+                    <td><span class="badge-status {{ c.status }}">{{ c.status|title }}</span></td>
+                    <td style="text-align: right;">
+                        <button class="action-row-btn" type="button"><i class="bi bi-eye"></i></button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<div class="empty-state-card">
+    <div class="empty-icon-box">
+        <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
+    </div>
+    <h4 class="empty-title">No customers yet</h4>
+    <p class="empty-desc">Once customers start purchasing from your store channels, their contact and order records will appear here.</p>
+</div>
+{% endif %}
+
+<!-- Drawer Backdrop -->
+<div class="drawer-backdrop" id="backdrop" onclick="closeCustomerDrawer()"></div>
+
+<!-- Slide-in Customer Details Drawer -->
+<div class="detail-drawer" id="customer-drawer">
+    <div class="drawer-header">
+        <div class="drawer-title-box">
+            <span class="drawer-title-text" id="drawer-cust-name">—</span>
+            <span class="badge-status drawer-subtitle-badge" id="drawer-cust-badge">—</span>
+        </div>
+        <button class="drawer-close-btn" type="button" onclick="closeCustomerDrawer()" title="Close details">
+            <i class="bi bi-x-lg"></i>
+        </button>
+    </div>
+
+    <div class="drawer-body">
+        <div class="drawer-summary-card">
+            <div class="drawer-summary-header">
+                <div class="drawer-avatar" id="drawer-cust-avatar">—</div>
+                <div>
+                    <div style="font-weight:700; color:var(--text-dark); font-size:0.95rem;" id="drawer-cust-fullname">—</div>
+                    <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;" id="drawer-cust-email">—</div>
+                    <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;" id="drawer-cust-phone">—</div>
+                </div>
+            </div>
+
+            <div class="summary-grid">
+                <div class="summary-item"><span class="summary-label">Total Orders</span><span class="summary-value" id="drawer-cust-orders">—</span></div>
+                <div class="summary-item"><span class="summary-label">Total Spent</span><span class="summary-value" id="drawer-cust-spent">—</span></div>
+                <div class="summary-item"><span class="summary-label">Last Order Date</span><span class="summary-value" id="drawer-cust-lastdate">—</span></div>
+                <div class="summary-item"><span class="summary-label">Customer Tier</span><span class="summary-value" id="drawer-cust-tier">—</span></div>
+            </div>
+        </div>
+
+        <div>
+            <h4 class="order-history-title">Customer Order History</h4>
+            <div class="orders-timeline" id="drawer-orders-list"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.customer-row').forEach(function (row) {
+        row.addEventListener('click', function () {
+            const name = row.dataset.name;
+            const email = row.dataset.email;
+            const phone = row.dataset.phone;
+            const orders = row.dataset.orders;
+            const spent = row.dataset.spent;
+            const lastdate = row.dataset.lastdate;
+            const status = row.dataset.status;
+            const history = JSON.parse(row.dataset.history || '[]');
+
+            document.getElementById('drawer-cust-name').innerText = name;
+            document.getElementById('drawer-cust-fullname').innerText = name;
+            document.getElementById('drawer-cust-email').innerText = email;
+            document.getElementById('drawer-cust-phone').innerText = phone;
+            document.getElementById('drawer-cust-orders').innerText = orders;
+            document.getElementById('drawer-cust-spent').innerText = spent;
+            document.getElementById('drawer-cust-lastdate').innerText = lastdate;
+            document.getElementById('drawer-cust-tier').innerText = status.charAt(0).toUpperCase() + status.slice(1);
+
+            const badge = document.getElementById('drawer-cust-badge');
+            badge.innerText = status.charAt(0).toUpperCase() + status.slice(1);
+            badge.className = 'badge-status drawer-subtitle-badge ' + status;
+
+            const avatar = document.getElementById('drawer-cust-avatar');
+            const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+            avatar.innerText = initials;
+            avatar.className = 'drawer-avatar ' + status;
+
+            const ordersList = document.getElementById('drawer-orders-list');
+            ordersList.innerHTML = '';
+            if (history.length === 0) {
+                ordersList.innerHTML = '<p style="color:var(--text-muted); font-size:0.85rem;">No order history found.</p>';
+            } else {
+                history.forEach(function (o) {
+                    ordersList.innerHTML += `
+                        <div class="past-order-row">
+                            <div class="order-left-details">
+                                <span class="order-row-id">#ORD-${o.id}</span>
+                                <span class="order-row-date">${o.date}</span>
+                                <span class="order-row-channel">${o.channel}</span>
+                            </div>
+                            <div class="order-right-details">
+                                <span class="order-row-amount">₹${o.amount}</span>
+                                <span class="order-mini-badge ${o.status}">${o.status_display}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            document.getElementById('backdrop').classList.add('active');
+            document.getElementById('customer-drawer').classList.add('active');
+        });
+    });
+});
+
+function closeCustomerDrawer() {
+    document.getElementById('backdrop').classList.remove('active');
+    document.getElementById('customer-drawer').classList.remove('active');
+}
+</script>
+
+{% endblock %}

@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Analytics{% endblock %}
+{% block page_title %}Analytics Suite{% endblock %}
+{% block nav_analytics %}active{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/analytics.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<!-- 1. TOP METRIC CARDS ROW -->
+<section class="metrics-row">
+    <div class="metric-card">
+        <div class="metric-header">
+            <div class="metric-icon revenue">
+                <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 10.136 12 10.513 12 9.5c0-.987.904-1.724 2.12-1.48M6.75 19.5a12.75 12.75 0 0110.5 0v-15a12.75 12.75 0 01-10.5 0v15z" /></svg>
+            </div>
+        </div>
+        <div class="metric-body">
+            <span class="metric-title-text">Total Revenue</span>
+            <span class="metric-value-text">₹{{ total_revenue }}</span>
+        </div>
+    </div>
+
+    <div class="metric-card">
+        <div class="metric-header">
+            <div class="metric-icon orders">
+                <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z" /></svg>
+            </div>
+        </div>
+        <div class="metric-body">
+            <span class="metric-title-text">Total Orders</span>
+            <span class="metric-value-text">{{ total_orders }}</span>
+        </div>
+    </div>
+
+    <div class="metric-card">
+        <div class="metric-header">
+            <div class="metric-icon aov">
+                <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 14.25l6-6m4.5-3.75L3.75 19.5M21 19.5l-6-6" /></svg>
+            </div>
+        </div>
+        <div class="metric-body">
+            <span class="metric-title-text">Avg. Order Value</span>
+            <span class="metric-value-text">₹{{ avg_order_value }}</span>
+        </div>
+    </div>
+
+    <div class="metric-card">
+        <div class="metric-header">
+            <div class="metric-icon customers">
+                <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.109A9.342 9.342 0 0012 20.25a9.34 9.34 0 00-3.011-.514v-.108c0-1.112-.285-2.16-.786-3.07M11.25 12.75A4.5 4.5 0 117 8.25m4.25 4.5a4.5 4.5 0 01-4.25-4.5m4.25 4.5A4.5 4.5 0 0012 17.25a4.5 4.5 0 003.582-1.776M11.25 12.75a4.5 4.5 0 01-3.667-1.897M12 17.25a4.5 4.5 0 01-3.667-1.897m7.167.397a4.5 4.5 0 003.582-1.776M15.502 12h.008v.008h-.008V12z" /></svg>
+            </div>
+        </div>
+        <div class="metric-body">
+            <span class="metric-title-text">Total Customers</span>
+            <span class="metric-value-text">{{ total_customers }}</span>
+        </div>
+    </div>
+</section>
+
+{% if has_orders %}
+
+<!-- 2 & 3. REVENUE BY CHANNEL + FULFILLMENT STATUS -->
+<div class="grid-2col">
+    <div class="analytics-card">
+        <div class="card-header">
+            <span class="card-title">Revenue by Channel</span>
+        </div>
+
+        {% if channel_data %}
+        <div class="channel-breakdown-list">
+            {% for c in channel_data %}
+            <div class="channel-item">
+                <div class="channel-header">
+                    <div class="channel-name-box"><span class="channel-dot manual"></span><span>{{ c.name }}</span></div>
+                    <span class="channel-percentage">{{ c.percent }}% <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: normal;">(₹{{ c.revenue }})</span></span>
+                </div>
+                <div class="channel-bar-bg"><div class="channel-bar-fill manual" style="width: {{ c.percent }}%;"></div></div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p style="color:var(--text-muted); font-size:0.85rem; text-align:center; padding:30px 0;">No channel revenue data yet.</p>
+        {% endif %}
+    </div>
+
+    <div class="analytics-card">
+        <div class="card-header"><span class="card-title">Fulfillment Status</span></div>
+        <div class="order-status-container">
+            <div class="donut-svg-wrapper">
+                <svg class="donut-svg" width="140" height="140" viewBox="0 0 140 140">
+                    <circle cx="70" cy="70" r="50" stroke="#f1f5f9" stroke-width="14" fill="none"/>
+                    {% for seg in donut_segments %}
+                    <circle class="donut-segment" cx="70" cy="70" r="50" stroke="{{ seg.color }}" stroke-width="14" fill="none" stroke-dasharray="{{ seg.dasharray }}" stroke-dashoffset="{{ seg.dashoffset }}" />
+                    {% endfor %}
+                </svg>
+                <div class="donut-svg-center">
+                    <span class="donut-center-val">{{ total_orders }}</span>
+                    <span class="donut-center-lbl">Orders</span>
+                </div>
+            </div>
+            <div class="status-legend">
+                <div class="status-legend-item"><span class="status-legend-label"><span class="status-dot delivered"></span> Delivered</span><span class="status-legend-val">{{ status_counts.delivered }}</span></div>
+                <div class="status-legend-item"><span class="status-legend-label"><span class="status-dot shipped"></span> Shipped</span><span class="status-legend-val">{{ status_counts.shipped }}</span></div>
+                <div class="status-legend-item"><span class="status-legend-label"><span class="status-dot processing"></span> Processing</span><span class="status-legend-val">{{ status_counts.processing }}</span></div>
+                <div class="status-legend-item"><span class="status-legend-label"><span class="status-dot pending"></span> Pending</span><span class="status-legend-val">{{ status_counts.pending }}</span></div>
+                <div class="status-legend-item"><span class="status-legend-label"><span class="status-dot cancelled"></span> Cancelled</span><span class="status-legend-val">{{ status_counts.cancelled }}</span></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 4 & 5. TOP PRODUCTS + DAY OF WEEK -->
+<div class="grid-2col">
+    <div class="analytics-card">
+        <div class="card-header"><span class="card-title">Top Performing Products</span></div>
+        {% if top_products %}
+        <div class="products-table-container">
+            <table class="products-table">
+                <thead>
+                    <tr><th>Product Name</th><th style="text-align:center;">Sold</th><th>Revenue</th></tr>
+                </thead>
+                <tbody>
+                    {% for p in top_products %}
+                    <tr>
+                        <td class="product-name-col">{{ p.product__title|default:"Deleted Product" }}</td>
+                        <td style="text-align:center; font-weight:600;">{{ p.total_sold }}</td>
+                        <td style="font-weight:700;">₹{{ p.revenue }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p style="color:var(--text-muted); font-size:0.85rem; text-align:center; padding:30px 0;">No product sales yet.</p>
+        {% endif %}
+    </div>
+
+    <div class="analytics-card day-chart-card">
+        <div class="card-header"><span class="card-title">Sales by Day of Week</span></div>
+        <div class="day-chart-container">
+            {% for d in day_chart %}
+            <div class="day-bar-column">
+                <div class="day-bar-wrapper"><div class="day-bar-fill" style="height: {{ d.height_pct }}%;"></div></div>
+                <span class="day-label">{{ d.label }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+{% else %}
+
+<!-- Empty state for new users with no orders yet -->
+<div class="analytics-card" style="text-align:center; padding:60px 20px;">
+    <svg width="56" height="56" fill="none" stroke="var(--text-light)" stroke-width="1.5" viewBox="0 0 24 24" style="margin-bottom:16px; opacity:0.6;">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/>
+    </svg>
+    <h3 style="font-size:1.1rem; font-weight:700; color:var(--text-dark); margin-bottom:8px;">No analytics data yet</h3>
+    <p style="color:var(--text-muted); font-size:0.9rem;">Once you start receiving orders, your revenue trends, top products, and channel performance will show up here.</p>
+</div>
+
+{% endif %}
+
+{% endblock %}
