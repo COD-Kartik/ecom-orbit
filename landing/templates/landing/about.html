@@ -1,0 +1,94 @@
+{% extends 'landing/base_landing.html' %}
+{% load static %}
+
+{% block title %}About Us{% endblock %}
+{% block meta_description %}Learn about the mission behind E-Com Orbit — helping multi-channel sellers automate inventory, orders, and analytics from one dashboard.{% endblock %}
+
+{% block content %}
+
+<section class="hero" style="min-height:auto; padding-top:140px; padding-bottom:60px;">
+    <div class="container">
+        <div class="section-header">
+            <div class="hero-badge">Our story</div>
+            <h1 style="font-size:2.6rem;">Built for Sellers Who <span class="text-gradient">Refuse to Slow Down</span></h1>
+            <p>E-Com Orbit was born out of a simple frustration: selling across multiple platforms shouldn't mean multiplying your admin work.</p>
+        </div>
+    </div>
+</section>
+
+<section>
+    <div class="container">
+        <div class="showdown-grid" style="align-items:start;">
+
+            <div class="showdown-card orbit" style="background:transparent; border:none; box-shadow:none; padding:0;">
+                <div class="showdown-title" style="color:var(--text-dark, #111);">
+                    Our Mission
+                </div>
+                <p style="color:var(--text-muted, #555); line-height:1.7; font-size:1.02rem;">
+                    Every day, thousands of small and growing sellers list the same product on Instagram, Facebook, Google Shopping, and Amazon — one form field at a time. When a sale happens on one channel, they scramble to update stock everywhere else before overselling. We built E-Com Orbit to make that entire process disappear into the background, so sellers can focus on what actually grows their business: their products and their customers.
+                </p>
+            </div>
+
+            <div class="showdown-card chaos" style="background:transparent; border:none; box-shadow:none; padding:0;">
+                <div class="showdown-title" style="color:var(--text-dark, #111);">
+                    Why We Started
+                </div>
+                <p style="color:var(--text-muted, #555); line-height:1.7; font-size:1.02rem;">
+                    E-Com Orbit started as a solution to a very real, very common problem faced by independent sellers scaling across social commerce and marketplaces. Rather than another isolated storefront tool, we set out to build a genuine command center — one dashboard that speaks to every channel a seller sells on, keeping listings, inventory, and orders perfectly in sync.
+                </p>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<section id="features">
+    <div class="container">
+        <div class="section-header">
+            <h2>What We Stand For</h2>
+            <p>The principles that guide how we build E-Com Orbit.</p>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon-wrapper">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <h3>Reliability First</h3>
+                <p>Inventory sync failures cost sellers real money. We prioritize accuracy and consistency in everything we automate.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon-wrapper">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M14.25 9.75v-4.5m0 4.5h4.5m-4.5 0l6-6M3 5.25a2.25 2.25 0 012.25-2.25H9a2.25 2.25 0 012.25 2.25v3.75a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 9V5.25zM3 18.75V15a2.25 2.25 0 012.25-2.25H9A2.25 2.25 0 0110.25 15v3.75A2.25 2.25 0 019 21H5.25A2.25 2.25 0 013 18.75z" />
+                    </svg>
+                </div>
+                <h3>Built for Sellers</h3>
+                <p>Every feature starts with a real seller workflow problem, not a feature checklist. We build what actually saves time.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon-wrapper">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.109A9.342 9.342 0 0012 20.25a9.34 9.34 0 00-3.011-.514v-.108c0-1.112-.285-2.16-.786-3.07M11.25 12.75A4.5 4.5 0 117 8.25m4.25 4.5a4.5 4.5 0 01-4.25-4.5m4.25 4.5A4.5 4.5 0 0012 17.25a4.5 4.5 0 003.582-1.776M11.25 12.75a4.5 4.5 0 01-3.667-1.897M12 17.25a4.5 4.5 0 01-3.667-1.897m7.167.397a4.5 4.5 0 003.582-1.776M15.502 12h.008v.008h-.008V12zM18 12h.008v.008H18V12z" />
+                    </svg>
+                </div>
+                <h3>Transparent Growth</h3>
+                <p>No hidden fees, no bait-and-switch pricing. Our plans scale honestly with your business as you grow.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section>
+    <div class="container">
+        <div class="cta-banner">
+            <h2>Join us on the mission</h2>
+            <p>Start automating your multi-channel operations today, for free.</p>
+            <a href="{% url 'register' %}" class="btn btn-primary btn-hero-lg btn-cta-lg">Create Free Account</a>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,94 @@
+{% extends 'landing/base_landing.html' %}
+{% load static %}
+
+{% block title %}How It Works{% endblock %}
+{% block meta_description %}Set up your E-Com Orbit store in 3 simple steps — connect channels, centralize your catalog, and sell everywhere automatically.{% endblock %}
+
+{% block content %}
+
+<section class="hero" style="min-height:auto; padding-top:140px; padding-bottom:60px;">
+    <div class="container">
+        <div class="section-header">
+            <div class="hero-badge">No code required</div>
+            <h1 style="font-size:2.6rem;">Set Up Your Orbit in <span class="text-gradient">3 Steps</span></h1>
+            <p>E-Com Orbit connects seamlessly to your existing workflows. No complicated setups, no code required.</p>
+        </div>
+    </div>
+</section>
+
+<section class="walkthrough">
+    <div class="container">
+        <div class="pipeline">
+
+            <div class="pipeline-step">
+                <div class="pipeline-num">01</div>
+                <h3>Connect Channels</h3>
+                <p>Log in and connect Facebook, Instagram, Google Shopping, Amazon, or Shopify in seconds.</p>
+            </div>
+
+            <div class="pipeline-step">
+                <div class="pipeline-num">02</div>
+                <h3>Centralize Catalog</h3>
+                <p>Import your existing catalog from Shopify, or upload your products directly to the Orbit center.</p>
+            </div>
+
+            <div class="pipeline-step">
+                <div class="pipeline-num">03</div>
+                <h3>Sell & Automate</h3>
+                <p>Our automation engines sync stock levels, compile orders, and track sales charts in real time.</p>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<section>
+    <div class="container">
+        <div class="section-header">
+            <h2>What Happens Behind the Scenes</h2>
+            <p>Once connected, E-Com Orbit runs continuously in the background so you don't have to.</p>
+        </div>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon-wrapper">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4.5 12.75l6 6 9-13.5" />
+                    </svg>
+                </div>
+                <h3>Product Publishing</h3>
+                <p>Every product you add is automatically formatted and pushed to each connected channel's required listing format.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon-wrapper">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4.5 12.75l6 6 9-13.5" />
+                    </svg>
+                </div>
+                <h3>Inventory Reconciliation</h3>
+                <p>Stock counts are checked and synced continuously, so a sale on one channel is instantly reflected everywhere else.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon-wrapper">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4.5 12.75l6 6 9-13.5" />
+                    </svg>
+                </div>
+                <h3>Order Aggregation</h3>
+                <p>Orders from every connected platform land in a single unified order desk, ready for fulfillment tracking.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section>
+    <div class="container">
+        <div class="cta-banner">
+            <h2>Ready to get started?</h2>
+            <p>Set up your first channel connection in under 5 minutes.</p>
+            <a href="{% url 'register' %}" class="btn btn-primary btn-hero-lg btn-cta-lg">Create Free Account</a>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

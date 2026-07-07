@@ -1,0 +1,208 @@
+{% extends 'landing/base_landing.html' %}
+{% load static %}
+
+{% block title %}Pricing{% endblock %}
+{% block meta_description %}Affordable pricing plans for every stage of your e-commerce journey — from a free tier to enterprise-scale automation.{% endblock %}
+
+{% block content %}
+
+<section class="hero" style="min-height:auto; padding-top:140px; padding-bottom:20px;">
+    <div class="container">
+        <div class="pricing-header">
+            <div class="section-header" style="margin-bottom: 30px">
+                <div class="hero-badge">Simple, transparent pricing</div>
+                <h1 style="font-size:2.6rem;">Low & Affordable <span class="text-gradient">Pricing Plans</span></h1>
+                <p>Choose an affordable plan to power your multi-channel sales. Sign up for the free plan to test listings.</p>
+            </div>
+
+            <div class="billing-toggle-wrapper">
+                <span class="billing-label active" id="label-monthly" onclick="setBilling(false)">Monthly</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="billing-checkbox" onchange="toggleBilling()">
+                    <span class="toggle-slider"></span>
+                </label>
+                <span class="billing-label" id="label-annual" onclick="setBilling(true)">
+                    Annual
+                    <span class="discount-badge">Save 20%</span>
+                </span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section>
+    <div class="container">
+        <div class="pricing-grid">
+
+            <!-- Free Plan -->
+            <div class="pricing-card">
+                <h3 class="pricing-plan-name">Free Plan</h3>
+                <p class="pricing-plan-desc">For testing out listings and basic sync configurations.</p>
+                <div class="pricing-plan-price">₹0<span class="price-term">/ forever</span></div>
+
+                <ul class="pricing-features-list">
+                    <li class="pricing-feature-item">
+                        <svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                        1 connected sales channel
+                    </li>
+                    <li class="pricing-feature-item">
+                        <svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                        10 synced orders/month
+                    </li>
+                    <li class="pricing-feature-item">
+                        <svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                        Core catalog uploads
+                    </li>
+                    <li class="pricing-feature-item disabled">
+                        <svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                        Analytics & reporting dashboard
+                    </li>
+                    <li class="pricing-feature-item disabled">
+                        <svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                        Priority help desk support
+                    </li>
+                </ul>
+
+                <a href="{% url 'register' %}" class="btn btn-outline btn-pricing-cta">Sign Up Free</a>
+            </div>
+
+            <!-- Starter -->
+            <div class="pricing-card">
+                <h3 class="pricing-plan-name">Starter</h3>
+                <p class="pricing-plan-desc">For sellers growing on social marketplaces.</p>
+                <div class="pricing-plan-price" id="price-starter">₹490<span class="price-term">/ month</span></div>
+
+                <ul class="pricing-features-list">
+                    <li class="pricing-feature-item">
+                        <svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                        Up to 3 connected channels
+                    </li>
+                    <li class="pricing-feature-item">
+                        <svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                        150 synced orders/month
+                    </li>
+                    <li class="pricing-feature-item">
+                        <svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                        Real-time inventory sync
+                    </li>
+                    <li class="pricing-feature-item disabled">
+                        <svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                        Analytics & reporting dashboard
+                    </li>
+                    <li class="pricing-feature-item disabled">
+                        <svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                        Priority help desk support
+                    </li>
+                </ul>
+
+                <a href="{% url 'register' %}" class="btn btn-outline btn-pricing-cta">Select Starter</a>
+            </div>
+
+            <!-- Pro Seller -->
+            <div class="pricing-card recommended">
+                <h3 class="pricing-plan-name">Pro Seller</h3>
+                <p class="pricing-plan-desc">For scaling omni-channel e-commerce brands.</p>
+                <div class="pricing-plan-price" id="price-pro">₹1,290<span class="price-term">/ month</span></div>
+
+                <ul class="pricing-features-list">
+                    <li class="pricing-feature-item">
+                        <svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                        <strong>Unlimited</strong> connected channels
+                    </li>
+                    <li class="pricing-feature-item">
+                        <svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                        <strong>1,500</strong> synced orders/month
+                    </li>
+                    <li class="pricing-feature-item">
+                        <svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                        Real-time inventory sync
+                    </li>
+                    <li class="pricing-feature-item">
+                        <svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                        Advanced Analytics dashboard
+                    </li>
+                    <li class="pricing-feature-item">
+                        <svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                        Priority help desk support
+                    </li>
+                </ul>
+
+                <a href="{% url 'register' %}" class="btn btn-primary btn-pricing-cta">Select Pro</a>
+            </div>
+
+            <!-- Enterprise -->
+            <div class="pricing-card">
+                <h3 class="pricing-plan-name">Enterprise</h3>
+                <p class="pricing-plan-desc">For large multi-million seller operations.</p>
+                <div class="pricing-plan-price" id="price-enterprise">₹4,990<span class="price-term">/ month</span></div>
+
+                <ul class="pricing-features-list">
+                    <li class="pricing-feature-item">
+                        <svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                        <strong>Unlimited</strong> connected channels
+                    </li>
+                    <li class="pricing-feature-item">
+                        <svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                        <strong>Unlimited</strong> synced orders/month
+                    </li>
+                    <li class="pricing-feature-item">
+                        <svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                        Real-time inventory sync
+                    </li>
+                    <li class="pricing-feature-item">
+                        <svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                        Custom reports & API access
+                    </li>
+                    <li class="pricing-feature-item">
+                        <svg fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                        24/7 Account manager
+                    </li>
+                </ul>
+
+                <a href="{% url 'contact_page' %}" class="btn btn-outline btn-pricing-cta">Contact Sales</a>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function toggleBilling() {
+        const isAnnual = document.getElementById('billing-checkbox').checked;
+
+        const starterPrice = document.getElementById('price-starter');
+        const proPrice = document.getElementById('price-pro');
+        const enterprisePrice = document.getElementById('price-enterprise');
+
+        const labelMonthly = document.getElementById('label-monthly');
+        const labelAnnual = document.getElementById('label-annual');
+
+        if (isAnnual) {
+            starterPrice.innerHTML = '₹392<span class="price-term">/ month, billed annually</span>';
+            proPrice.innerHTML = '₹1,032<span class="price-term">/ month, billed annually</span>';
+            enterprisePrice.innerHTML = '₹3,992<span class="price-term">/ month, billed annually</span>';
+
+            labelAnnual.classList.add('active');
+            labelMonthly.classList.remove('active');
+        } else {
+            starterPrice.innerHTML = '₹490<span class="price-term">/ month</span>';
+            proPrice.innerHTML = '₹1,290<span class="price-term">/ month</span>';
+            enterprisePrice.innerHTML = '₹4,990<span class="price-term">/ month</span>';
+
+            labelMonthly.classList.add('active');
+            labelAnnual.classList.remove('active');
+        }
+    }
+
+    function setBilling(annualState) {
+        const checkbox = document.getElementById('billing-checkbox');
+        if (checkbox.checked !== annualState) {
+            checkbox.checked = annualState;
+            toggleBilling();
+        }
+    }
+</script>
+{% endblock %}

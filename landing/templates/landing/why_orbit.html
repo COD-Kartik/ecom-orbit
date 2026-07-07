@@ -1,0 +1,101 @@
+{% extends 'landing/base_landing.html' %}
+{% load static %}
+
+{% block title %}Chaos vs Orbit{% endblock %}
+{% block meta_description %}See how E-Com Orbit fixes the operational chaos of multi-channel selling — from repetitive listings to real-time inventory sync.{% endblock %}
+
+{% block content %}
+
+<section class="hero" style="min-height:auto; padding-top:140px; padding-bottom:60px;">
+    <div class="container">
+        <div class="section-header">
+            <div class="hero-badge">The comparison</div>
+            <h1 style="font-size:2.6rem;">Why Sellers Are Moving to the <span class="text-gradient">Orbit</span></h1>
+            <p>Selling on multiple channels generates high revenue but breeds massive operational friction. See how E-Com Orbit fixes the workflow chaos.</p>
+        </div>
+    </div>
+</section>
+
+<section class="showdown">
+    <div class="container">
+        <div class="showdown-grid">
+
+            <div class="showdown-card chaos">
+                <div class="showdown-title">
+                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                    </svg>
+                    The Channel Chaos
+                </div>
+                <ul class="showdown-list">
+                    <li class="showdown-item">
+                        <svg class="showdown-item-icon" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                        <div class="showdown-item-text">
+                            <h4>Repetitive Listings</h4>
+                            <p>Manually copying product titles, photos, descriptions, and SKU pricing onto Facebook, Instagram, and Amazon separately.</p>
+                        </div>
+                    </li>
+                    <li class="showdown-item">
+                        <svg class="showdown-item-icon" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                        <div class="showdown-item-text">
+                            <h4>Inventory Mismatches</h4>
+                            <p>Selling a product on Instagram and overselling it on Shopify before you have a chance to manually adjust the quantities.</p>
+                        </div>
+                    </li>
+                    <li class="showdown-item">
+                        <svg class="showdown-item-icon" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                        <div class="showdown-item-text">
+                            <h4>Scattered Order Books</h4>
+                            <p>Logging into 5 separate administrative panels daily to gather invoices, pack shipments, and track client delivery dates.</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="showdown-card orbit">
+                <div class="showdown-title">
+                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    The Orbit Integration
+                </div>
+                <ul class="showdown-list">
+                    <li class="showdown-item">
+                        <svg class="showdown-item-icon" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+                        <div class="showdown-item-text">
+                            <h4>One-Click Multi-Publishing</h4>
+                            <p>Upload a product details form once, choose your target platforms, and publish instantly across connected stores.</p>
+                        </div>
+                    </li>
+                    <li class="showdown-item">
+                        <svg class="showdown-item-icon" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+                        <div class="showdown-item-text">
+                            <h4>Real-Time Auto Stock Sync</h4>
+                            <p>Stock counts are automatically updated across all channels as soon as an order is processed on any storefront.</p>
+                        </div>
+                    </li>
+                    <li class="showdown-item">
+                        <svg class="showdown-item-icon" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+                        <div class="showdown-item-text">
+                            <h4>Unified Fulfillment Hub</h4>
+                            <p>Gather customer details, channel tags, delivery addresses, and invoices into a single streamlined table.</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<section>
+    <div class="container">
+        <div class="cta-banner">
+            <h2>Escape the chaos today</h2>
+            <p>Join sellers who've automated their multi-channel operations with E-Com Orbit.</p>
+            <a href="{% url 'register' %}" class="btn btn-primary btn-hero-lg btn-cta-lg">Create Free Account</a>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
