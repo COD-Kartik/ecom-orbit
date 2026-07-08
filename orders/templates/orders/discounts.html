@@ -1,0 +1,267 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Discount Codes{% endblock %}
+{% block page_title %}Discount Code Directory{% endblock %}
+{% block nav_marketing %}active{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/discounts.css' %}">
+{% endblock %}
+
+{% block content %}
+
+{% if messages %}
+    {% for message in messages %}
+    <div style="background:{% if message.tags == 'success' %}#ecfdf5{% else %}#fee2e2{% endif %}; color:{% if message.tags == 'success' %}#059669{% else %}#dc2626{% endif %}; padding:12px 16px; border-radius:10px; font-size:0.85rem; font-weight:600; margin-bottom:20px;">
+        {{ message }}
+    </div>
+    {% endfor %}
+{% endif %}
+
+<!-- Stat Cards -->
+<div class="metrics-grid-discounts">
+    <div class="metric-card-sm">
+        <div class="metric-details">
+            <span class="metric-title-sm">Active Codes</span>
+            <span class="metric-value-sm">{{ active_codes_count }}</span>
+        </div>
+        <div class="metric-icon-box-sm active-codes">
+            <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+        </div>
+    </div>
+    <div class="metric-card-sm">
+        <div class="metric-details">
+            <span class="metric-title-sm">Total Redemptions</span>
+            <span class="metric-value-sm">{{ total_redemptions }}</span>
+        </div>
+        <div class="metric-icon-box-sm redemptions">
+            <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z" /></svg>
+        </div>
+    </div>
+    <div class="metric-card-sm">
+        <div class="metric-details">
+            <span class="metric-title-sm">Discount Given</span>
+            <span class="metric-value-sm">₹{{ total_discount_given }}</span>
+        </div>
+        <div class="metric-icon-box-sm discount-given">
+            <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a6.002 6.002 0 0111.458 0M2.25 18.75a6.002 6.002 0 014.5-9.75M18.75 18.75a6.002 6.002 0 00-11.458 0M18.75 18.75A5.998 5.998 0 0012 9.75c-2.203 0-4.1.18-5.25.5m5.25-.5V3.75m0 0h-.008v.008H12V3.75z" /></svg>
+        </div>
+    </div>
+    <div class="metric-card-sm">
+        <div class="metric-details">
+            <span class="metric-title-sm">Expiring Soon</span>
+            <span class="metric-value-sm">{{ expiring_soon_count }}</span>
+        </div>
+        <div class="metric-icon-box-sm expiring">
+            <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+        </div>
+    </div>
+</div>
+
+<div class="discounts-split-grid">
+
+    <!-- Left: Table -->
+    <div class="split-column">
+        <div class="discount-card">
+            <header class="discount-card-header">
+                <h3 class="discount-card-title">Discount Codes Directory</h3>
+                <button type="button" class="btn-secondary-sm" onclick="resetForm()">
+                    <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" /></svg>
+                    <span>Reset Form</span>
+                </button>
+            </header>
+
+            <div class="table-responsive">
+                <table class="discounts-table" id="discounts-table">
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Type</th>
+                            <th>Value</th>
+                            <th>Usage</th>
+                            <th>Status</th>
+                            <th>Expiry Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for d in discounts %}
+                        <tr data-id="{{ d.id }}"
+                            data-code="{{ d.code }}"
+                            data-type="{{ d.discount_type }}"
+                            data-value="{{ d.value }}"
+                            data-min-order="{{ d.min_order_amount|default:'' }}"
+                            data-usage-limit="{{ d.usage_limit|default:'' }}"
+                            data-start-date="{{ d.start_date|date:'Y-m-d' }}"
+                            data-expiry-date="{{ d.expiry_date|date:'Y-m-d' }}"
+                            data-active="{% if d.is_active %}true{% else %}false{% endif %}">
+                            <td><span class="code-pill">{{ d.code }}</span></td>
+                            <td><span class="type-badge">{% if d.discount_type == 'percentage' %}Percentage{% else %}Fixed Amt{% endif %}</span></td>
+                            <td style="font-weight: 700; color: var(--text-dark);">
+                                {% if d.discount_type == 'percentage' %}{{ d.value|floatformat:0 }}%{% else %}₹{{ d.value|floatformat:0 }}{% endif %}
+                            </td>
+                            <td><strong>{{ d.times_used }}</strong> / {% if d.usage_limit %}{{ d.usage_limit }}{% else %}∞{% endif %}</td>
+                            <td><span class="status-badge {{ d.status }}">{{ d.status|title }}</span></td>
+                            <td>{{ d.expiry_date|date:"M d, Y" }}</td>
+                            <td>
+                                <div class="action-btn-group">
+                                    <button type="button" class="btn-icon" onclick="editRow(this)" title="Edit code"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" /></svg></button>
+                                    <a href="{% url 'discount_delete' d.id %}" class="btn-icon delete" onclick="return confirm('Delete discount code {{ d.code }}?')" title="Delete code"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg></a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="7" style="text-align:center; padding:30px; color:var(--text-muted);">No discount codes yet. Create your first one using the form.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right: Form -->
+    <div class="split-column">
+        <div class="discount-card">
+            <header class="discount-card-header">
+                <h3 class="discount-card-title" id="form-title-label">Create Discount Code</h3>
+            </header>
+
+            <form id="discount-form" method="post" action="{% url 'discount_create' %}">
+                {% csrf_token %}
+
+                <div class="form-group-sm">
+                    <label class="form-label-sm" for="form-code-input">Discount Code</label>
+                    <div class="input-inline-btn">
+                        <input type="text" name="code" id="form-code-input" class="form-input-sm" style="font-family: monospace; font-weight: 700; text-transform: uppercase;" placeholder="e.g. FESTIVE20" required>
+                        <button type="button" class="btn-secondary-sm" onclick="generateRandomCode()">
+                            <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12c0-1.232-.046-2.453-.138-3.662a4.006 4.006 0 00-3.7-3.7 48.656 48.656 0 00-7.324 0 4.006 4.006 0 00-3.7 3.7C4.693 9.486 4.5 10.745 4.5 12c0 1.256.195 2.514.538 3.738a4.006 4.006 0 003.7 3.7 48.508 48.508 0 007.324 0 4.006 4.006 0 003.7-3.7C19.455 14.482 19.5 13.232 19.5 12z" /><path stroke-linecap="round" stroke-linejoin="round" d="M9 10.5l3 3 3-3" /></svg>
+                            <span>Generate</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group-sm">
+                    <label class="form-label-sm" for="form-type-select">Discount Type</label>
+                    <select name="discount_type" id="form-type-select" class="form-input-sm" required onchange="handleTypeChange(this.value)">
+                        <option value="percentage">Percentage Discount (%)</option>
+                        <option value="fixed">Fixed Amount Discount (₹)</option>
+                    </select>
+                </div>
+
+                <div class="form-group-sm">
+                    <label class="form-label-sm" id="value-label" for="form-value-input">Discount Value (%)</label>
+                    <input type="number" name="value" id="form-value-input" class="form-input-sm" min="1" step="0.01" placeholder="e.g. 20" required>
+                </div>
+
+                <div class="form-group-sm">
+                    <label class="form-label-sm" for="form-min-order">Min Order Amount (₹)</label>
+                    <input type="number" name="min_order_amount" id="form-min-order" class="form-input-sm" min="0" placeholder="e.g. 999 (Optional)">
+                </div>
+
+                <div class="form-group-sm">
+                    <label class="form-label-sm" for="form-usage-limit">Usage Limit</label>
+                    <input type="number" name="usage_limit" id="form-usage-limit" class="form-input-sm" min="1" placeholder="Leave blank for unlimited">
+                </div>
+
+                <div class="form-group-sm">
+                    <label class="form-label-sm" for="form-start-date">Start Date</label>
+                    <input type="date" name="start_date" id="form-start-date" class="form-input-sm" required>
+                </div>
+                <div class="form-group-sm">
+                    <label class="form-label-sm" for="form-expiry-date">Expiry Date</label>
+                    <input type="date" name="expiry_date" id="form-expiry-date" class="form-input-sm" required>
+                </div>
+
+                <div class="form-group-sm" style="margin-bottom: 18px;">
+                    <label class="form-label-sm">Activation Status</label>
+                    <div class="toggle-switch-wrapper">
+                        <input type="checkbox" id="form-active-toggle" class="switch-input" checked onchange="toggleActiveText(this.checked)">
+                        <label for="form-active-toggle" class="switch-label">Toggle</label>
+                        <span class="toggle-status-text" id="toggle-status-label">Active</span>
+                    </div>
+                    <input type="hidden" name="is_active" id="is-active-hidden" value="true">
+                </div>
+
+                <button type="submit" class="btn-primary-sm" id="form-submit-btn">
+                    <span>Create Discount Code</span>
+                    <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+                </button>
+            </form>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    const discountForm = document.getElementById('discount-form');
+    const createUrl = "{% url 'discount_create' %}";
+
+    function generateRandomCode() {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        let code = 'ORBIT-';
+        for (let i = 0; i < 6; i++) {
+            code += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        document.getElementById('form-code-input').value = code;
+    }
+
+    function handleTypeChange(val) {
+        const label = document.getElementById('value-label');
+        const input = document.getElementById('form-value-input');
+        if (val === 'percentage') {
+            label.innerText = 'Discount Value (%)';
+            input.placeholder = 'e.g. 20';
+            input.max = '100';
+        } else {
+            label.innerText = 'Discount Value (₹)';
+            input.placeholder = 'e.g. 150';
+            input.removeAttribute('max');
+        }
+    }
+
+    function toggleActiveText(isChecked) {
+        document.getElementById('toggle-status-label').innerText = isChecked ? 'Active' : 'Inactive';
+        document.getElementById('is-active-hidden').value = isChecked ? 'true' : 'false';
+    }
+
+    function editRow(button) {
+        const row = button.closest('tr');
+        const id = row.dataset.id;
+
+        document.getElementById('form-code-input').value = row.dataset.code;
+        document.getElementById('form-type-select').value = row.dataset.type;
+        handleTypeChange(row.dataset.type);
+        document.getElementById('form-value-input').value = row.dataset.value;
+        document.getElementById('form-min-order').value = row.dataset.minOrder || '';
+        document.getElementById('form-usage-limit').value = row.dataset.usageLimit || '';
+        document.getElementById('form-start-date').value = row.dataset.startDate;
+        document.getElementById('form-expiry-date').value = row.dataset.expiryDate;
+        const isActive = row.dataset.active === 'true';
+        document.getElementById('form-active-toggle').checked = isActive;
+        toggleActiveText(isActive);
+
+        discountForm.action = createUrl.replace('/create/', '/' + id + '/update/');
+
+        document.getElementById('form-submit-btn').innerHTML = `
+            <span>Update Discount Code</span>
+            <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M4.5 12.75l6 6 9-13.5" /></svg>
+        `;
+        document.getElementById('form-title-label').innerText = 'Edit Discount Code';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function resetForm() {
+        discountForm.reset();
+        discountForm.action = createUrl;
+        handleTypeChange('percentage');
+        toggleActiveText(true);
+        document.getElementById('form-submit-btn').innerHTML = `
+            <span>Create Discount Code</span>
+            <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+        `;
+        document.getElementById('form-title-label').innerText = 'Create Discount Code';
+    }
+</script>
+
+{% endblock %}

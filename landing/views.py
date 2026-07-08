@@ -66,3 +66,10 @@ def privacy_page(request):
 
 def blog_page(request):
     return render(request, 'landing/blog.html')
+
+def terms_page(request):
+    return render(request, 'landing/terms.html')
+
+
+def cookie_policy_page(request):
+    return render(request, 'landing/cookie_policy.html')

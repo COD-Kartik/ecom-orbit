@@ -47,21 +47,26 @@ def dashboard(request):
 @login_required
 def product_list(request):
     business = get_user_business(request.user)
-    if business:
-        products = Product.objects.filter(business=business).order_by('-created_at')
-    else:
-        products = Product.objects.none()
-    total_products   = products.count()
-    active_products  = products.filter(is_active=True).count()
-    low_stock        = products.filter(stock__lte=5).count()
-    total_categories = Category.objects.count()
+    products = Product.objects.filter(business=business).order_by('-created_at') if business else Product.objects.none()
+
+    from channels_integration.models import ProductListing
+    listing_counts = {}
+    for p in products:
+        listing_counts[p.id] = ProductListing.objects.filter(product=p, status='published').count()
+
+    total_products = products.count()
+    active_products = products.filter(is_active=True).count()
+    low_stock = products.filter(stock__lte=5).count()
+    total_categories = Category.objects.filter(business=business).count() if business else 0
+
     return render(request, 'products/product_list.html', {
-        'products'        : products,
-        'total_products'  : total_products,
-        'active_products' : active_products,
-        'low_stock'       : low_stock,
+        'products': products,
+        'listing_counts': listing_counts,
+        'total_products': total_products,
+        'active_products': active_products,
+        'low_stock': low_stock,
         'total_categories': total_categories,
-        'business'        : business,
+        'business': business,
     })
 
 @login_required

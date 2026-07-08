@@ -2,6 +2,7 @@ from django.db import models
 from accounts.models import BusinessProfile
 from products.models import Product
 from channels_integration.models import Channel
+from django.utils import timezone
 
 class Order(models.Model):
     STATUS_CHOICES = (
@@ -44,3 +45,38 @@ class OrderItem(models.Model):
     @property
     def subtotal(self):
         return self.quantity * self.unit_price
+    
+class Discount(models.Model):
+    TYPE_CHOICES = (
+        ('percentage', 'Percentage'),
+        ('fixed', 'Fixed Amount'),
+    )
+    business          = models.ForeignKey(BusinessProfile, on_delete=models.CASCADE, related_name='discounts')
+    code              = models.CharField(max_length=30)
+    discount_type     = models.CharField(max_length=20, choices=TYPE_CHOICES, default='percentage')
+    value             = models.DecimalField(max_digits=10, decimal_places=2)
+    min_order_amount  = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    usage_limit       = models.PositiveIntegerField(blank=True, null=True)
+    times_used        = models.PositiveIntegerField(default=0)
+    start_date        = models.DateField()
+    expiry_date       = models.DateField()
+    is_active         = models.BooleanField(default=True)
+    created_at        = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('business', 'code')
+
+    def __str__(self):
+        return f"{self.code} ({self.business.business_name})"
+
+    @property
+    def status(self):
+        today = timezone.now().date()
+        if not self.is_active:
+            return 'inactive'
+        if today < self.start_date:
+            return 'scheduled'
+        if today > self.expiry_date:
+            return 'expired'
+        return 'active'
+    

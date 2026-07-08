@@ -5,6 +5,7 @@ from .models import Channel, ProductListing
 from .serializers import ChannelSerializer, ProductListingSerializer
 from products.models import Product
 from accounts.models import BusinessProfile
+from django.contrib import messages
 
 def get_user_business(user):
     try:
@@ -67,19 +68,28 @@ def channel_delete(request, pk):
 @login_required
 def channel_toggle(request, pk):
     business = get_user_business(request.user)
-    channel  = get_object_or_404(Channel, pk=pk, business=business)
+    channel = get_object_or_404(Channel, pk=pk, business=business)
     channel.is_active = not channel.is_active
     channel.save()
+
+    if not channel.is_active:
+        # Channel turned off — its listings can no longer be considered "published"
+        ProductListing.objects.filter(channel=channel, status='published').update(status='pending')
+        messages.info(request, f'"{channel.name}" deactivated. Its listings are now marked pending.')
+    else:
+        messages.success(request, f'"{channel.name}" reactivated.')
+
     return redirect('channel_list')
 
 @login_required
 def publish_product(request, product_id):
     business = get_user_business(request.user)
-    product  = get_object_or_404(Product, pk=product_id, business=business)
+    product = get_object_or_404(Product, pk=product_id, business=business)
     channels = Channel.objects.filter(business=business, is_active=True)
 
     if not channels.exists():
-        return redirect('product_list')
+        messages.error(request, 'No active channels connected. Please connect a channel first before publishing.')
+        return redirect('channel_list')
 
     for channel in channels:
         listing, created = ProductListing.objects.get_or_create(
@@ -91,6 +101,7 @@ def publish_product(request, product_id):
             listing.status = 'published'
             listing.save()
 
+    messages.success(request, f'"{product.title}" published to {channels.count()} channel(s).')
     return redirect('listing_list')
 
 @login_required

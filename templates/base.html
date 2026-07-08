@@ -207,7 +207,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h14.25c.621 0 1.125.504 1.125 1.125v14.25c0 .621-.504 1.125-1.125 1.125H4.875c-.621 0-1.125-.504-1.125-1.125V4.875z" />
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 7.5h6m-6 3h6m-6 3h6m-6 3h6" />
                 </svg>
-                <span>Inventory</span>
+                <span>Categories</span>
             </a>
         </li>
         <li class="menu-item {% block nav_orders %}{% endblock %}">
@@ -230,15 +230,15 @@
         <li class="menu-item {% block nav_listings %}{% endblock %}">
             <a href="{% url 'listing_list' %}">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M6 20.25h12m-7.5-3v3m3-3v3m-10.125-3h17.25c.621 0 1.125-.504 1.125-1.125V4.875c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125z" /></svg>
-                <span>Listings</span>
+                <span>Channel Listings</span>
             </a>
         </li>
         <li class="menu-item">
-            <a href="#">
+            <a href="{% url 'discounts_view' %}">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" />
                 </svg>
-                <span>Marketing</span>
+                <span>Discounts</span>
                 <span class="menu-badge green">New</span>
             </a>
         </li>
@@ -272,7 +272,7 @@
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
                 </svg>
-                <span>Reports</span>
+                <span>Data Exports</span>
             </a>
         <li class="menu-item {% block nav_settings %}{% endblock %}">
             <a href="{% url 'settings' %}">
@@ -287,10 +287,10 @@
     <div class="plan-card">
         <div class="plan-title">Current Plan</div>
         <div class="plan-name">Pro Seller</div>
-        <button class="plan-btn">View Plan Details</button>
+        <a href="{% url 'pricing_page' %}" class="plan-btn" style="text-decoration:none; display:block; text-align:center;">View Plan Details</a>
     </div>
 
-    <a href="#support" class="support-link">
+    <a href="{% url 'contact_page' %}" class="support-link">
         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.25 9.75v-4.5m0 4.5h4.5m-4.5 0l6-6M3 5.25a2.25 2.25 0 012.25-2.25H9a2.25 2.25 0 012.25 2.25v3.75a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 9V5.25zM3 18.75V15a2.25 2.25 0 012.25-2.25H9A2.25 2.25 0 0110.25 15v3.75A2.25 2.25 0 019 21H5.25A2.25 2.25 0 013 18.75z" />
         </svg>
@@ -306,7 +306,33 @@
   <div class="topbar">
     <div class="topbar-title">{% block page_title %}Dashboard{% endblock %}</div>
     <div class="topbar-right">
-      <i class="bi bi-bell text-secondary fs-5"></i>
+      <div style="position:relative; display:inline-block;">
+        <i class="bi bi-bell text-secondary fs-5" style="cursor:pointer;" onclick="toggleNotifDropdown(event)"></i>
+        {% if notif_count > 0 %}
+        <span style="position:absolute; top:-6px; right:-8px; background:#dc2626; color:white; font-size:0.65rem; font-weight:700; padding:1px 5px; border-radius:999px; min-width:16px; text-align:center;">{{ notif_count }}{% if notif_count > 9 %}+{% endif %}</span>
+        {% endif %}
+
+        <div id="notif-dropdown" style="display:none; position:absolute; top:28px; right:-10px; width:300px; background:#fff; border:1px solid #e5e7eb; border-radius:10px; box-shadow:0 8px 24px rgba(0,0,0,0.12); z-index:200; overflow:hidden;">
+            <div style="padding:12px 16px; border-bottom:1px solid #e5e7eb; font-weight:700; font-size:0.85rem; color:#1e1b4b;">
+                Notifications
+            </div>
+            <div style="max-height:260px; overflow-y:auto;">
+                {% for n in notif_preview %}
+                <a href="{{ n.url }}" style="display:flex; align-items:flex-start; gap:10px; padding:10px 16px; text-decoration:none; border-bottom:1px solid #f3f4f6;">
+                    <span style="width:7px; height:7px; border-radius:50%; margin-top:6px; flex-shrink:0; background:{% if n.type == 'low-stock' %}#f59e0b{% else %}#10b981{% endif %};"></span>
+                    <span style="font-size:0.8rem; color:#374151; line-height:1.4;">{{ n.text }}</span>
+                </a>
+                {% empty %}
+                <div style="padding:20px 16px; text-align:center; color:#9ca3af; font-size:0.82rem;">
+                    No notifications yet.
+                </div>
+                {% endfor %}
+            </div>
+            <a href="{% url 'notifications_view' %}" style="display:block; text-align:center; padding:10px; font-size:0.82rem; font-weight:700; color:#4f46e5; text-decoration:none; background:#f9fafb;">
+                View All
+            </a>
+        </div>
+    </div>
       <div class="topbar-avatar">{{ request.user.username|first|upper }}</div>
     </div>
   </div>
@@ -344,6 +370,19 @@
       reader.readAsDataURL(input.files[0]);
     }
   }
+</script>
+<script>
+function toggleNotifDropdown(e) {
+    e.stopPropagation();
+    const dropdown = document.getElementById('notif-dropdown');
+    dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+}
+document.addEventListener('click', function(e) {
+    const dropdown = document.getElementById('notif-dropdown');
+    if (dropdown && dropdown.style.display === 'block') {
+        dropdown.style.display = 'none';
+    }
+});
 </script>
 </body>
 </html>

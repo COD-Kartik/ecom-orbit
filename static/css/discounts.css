@@ -1,0 +1,148 @@
+/* ==========================================================================
+   E-Com Orbit - Discount Codes Page CSS Stylesheet
+   Uses the same CSS variables already defined in dashboard.css
+   ========================================================================== */
+
+.metrics-grid-discounts {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+}
+.metric-card-sm {
+    background-color: #ffffff;
+    border-radius: var(--radius-md);
+    box-shadow: var(--card-shadow);
+    border: 1px solid var(--border-color);
+    padding: 16px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.metric-details { display: flex; flex-direction: column; gap: 3px; }
+.metric-title-sm {
+    font-size: 0.7rem; font-weight: 700; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.4px;
+}
+.metric-value-sm { font-size: 1.25rem; font-weight: 800; color: var(--text-dark); letter-spacing: -0.3px; }
+.metric-icon-box-sm {
+    width: 36px; height: 36px; border-radius: var(--radius-sm);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.metric-icon-box-sm.active-codes { background-color: var(--success-light); color: var(--success); }
+.metric-icon-box-sm.redemptions { background-color: var(--primary-light); color: var(--primary); }
+.metric-icon-box-sm.discount-given { background-color: var(--info-light); color: var(--info); }
+.metric-icon-box-sm.expiring { background-color: var(--danger-light); color: var(--danger); }
+.metric-icon-box-sm svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 2; }
+
+.discounts-split-grid { display: grid; grid-template-columns: 2.2fr 1fr; gap: 20px; align-items: start; }
+.split-column { display: flex; flex-direction: column; gap: 16px; }
+
+.discount-card {
+    background-color: #ffffff; border-radius: var(--radius-md); box-shadow: var(--card-shadow);
+    border: 1px solid var(--border-color); padding: 18px 20px;
+}
+.discount-card-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1.5px solid var(--border-color);
+}
+.discount-card-title { font-size: 0.92rem; font-weight: 800; color: var(--text-dark); }
+
+.table-responsive { width: 100%; overflow-x: auto; }
+.discounts-table { width: 100%; border-collapse: collapse; text-align: left; }
+.discounts-table th {
+    padding: 10px 12px; font-size: 0.68rem; font-weight: 800; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.4px; border-bottom: 1.5px solid var(--border-color);
+    background-color: var(--bg-main);
+}
+.discounts-table td {
+    padding: 12px; font-size: 0.82rem; color: var(--text-medium);
+    border-bottom: 1px solid var(--border-color); vertical-align: middle;
+}
+.discounts-table tbody tr { transition: background-color var(--transition-fast); }
+.discounts-table tbody tr:hover { background-color: var(--bg-main); }
+
+.code-pill {
+    font-family: 'Courier New', Courier, monospace; font-weight: 800;
+    background-color: var(--primary-light); color: var(--primary);
+    padding: 3px 9px; border-radius: var(--radius-sm); font-size: 0.78rem;
+    border: 1px solid rgba(79, 70, 229, 0.1); display: inline-block;
+}
+
+.status-badge {
+    display: inline-flex; align-items: center; font-size: 0.68rem; font-weight: 700;
+    padding: 3px 7px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.3px;
+}
+.status-badge.active { background-color: var(--success-light); color: var(--success); }
+.status-badge.expired { background-color: var(--danger-light); color: var(--danger); }
+.status-badge.scheduled { background-color: var(--info-light); color: var(--info); }
+.status-badge.inactive { background-color: var(--border-color); color: var(--text-muted); }
+
+.type-badge {
+    display: inline-flex; align-items: center; font-size: 0.68rem; font-weight: 700;
+    padding: 3px 6px; border-radius: 4px; background-color: var(--bg-main);
+    border: 1px solid var(--border-color); color: var(--text-medium);
+}
+
+.action-btn-group { display: flex; gap: 6px; }
+.btn-icon {
+    background: none; border: 1.5px solid var(--border-color); width: 28px; height: 28px;
+    border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center;
+    color: var(--text-muted); cursor: pointer; transition: all var(--transition-fast);
+}
+.btn-icon:hover { border-color: var(--primary); color: var(--primary); background-color: var(--primary-light); }
+.btn-icon.delete:hover { border-color: var(--danger); color: var(--danger); background-color: var(--danger-light); }
+.btn-icon svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2.2; }
+
+.form-group-sm { margin-bottom: 13px; }
+.form-label-sm {
+    display: block; font-size: 0.76rem; font-weight: 700; color: var(--text-medium);
+    margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.4px;
+}
+.input-inline-btn { display: flex; gap: 6px; }
+.form-input-sm {
+    width: 100%; padding: 9px 12px; border: 1.5px solid var(--border-color);
+    border-radius: var(--radius-sm); background: var(--bg-main); color: var(--text-dark);
+    font-size: 0.85rem; transition: all var(--transition-fast); font-family: inherit;
+}
+.form-input-sm:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); background: #ffffff; }
+
+.btn-secondary-sm {
+    background-color: #ffffff; border: 1.5px solid var(--border-color); border-radius: var(--radius-sm);
+    padding: 9px 12px; font-size: 0.76rem; font-weight: 700; color: var(--text-medium);
+    cursor: pointer; transition: all var(--transition-fast); white-space: nowrap;
+    display: flex; align-items: center; gap: 4px;
+}
+.btn-secondary-sm:hover { border-color: var(--primary); color: var(--primary); background-color: var(--bg-main); }
+.btn-secondary-sm svg { width: 13px; height: 13px; stroke-width: 2.2; fill: none; stroke: currentColor; }
+
+.toggle-switch-wrapper { display: flex; align-items: center; gap: 10px; margin-top: 4px; }
+.switch-input { height: 0; width: 0; visibility: hidden; position: absolute; }
+.switch-label {
+    cursor: pointer; text-indent: -9999px; width: 40px; height: 22px; background: var(--text-light);
+    display: block; border-radius: 100px; position: relative; transition: background var(--transition-fast);
+}
+.switch-label::after {
+    content: ''; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px;
+    background: #ffffff; border-radius: 90px; transition: left var(--transition-fast);
+}
+.switch-input:checked + .switch-label { background: var(--success); }
+.switch-input:checked + .switch-label::after { left: calc(100% - 2px); transform: translateX(-100%); }
+.toggle-status-text { font-size: 0.8rem; font-weight: 700; color: var(--text-medium); }
+
+.btn-primary-sm {
+    background: var(--primary); color: #ffffff; border: none; width: 100%; padding: 10px;
+    border-radius: var(--radius-sm); font-size: 0.85rem; font-weight: 700; cursor: pointer;
+    transition: all var(--transition-fast); display: flex; align-items: center; justify-content: center;
+    gap: 6px; box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.15); margin-top: 6px;
+}
+.btn-primary-sm:hover { background: var(--primary-dark, #3730a3); transform: translateY(-1px); box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.2); }
+.btn-primary-sm svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2.2; }
+
+@media (max-width: 1200px) { .metrics-grid-discounts { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 1024px) { .discounts-split-grid { grid-template-columns: 1fr; } }
+@media (max-width: 576px) {
+    .metrics-grid-discounts { grid-template-columns: 1fr; }
+    .discounts-table th, .discounts-table td { padding: 8px 10px; font-size: 0.74rem; }
+    .code-pill { font-size: 0.72rem; padding: 2px 6px; }
+}

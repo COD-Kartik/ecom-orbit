@@ -10,7 +10,9 @@ from accounts.models import BusinessProfile
 import json
 from django.utils import timezone
 from products.models import Product
-
+from datetime import datetime
+from django.contrib import messages
+from .models import Discount
 
 
 
@@ -56,13 +58,14 @@ def order_list(request):
         'cancelled_count': orders.filter(status='cancelled').count(),
         'current_status': status_filter or '',
         'search_query': search_query or '',
+        'business': business,
     })
 
 @login_required
 def order_detail(request, pk):
     business = get_user_business(request.user)
     order = get_object_or_404(Order, pk=pk, business=business)
-    return render(request, 'orders/order_detail.html', {'order': order})
+    return render(request, 'orders/order_detail.html', {'order': order, 'business': business})
 
 @login_required
 def order_status_update(request, pk):
@@ -91,7 +94,7 @@ def order_add(request):
     business = get_user_business(request.user)
     from products.models import Product
     products = Product.objects.filter(business=business) if business else []
-
+    
     if request.method == 'POST':
         order = Order.objects.create(
             business=business,
@@ -118,7 +121,7 @@ def order_add(request):
         order.save()
         return redirect('order_list')
 
-    return render(request, 'orders/order_form.html', {'products': products})
+    return render(request, 'orders/order_list.html', {'products': products})
 
 @login_required
 def order_delete(request, pk):
@@ -294,6 +297,7 @@ def notifications_view(request):
     return render(request, 'orders/notifications.html', {
         'notifications': notifications,
         'current_filter': current_filter,
+        'business': business,
     })
 
 
@@ -371,4 +375,80 @@ def reports_view(request):
         'total_orders': total_orders,
         'total_products': total_products,
         'total_customers': total_customers,
+        'business': business,   # ← add this
     })
+
+
+
+@login_required
+def discounts_view(request):
+    business = get_user_business(request.user)
+    discounts = Discount.objects.filter(business=business).order_by('-created_at') if business else Discount.objects.none()
+
+    today = timezone.now().date()
+    active_codes_count = sum(1 for d in discounts if d.status == 'active')
+    total_redemptions = sum(d.times_used for d in discounts)
+    total_discount_given = 0  # Requires order-level discount tracking; not available yet, kept honest at 0
+    expiring_soon_count = sum(
+        1 for d in discounts
+        if d.status == 'active' and (d.expiry_date - today).days <= 7
+    )
+
+    return render(request, 'orders/discounts.html', {
+        'discounts': discounts,
+        'active_codes_count': active_codes_count,
+        'total_redemptions': total_redemptions,
+        'total_discount_given': total_discount_given,
+        'expiring_soon_count': expiring_soon_count,
+        'business': business,
+    })
+
+
+@login_required
+def discount_create(request):
+    business = get_user_business(request.user)
+    if request.method == 'POST' and business:
+        code = request.POST.get('code', '').strip().upper()
+        if Discount.objects.filter(business=business, code=code).exists():
+            messages.error(request, f'Discount code "{code}" already exists.')
+            return redirect('discounts_view')
+
+        Discount.objects.create(
+            business=business,
+            code=code,
+            discount_type=request.POST.get('discount_type'),
+            value=request.POST.get('value'),
+            min_order_amount=request.POST.get('min_order_amount') or None,
+            usage_limit=request.POST.get('usage_limit') or None,
+            start_date=request.POST.get('start_date'),
+            expiry_date=request.POST.get('expiry_date'),
+            is_active=request.POST.get('is_active') == 'true',
+        )
+        messages.success(request, f'Discount code "{code}" created successfully.')
+    return redirect('discounts_view')
+
+
+@login_required
+def discount_update(request, pk):
+    business = get_user_business(request.user)
+    discount = get_object_or_404(Discount, pk=pk, business=business)
+    if request.method == 'POST':
+        discount.code = request.POST.get('code', '').strip().upper()
+        discount.discount_type = request.POST.get('discount_type')
+        discount.value = request.POST.get('value')
+        discount.min_order_amount = request.POST.get('min_order_amount') or None
+        discount.usage_limit = request.POST.get('usage_limit') or None
+        discount.start_date = request.POST.get('start_date')
+        discount.expiry_date = request.POST.get('expiry_date')
+        discount.is_active = request.POST.get('is_active') == 'true'
+        discount.save()
+        messages.success(request, f'Discount code "{discount.code}" updated successfully.')
+    return redirect('discounts_view')
+
+
+@login_required
+def discount_delete(request, pk):
+    business = get_user_business(request.user)
+    discount = get_object_or_404(Discount, pk=pk, business=business)
+    discount.delete()
+    return redirect('discounts_view')

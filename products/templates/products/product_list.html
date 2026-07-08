@@ -4,6 +4,7 @@
 {% block title %}Products{% endblock %}
 {% block page_title %}Products{% endblock %}
 {% block nav_products %}active{% endblock %}
+{% load dict_extra %}
 
 {% block content %}
 
@@ -101,6 +102,11 @@
             <div>
               <div class="fw-600" style="color:#1e1b4b;">{{ product.title }}</div>
               <div class="text-muted" style="font-size:0.78rem;">ID #{{ product.id }}</div>
+              {% with count=listing_counts|get_item:product.id %}
+              <span style="font-size:0.72rem; padding:2px 8px; border-radius:6px; font-weight:600; display:inline-block; margin-top:4px; {% if count > 0 %}background:#ecfdf5; color:#059669;{% else %}background:#f3f4f6; color:#6b7280;{% endif %}">
+                  {% if count > 0 %}Live on {{ count }} channel{{ count|pluralize }}{% else %}Not published{% endif %}
+              </span>
+              {% endwith %}
             </div>
           </div>
         </td>

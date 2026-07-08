@@ -283,3 +283,77 @@ def delete_account(request):
             messages.error(request, 'Business name did not match. Account not deleted.')
             return redirect('settings')
     return redirect('settings')
+
+def forgot_password_view(request):
+    if request.method == 'POST':
+        email = request.POST.get('email', '').strip()
+        try:
+            user = User.objects.get(email=email, is_active=True)
+            generate_and_send_code(user)
+            request.session['reset_email'] = email
+            return redirect('reset_password')
+        except User.DoesNotExist:
+            messages.error(request, "No active account found with that email.")
+            return render(request, 'auth/forgot_password.html')
+
+    return render(request, 'auth/forgot_password.html')
+
+
+def reset_password_view(request):
+    email = request.session.get('reset_email')
+    if not email:
+        return redirect('forgot_password')
+
+    if request.method == 'POST':
+        entered_code = request.POST.get('code', '').strip()
+        new_password = request.POST.get('new_password', '')
+        confirm_password = request.POST.get('confirm_password', '')
+
+        try:
+            user = User.objects.get(email=email, is_active=True)
+        except User.DoesNotExist:
+            messages.error(request, 'Something went wrong. Please try again.')
+            return redirect('forgot_password')
+
+        if not user.verification_code:
+            messages.error(request, 'No reset code found. Please request a new one.')
+            return render(request, 'auth/reset_password.html', {'email': email})
+
+        expiry_time = user.verification_code_created_at + timedelta(minutes=10)
+        if timezone.now() > expiry_time:
+            messages.error(request, 'This code has expired. Please request a new one.')
+            return render(request, 'auth/reset_password.html', {'email': email})
+
+        if entered_code != user.verification_code:
+            messages.error(request, 'Incorrect code. Please try again.')
+            return render(request, 'auth/reset_password.html', {'email': email})
+
+        if new_password != confirm_password:
+            messages.error(request, 'Passwords do not match.')
+            return render(request, 'auth/reset_password.html', {'email': email})
+
+        if len(new_password) < 8:
+            messages.error(request, 'Password must be at least 8 characters.')
+            return render(request, 'auth/reset_password.html', {'email': email})
+
+        user.set_password(new_password)
+        user.verification_code = None
+        user.save()
+        del request.session['reset_email']
+
+        messages.success(request, 'Password reset successfully. Please sign in with your new password.')
+        return redirect('login')
+
+    return render(request, 'auth/reset_password.html', {'email': email})
+
+
+def resend_reset_code(request):
+    email = request.session.get('reset_email')
+    if email:
+        try:
+            user = User.objects.get(email=email, is_active=True)
+            generate_and_send_code(user)
+            messages.success(request, 'A new reset code has been sent.')
+        except User.DoesNotExist:
+            pass
+    return render(request, 'auth/reset_password.html', {'email': email})

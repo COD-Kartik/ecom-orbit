@@ -15,3 +15,11 @@ class OrderAdmin(admin.ModelAdmin):
 @admin.register(OrderItem)
 class OrderItemAdmin(admin.ModelAdmin):
     list_display = ('order', 'product', 'quantity', 'unit_price')
+
+from .models import Discount
+
+@admin.register(Discount)
+class DiscountAdmin(admin.ModelAdmin):
+    list_display = ('code', 'business', 'discount_type', 'value', 'times_used', 'usage_limit', 'is_active', 'expiry_date')
+    list_filter = ('discount_type', 'is_active')
+    search_fields = ('code',)

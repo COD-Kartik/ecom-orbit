@@ -15,10 +15,17 @@ urlpatterns = [
     path('dashboard/orders/<int:pk>/payment/', views.order_payment_update, name='order_payment_update'),
     path('dashboard/orders/export/', views.export_orders_csv, name='export_orders_csv'),
     path('dashboard/customers/', views.customer_list, name='customer_list'),
-    path('api/', include(router.urls)),
+
     path('dashboard/notifications/', views.notifications_view, name='notifications_view'),
     path('dashboard/reports/', views.reports_view, name='reports_view'),
     path('dashboard/reports/export/inventory/', views.export_inventory_csv, name='export_inventory_csv'),
     path('dashboard/reports/export/customers/', views.export_customers_csv, name='export_customers_csv'),
+
+    path('dashboard/marketing/', views.discounts_view, name='discounts_view'),
+    path('dashboard/marketing/create/', views.discount_create, name='discount_create'),
+    path('dashboard/marketing/<int:pk>/update/', views.discount_update, name='discount_update'),
+    path('dashboard/marketing/<int:pk>/delete/', views.discount_delete, name='discount_delete'),
+
+    path('api/', include(router.urls)),
 ]
     
