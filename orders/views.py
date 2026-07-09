@@ -266,33 +266,37 @@ def notifications_view(request):
     notifications = []
 
     if business:
-        # Low stock alerts — using created_at as a proxy timestamp,
-        # since Product has no updated_at field to track exact low-stock moment.
+        from accounts.models import DismissedNotification
+        dismissed = set(
+            DismissedNotification.objects.filter(business=business)
+            .values_list('notif_type', 'reference_id')
+        )
+
         low_stock_products = Product.objects.filter(business=business, stock__lte=5).order_by('-created_at')
         for p in low_stock_products:
-            notifications.append({
-                'type': 'low-stock',
-                'product_id': p.id,
-                'product_title': p.title,
-                'stock': p.stock,
-                'timestamp': p.created_at,
-                'time_label': _relative_time(p.created_at),
-            })
+            if ('low-stock', p.id) not in dismissed:
+                notifications.append({
+                    'type': 'low-stock',
+                    'product_id': p.id,
+                    'product_title': p.title,
+                    'stock': p.stock,
+                    'timestamp': p.created_at,
+                    'time_label': _relative_time(p.created_at),
+                })
 
-        # New order notifications
         recent_orders = Order.objects.filter(business=business).order_by('-created_at')[:20]
         for o in recent_orders:
-            notifications.append({
-                'type': 'new-order',
-                'order_id': o.id,
-                'customer_name': o.customer_name,
-                'amount': o.total_amount,
-                'channel_name': o.channel.name if o.channel else 'Manual',
-                'timestamp': o.created_at,
-                'time_label': _relative_time(o.created_at),
-            })
+            if ('new-order', o.id) not in dismissed:
+                notifications.append({
+                    'type': 'new-order',
+                    'order_id': o.id,
+                    'customer_name': o.customer_name,
+                    'amount': o.total_amount,
+                    'channel_name': o.channel.name if o.channel else 'Manual',
+                    'timestamp': o.created_at,
+                    'time_label': _relative_time(o.created_at),
+                })
 
-    # Sort combined feed by timestamp, most recent first
     notifications.sort(key=lambda x: x['timestamp'], reverse=True)
 
     if current_filter != 'all':
@@ -456,3 +460,21 @@ def discount_delete(request, pk):
     discount = get_object_or_404(Discount, pk=pk, business=business)
     discount.delete()
     return redirect('discounts_view')
+
+from django.http import JsonResponse
+from accounts.models import DismissedNotification
+
+
+@login_required
+def dismiss_notification(request):
+    business = get_user_business(request.user)
+    if business and request.method == 'POST':
+        notif_type = request.POST.get('notif_type')
+        reference_id = request.POST.get('reference_id')
+        if notif_type and reference_id:
+            DismissedNotification.objects.get_or_create(
+                business=business,
+                notif_type=notif_type,
+                reference_id=reference_id,
+            )
+    return JsonResponse({'success': True})

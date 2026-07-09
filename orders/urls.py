@@ -25,7 +25,7 @@ urlpatterns = [
     path('dashboard/marketing/create/', views.discount_create, name='discount_create'),
     path('dashboard/marketing/<int:pk>/update/', views.discount_update, name='discount_update'),
     path('dashboard/marketing/<int:pk>/delete/', views.discount_delete, name='discount_delete'),
-
+    path('dashboard/notifications/dismiss/', views.dismiss_notification, name='dismiss_notification'),
     path('api/', include(router.urls)),
 ]
     

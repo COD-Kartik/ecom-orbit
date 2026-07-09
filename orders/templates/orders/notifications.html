@@ -19,7 +19,7 @@
 {% if notifications %}
 <div class="notifications-feed">
     {% for n in notifications %}
-    <div class="notification-row {{ n.type }}">
+    <div class="notification-row {{ n.type }}" id="notif-row-{{ n.type }}-{% if n.type == 'new-order' %}{{ n.order_id }}{% else %}{{ n.product_id }}{% endif %}">
         <div class="notif-icon-box {{ n.type }}">
             {% if n.type == 'new-order' %}
             <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z" /></svg>
@@ -40,21 +40,30 @@
 
         <div class="notif-meta">
             <span class="notif-time">{{ n.time_label }}</span>
-            {% if n.type == 'new-order' %}
-            <a href="{% url 'order_detail' n.order_id %}" class="btn-action">
-                <span>View Order</span>
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"></path></svg>
-            </a>
-            {% else %}
-            <a href="{% url 'product_edit' n.product_id %}" class="btn-action">
-                <span>View Product</span>
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"></path></svg>
-            </a>
-            {% endif %}
+            <div style="display:flex; gap:8px;">
+                {% if n.type == 'new-order' %}
+                <a href="{% url 'order_detail' n.order_id %}" class="btn-action">
+                    <span>View Order</span>
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"></path></svg>
+                </a>
+                <button type="button" class="btn-action" onclick="discardNotification('new-order', {{ n.order_id }})" title="Discard">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+                {% else %}
+                <a href="{% url 'product_edit' n.product_id %}" class="btn-action">
+                    <span>View Product</span>
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"></path></svg>
+                </a>
+                <button type="button" class="btn-action" onclick="discardNotification('low-stock', {{ n.product_id }})" title="Discard">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+                {% endif %}
+            </div>
         </div>
     </div>
     {% endfor %}
 </div>
+
 {% else %}
 <div class="empty-state-card">
     <div class="empty-icon-wrapper">
@@ -66,5 +75,36 @@
     <p class="empty-desc">There are no new alerts at the moment. All inventory thresholds and channels are synced.</p>
 </div>
 {% endif %}
+
+<script>
+function discardNotification(notifType, referenceId) {
+    fetch('{% url "dismiss_notification" %}', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `notif_type=${notifType}&reference_id=${referenceId}`,
+    }).then(() => {
+        const row = document.getElementById(`notif-row-${notifType}-${referenceId}`);
+        if (row) row.remove();
+    });
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
 
 {% endblock %}

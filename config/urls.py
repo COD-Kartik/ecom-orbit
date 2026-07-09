@@ -6,7 +6,7 @@ from accounts.views import (
     login_view, logout_view, register_view,
     verify_code_view, resend_verification, demo_dashboard,
     settings_view, update_profile, update_business, change_password, delete_account,
-    forgot_password_view, reset_password_view, resend_reset_code
+    forgot_password_view, reset_password_view, resend_reset_code, mark_notifications_viewed
 )
 
 urlpatterns = [
@@ -36,4 +36,6 @@ urlpatterns = [
     path('dashboard/settings/update-business/', update_business, name='update_business'),
     path('dashboard/settings/change-password/', change_password, name='change_password'),
     path('dashboard/settings/delete-account/', delete_account, name='delete_account'),
+
+    path('notifications/mark-viewed/', mark_notifications_viewed, name='mark_notifications_viewed'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

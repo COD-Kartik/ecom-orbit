@@ -62,26 +62,26 @@
         </div>
     </div>
 
-    <!-- Card 3: Total Customers -->
+<!-- Card 3: Pending Fulfillment -->
     <div class="metric-card">
         <div class="metric-icon-box customers">
             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.109A9.342 9.342 0 0012 20.25a9.34 9.34 0 00-3.011-.514v-.108c0-1.112-.285-2.16-.786-3.07M11.25 12.75A4.5 4.5 0 117 8.25m4.25 4.5a4.5 4.5 0 01-4.25-4.5m4.25 4.5A4.5 4.5 0 0012 17.25a4.5 4.5 0 003.582-1.776M11.25 12.75a4.5 4.5 0 01-3.667-1.897M12 17.25a4.5 4.5 0 01-3.667-1.897m7.167.397a4.5 4.5 0 003.582-1.776M15.502 12h.008v.008h-.008V12zM18 12h.008v.008H18V12z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 9h.75m.75 0h.75m.75 0h.75m-6.75-3H18.75c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18V7.125C3 6.504 3.504 6 4.125 6z" />
             </svg>
         </div>
         <div class="metric-info">
-            <div class="metric-title">Total Customers</div>
-            <div class="metric-value">{{ total_customers|default:"0" }}</div>
-            {% if total_customers > 0 %}
-            <div class="metric-trend up">
+            <div class="metric-title">Pending Fulfillment</div>
+            <div class="metric-value">{{ pending_fulfillment|default:"0" }}</div>
+            {% if pending_fulfillment > 0 %}
+            <div class="metric-trend" style="color:#f59e0b;">
                 <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
                 </svg>
-                <span class="trend-text">vs last 30 days</span>
+                <span class="trend-text">Needs action</span>
             </div>
             {% else %}
             <div class="metric-trend" style="color:#9ca3af;">
-                <span class="trend-text">No customers yet</span>
+                <span class="trend-text">All caught up</span>
             </div>
             {% endif %}
         </div>
@@ -147,7 +147,13 @@
     <div class="dashboard-card sales-overview-card">
         <div class="card-header">
             <span class="card-title">Sales Overview</span>
+            <a href="{% url 'analytics_view' %}" class="card-action-link">Full Analytics</a>
         </div>
+        {% if total_orders > 0 %}
+        <div style="position:relative; height:220px; margin-top:10px;">
+            <canvas id="dashboard-mini-chart"></canvas>
+        </div>
+        {% else %}
         <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:220px; color:#9ca3af;">
             <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="margin-bottom:12px; opacity:0.5;">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/>
@@ -155,13 +161,19 @@
             <p style="font-size:0.9rem; margin:0;">No sales data yet</p>
             <p style="font-size:0.78rem; margin:4px 0 0;">Chart will appear once you have orders</p>
         </div>
+        {% endif %}
     </div>
 
-    <!-- Column 2: Order Summary -->
+<!-- Column 2: Order Summary -->
     <div class="dashboard-card order-summary-card">
         <div class="card-header" style="width: 100%">
             <span class="card-title">Order Summary</span>
         </div>
+        {% if total_orders > 0 %}
+        <div style="position:relative; height:220px; display:flex; align-items:center; justify-content:center; padding:10px 0;">
+            <canvas id="dashboard-donut-chart" style="max-height:200px;"></canvas>
+        </div>
+        {% else %}
         <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; flex:1; color:#9ca3af; padding:20px 0;">
             <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="margin-bottom:12px; opacity:0.5;">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 9h.75m.75 0h.75m.75 0h.75m-6.75-3H18.75c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18V7.125C3 6.504 3.504 6 4.125 6z"/>
@@ -169,6 +181,7 @@
             <p style="font-size:0.9rem; margin:0;">No orders yet</p>
             <p style="font-size:0.78rem; margin:4px 0 0; text-align:center;">Order breakdown will appear here once customers start buying</p>
         </div>
+        {% endif %}
         <a href="{% url 'order_list' %}" class="card-footer-btn" style="text-decoration:none; text-align:center;">View All Orders</a>
     </div>
 
@@ -236,8 +249,7 @@
                     <tr>
                         <td><a href="{% url 'order_detail' order.id %}" class="order-id">#ORD-{{ order.id }}</a></td>
                         <td><div class="customer-cell">{{ order.customer_name }}</div></td>
-                        <td><div class="customer-cell">{{ order.channel }}</div></td>
-                        <td>{{ order.created_at|date:"M d, Y" }}</td>
+                        <td><div class="customer-cell">{{ order.channel.name|default:"Manual" }}</div></td>
                         <td style="font-weight:600">₹{{ order.total_amount }}</td>
                         <td><span class="badge {{ order.status }}">{{ order.status|title }}</span></td>
                     </tr>
@@ -268,25 +280,25 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for product in top_products %}
+                    {% for item in top_products %}
                     <tr>
                         <td>
                             <div class="product-cell">
                                 <div class="product-img">
-                                    {% if product.image %}
-                                    <img src="{{ product.image.url }}" style="width:100%;height:100%;object-fit:cover;border-radius:6px;">
+                                    {% if item.product.image %}
+                                    <img src="{{ item.product.image.url }}" style="width:100%;height:100%;object-fit:cover;border-radius:6px;">
                                     {% else %}
                                     <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5"/></svg>
                                     {% endif %}
                                 </div>
-                                <span class="product-name" title="{{ product.title }}">{{ product.title }}</span>
+                                <span class="product-name" title="{{ item.product.title }}">{{ item.product.title }}</span>
                             </div>
                         </td>
-                        <td>{{ product.stock }}</td>
-                        <td style="font-weight: 600">₹{{ product.price }}</td>
+                        <td>{{ item.sold }}</td>
+                        <td style="font-weight: 600">₹{{ item.revenue }}</td>
                     </tr>
                     {% empty %}
-                    <tr><td colspan="3" style="text-align:center; padding:24px; color:#9ca3af;">No products yet.</td></tr>
+                    <tr><td colspan="3" style="text-align:center; padding:24px; color:#9ca3af;">No sales yet.</td></tr>
                     {% endfor %}
                 </tbody>
             </table>
@@ -350,13 +362,14 @@
                     </div>
                     <span class="action-name">View Analytics</span>
                 </a>
-                <a class="action-item" href="{% url 'product_list' %}">
+                <a class="action-item" href="{% url 'category_list' %}">
                     <div class="action-icon inventory">
                         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6z" />
                         </svg>
                     </div>
-                    <span class="action-name">Manage Inventory</span>
+                    <span class="action-name">Manage Categories</span>
                 </a>
             </div>
         </div>
@@ -365,4 +378,62 @@
 
 </section>
 
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+{% if total_orders > 0 %}
+    const miniTrendData = {{ mini_trend_json|safe }};
+    const miniCtx = document.getElementById('dashboard-mini-chart').getContext('2d');
+    new Chart(miniCtx, {
+        type: 'line',
+        data: {
+            labels: miniTrendData.labels,
+            datasets: [{
+                data: miniTrendData.data,
+                borderColor: '#4f46e5',
+                backgroundColor: 'rgba(79,70,229,0.08)',
+                fill: true,
+                tension: 0.35,
+                borderWidth: 2,
+                pointRadius: 2,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
+                x: { grid: { display: false }, ticks: { maxTicksLimit: 6 } }
+            }
+        }
+    });
+
+    const statusCounts = {{ status_counts_json|safe }};
+    const donutCtx = document.getElementById('dashboard-donut-chart').getContext('2d');
+    new Chart(donutCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Delivered', 'Shipped', 'Processing', 'Pending', 'Cancelled'],
+            datasets: [{
+                data: [statusCounts.delivered, statusCounts.shipped, statusCounts.processing, statusCounts.pending, statusCounts.cancelled],
+                backgroundColor: ['#10b981', '#3b82f6', '#4f46e5', '#f59e0b', '#ef4444'],
+                borderWidth: 2,
+                borderColor: '#ffffff',
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '70%',
+            plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } } }
+        }
+    });
+{% endif %}
+</script>
 {% endblock %}
+
+{% endblock %}
+
+

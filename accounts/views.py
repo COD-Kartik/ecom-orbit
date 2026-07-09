@@ -357,3 +357,15 @@ def resend_reset_code(request):
         except User.DoesNotExist:
             pass
     return render(request, 'auth/reset_password.html', {'email': email})
+
+from django.http import JsonResponse
+from django.utils import timezone
+
+
+@login_required
+def mark_notifications_viewed(request):
+    business = get_user_business(request.user)
+    if business and request.method == 'POST':
+        business.notifications_last_viewed = timezone.now()
+        business.save()
+    return JsonResponse({'success': True})

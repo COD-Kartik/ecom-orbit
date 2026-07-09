@@ -319,6 +319,7 @@
         <i class="bi bi-bell text-secondary fs-5" style="cursor:pointer;" onclick="toggleNotifDropdown(event)"></i>
         {% if notif_count > 0 %}
         <span style="position:absolute; top:-6px; right:-8px; background:#dc2626; color:white; font-size:0.65rem; font-weight:700; padding:1px 5px; border-radius:999px; min-width:16px; text-align:center;">{{ notif_count }}{% if notif_count > 9 %}+{% endif %}</span>
+        <span id="notif-bell-badge" style="position:absolute; top:-6px; right:-8px; background:#dc2626; color:white; font-size:0.65rem; font-weight:700; padding:1px 5px; border-radius:999px; min-width:16px; text-align:center;">{{ notif_count }}{% if notif_count > 9 %}+{% endif %}</span>
         {% endif %}
 
         <div id="notif-dropdown" style="display:none; position:absolute; top:28px; right:-10px; width:300px; background:#fff; border:1px solid #e5e7eb; border-radius:10px; box-shadow:0 8px 24px rgba(0,0,0,0.12); z-index:200; overflow:hidden;">
@@ -384,7 +385,21 @@
 function toggleNotifDropdown(e) {
     e.stopPropagation();
     const dropdown = document.getElementById('notif-dropdown');
-    dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+    const isOpening = dropdown.style.display !== 'block';
+    dropdown.style.display = isOpening ? 'block' : 'none';
+
+    if (isOpening) {
+        fetch('{% url "mark_notifications_viewed" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json',
+            },
+        }).then(() => {
+            const badge = document.getElementById('notif-bell-badge');
+            if (badge) badge.style.display = 'none';
+        });
+    }
 }
 document.addEventListener('click', function(e) {
     const dropdown = document.getElementById('notif-dropdown');
@@ -392,6 +407,21 @@ document.addEventListener('click', function(e) {
         dropdown.style.display = 'none';
     }
 });
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
 </script>
 
 <!-- Reusable Delete Confirmation Modal -->

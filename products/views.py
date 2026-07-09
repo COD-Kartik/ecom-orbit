@@ -19,31 +19,86 @@ def dashboard(request):
     if business:
         products = Product.objects.filter(business=business)
         from channels_integration.models import Channel
-        channels      = Channel.objects.filter(business=business)
+        channels = Channel.objects.filter(business=business)
         user_channels = channels.filter(is_active=True)[:5]
         active_channels = channels.filter(is_active=True).count()
-    else:
-        products        = Product.objects.none()
-        user_channels   = []
-        active_channels = 0
 
-    total_products  = products.count()
-    low_stock       = products.filter(stock__lte=5).count()
+        from orders.models import Order, OrderItem
+        from django.db.models import Sum, F
+        from datetime import timedelta
+        from django.utils import timezone
+
+        orders = Order.objects.filter(business=business)
+        total_orders = orders.count()
+        total_revenue = orders.aggregate(total=Sum('total_amount'))['total'] or 0
+        pending_fulfillment = orders.filter(status__in=['pending', 'processing']).count()
+        recent_orders = orders.select_related('channel').order_by('-created_at')[:5]
+
+        # Order status breakdown for donut
+        status_counts = {
+            'delivered': orders.filter(status='delivered').count(),
+            'shipped': orders.filter(status='shipped').count(),
+            'processing': orders.filter(status='processing').count(),
+            'pending': orders.filter(status='pending').count(),
+            'cancelled': orders.filter(status='cancelled').count(),
+        }
+
+        # Mini 14-day revenue trend for Sales Overview chart
+        today = timezone.now().date()
+        date_range = [today - timedelta(days=i) for i in range(13, -1, -1)]
+        daily_revenue = {d: 0 for d in date_range}
+        for order in orders.filter(created_at__date__gte=date_range[0]):
+            order_date = order.created_at.date()
+            if order_date in daily_revenue:
+                daily_revenue[order_date] += float(order.total_amount)
+
+        mini_trend_labels = [d.strftime('%b %d') for d in date_range]
+        mini_trend_data = [round(daily_revenue[d], 2) for d in date_range]
+
+        from collections import defaultdict
+        product_sales = defaultdict(lambda: {'sold': 0, 'revenue': 0, 'product': None})
+        for item in OrderItem.objects.filter(order__business=business).select_related('product'):
+            if item.product:
+                key = item.product.id
+                product_sales[key]['sold'] += item.quantity
+                product_sales[key]['revenue'] += item.quantity * item.unit_price
+                product_sales[key]['product'] = item.product
+
+        top_products_data = sorted(product_sales.values(), key=lambda x: x['revenue'], reverse=True)[:5]
+    else:
+        products = Product.objects.none()
+        user_channels = []
+        active_channels = 0
+        total_orders = 0
+        total_revenue = 0
+        pending_fulfillment = 0
+        recent_orders = []
+        top_products_data = []
+        status_counts = {'delivered': 0, 'shipped': 0, 'processing': 0, 'pending': 0, 'cancelled': 0}
+        mini_trend_labels = []
+        mini_trend_data = []
+
+    total_products = products.count()
+    low_stock = products.filter(stock__lte=5).count()
     recent_products = products.order_by('-created_at')[:5]
-    top_products    = products.order_by('-stock')[:5]
+
+    import json
 
     return render(request, 'dashboard.html', {
-        'business'       : business,
-        'total_products' : total_products,
-        'low_stock'      : low_stock,
+        'business': business,
+        'total_products': total_products,
+        'low_stock': low_stock,
         'active_channels': active_channels,
         'recent_products': recent_products,
-        'top_products'   : top_products,
-        'user_channels'  : user_channels,
-        'total_orders'   : 0,
-        'total_customers': 0,
-        'total_revenue'  : 0,
-        'recent_orders'  : [],
+        'top_products': top_products_data,
+        'user_channels': user_channels,
+        'total_orders': total_orders,
+        'pending_fulfillment': pending_fulfillment,
+        'total_revenue': total_revenue,
+        'recent_orders': recent_orders,
+        'status_counts': status_counts,
+        'mini_trend_json': json.dumps({'labels': mini_trend_labels, 'data': mini_trend_data}),
+        'status_counts_json': json.dumps(status_counts),
     })
 
 @login_required

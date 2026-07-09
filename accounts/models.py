@@ -27,6 +27,7 @@ class BusinessProfile(models.Model):
     description = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     business_phone = models.CharField(max_length=20, blank=True, null=True)
+    notifications_last_viewed = models.DateTimeField(blank=True, null=True)
     def __str__(self):
         return self.business_name
 
@@ -39,3 +40,15 @@ class SellerProfile(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.business.business_name}"
+    
+class DismissedNotification(models.Model):
+    business = models.ForeignKey(BusinessProfile, on_delete=models.CASCADE, related_name='dismissed_notifications')
+    notif_type = models.CharField(max_length=20)
+    reference_id = models.PositiveIntegerField()
+    dismissed_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('business', 'notif_type', 'reference_id')
+
+    def __str__(self):
+        return f"{self.notif_type} #{self.reference_id} dismissed by {self.business}"
