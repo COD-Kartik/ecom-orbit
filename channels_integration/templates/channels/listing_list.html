@@ -63,10 +63,37 @@
   <div class="col-lg-9">
     <div class="data-table">
       <div class="d-flex align-items-center justify-content-between p-3 border-bottom">
-        <h6 class="mb-0 fw-700" style="color:#1e1b4b;">All Product Listings</h6>
-        <a href="{% url 'product_list' %}" class="btn-primary-custom btn d-flex align-items-center gap-1">
-          <i class="bi bi-plus-lg"></i> Publish Product
+        <h6 class="mb-0 fw-700" style="color:#1e1b4b;">Product Listings</h6>
+      </div> 
+      <!-- Channel Filter Tabs -->
+      <div class="d-flex align-items-center gap-2 p-3 border-bottom flex-wrap">
+        <a href="{% url 'listing_list' %}"
+          class="btn btn-sm {% if not selected_channel_id %}btn-primary-custom{% else %}btn-light border{% endif %}">
+          All Channels <span class="badge bg-light text-dark ms-1">{{ total }}</span>
         </a>
+        <div class="dropdown">
+          <button class="btn-primary-custom btn d-flex align-items-center gap-1 dropdown-toggle" type="button" data-bs-toggle="dropdown">
+            <i class="bi bi-plus-lg"></i> Publish Product
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end" style="max-height:300px; overflow-y:auto;">
+            {% for p in products %}
+            <li>
+              <a class="dropdown-item" href="{% url 'select_channels_to_publish' p.id %}">
+                {{ p.title }} <span class="text-muted" style="font-size:0.78rem;">(₹{{ p.price }})</span>
+              </a>
+            </li>
+            {% empty %}
+            <li><span class="dropdown-item-text text-muted">No products yet</span></li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% for ch in all_channels %}
+        <a href="?channel={{ ch.id }}"
+           class="btn btn-sm {% if selected_channel_id == ch.id %}btn-primary-custom{% else %}btn-light border{% endif %}">
+          {{ ch.name }}
+          {% if not ch.is_active %}<span class="text-muted" style="font-size:0.7rem;">(inactive)</span>{% endif %}
+        </a>
+        {% endfor %}
       </div>
       <table class="table">
         <thead>
@@ -129,16 +156,22 @@
             </td>
           </tr>
           {% empty %}
-          <tr>
-            <td colspan="6" class="text-center py-5">
-              <i class="bi bi-broadcast" style="font-size:2.5rem; color:#d1d5db;"></i>
-              <p class="mt-3 text-muted">No listings yet.
-                <a href="{% url 'product_list' %}">Go to products to publish.</a>
-              </p>
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
+                    <tr>
+                      <td colspan="6" class="text-center py-5">
+                        <i class="bi bi-broadcast" style="font-size:2.5rem; color:#d1d5db;"></i>
+                        {% if selected_channel_id %}
+                        <p class="mt-3 text-muted">No products published on this channel yet.
+                          <a href="{% url 'listing_list' %}">View all channels</a>
+                        </p>
+                        {% else %}
+                        <p class="mt-3 text-muted">No listings yet.
+                          <a href="{% url 'product_list' %}">Go to products to publish.</a>
+                        </p>
+                        {% endif %}
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
       </table>
     </div>
   </div>

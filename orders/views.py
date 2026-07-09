@@ -48,8 +48,12 @@ def order_list(request):
     if search_query:
         orders = orders.filter(customer_name__icontains=search_query)
 
+    from products.models import Product
+    products = Product.objects.filter(business=business) if business else Product.objects.none()
+
     return render(request, 'orders/order_list.html', {
         'orders': orders,
+        'products': products,
         'total_orders': orders.count(),
         'pending_count': orders.filter(status='pending').count(),
         'processing_count': orders.filter(status='processing').count(),

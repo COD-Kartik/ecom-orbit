@@ -49,11 +49,13 @@
   <div class="col-sm-6 col-xl-3">
     <div class="stat-card">
       <div class="d-flex align-items-center justify-content-between mb-3">
-        <div class="stat-icon" style="background:#fef9c3;">
-          <i class="bi bi-tags" style="color:#ca8a04;"></i>
+        <div class="stat-icon" style="background:#eef2ff;">
+          <i class="bi bi-currency-rupee" style="color:#4f46e5;"></i>
         </div>
-        <span class="badge-pending">Count</span>
+        <span class="badge-active">Value</span>
       </div>
+      <div class="stat-num">₹{{ inventory_value|floatformat:0 }}</div>
+      <div class="stat-label">Total Inventory Value</div>
       <div class="stat-num">{{ total_categories }}</div>
       <div class="stat-label">Categories</div>
     </div>
@@ -62,14 +64,17 @@
 
 <!-- Product Table -->
 <div class="data-table">
-  <!-- Table Header -->
+<!-- Table Header -->
   <div class="d-flex align-items-center justify-content-between p-3 border-bottom">
     <div class="d-flex align-items-center gap-2">
       <h6 class="mb-0 fw-700" style="color:#1e1b4b;">All Products</h6>
       <span class="badge bg-light text-secondary ms-1">{{ total_products }}</span>
     </div>
     <div class="d-flex gap-2">
-      <input type="text" class="form-control form-control-sm" placeholder="Search products..." style="width:220px;">
+      <form method="get" class="d-flex gap-2">
+        <input type="text" name="q" value="{{ search_query }}" class="form-control form-control-sm" placeholder="Search products..." style="width:220px;">
+        <button type="submit" class="btn btn-sm btn-light border">Search</button>
+      </form>
       <a href="{% url 'product_add' %}" class="btn-primary-custom btn d-flex align-items-center gap-1">
         <i class="bi bi-plus-lg"></i> Add Product
       </a>
@@ -138,11 +143,11 @@
             <a href="{% url 'product_edit' product.id %}" class="btn btn-sm btn-light border" title="Edit">
               <i class="bi bi-pencil"></i>
             </a>
-            <a href="{% url 'product_delete' product.id %}" class="btn btn-sm btn-light border text-danger" title="Delete"
-               onclick="return confirm('Delete {{ product.title }}?')">
+            <a href="javascript:void(0)" class="btn btn-sm btn-light border text-danger" title="Delete"
+              onclick="showDeleteModal('{% url 'product_delete' product.id %}', &quot;Are you sure you want to delete '{{ product.title }}'? This action cannot be undone.&quot;)">
               <i class="bi bi-trash"></i>
             </a>
-            <a href="{% url 'publish_product' product.id %}" 
+            <a href="{% url 'select_channels_to_publish' product.id %}" 
               class="btn btn-sm btn-light border text-success" title="Publish to channels">
               <i class="bi bi-send"></i>
             </a>

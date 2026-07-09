@@ -3,6 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.utils.text import slugify
 from .models import Product, Category, ProductVariant
 from accounts.models import BusinessProfile
+from django.db.models import Sum, F
+
 
 def get_user_business(user):
     """Helper — gets business profile for logged in user or None"""
@@ -49,30 +51,36 @@ def product_list(request):
     business = get_user_business(request.user)
     products = Product.objects.filter(business=business).order_by('-created_at') if business else Product.objects.none()
 
+    search_query = request.GET.get('q', '').strip()
+    if search_query:
+        products = products.filter(title__icontains=search_query)
+
     from channels_integration.models import ProductListing
     listing_counts = {}
     for p in products:
         listing_counts[p.id] = ProductListing.objects.filter(product=p, status='published').count()
 
-    total_products = products.count()
-    active_products = products.filter(is_active=True).count()
-    low_stock = products.filter(stock__lte=5).count()
-    total_categories = Category.objects.filter(business=business).count() if business else 0
-
+    total_products = Product.objects.filter(business=business).count() if business else 0
+    active_products = Product.objects.filter(business=business, is_active=True).count() if business else 0
+    low_stock = Product.objects.filter(business=business, stock__lte=5).count() if business else 0
+    inventory_value = Product.objects.filter(business=business).aggregate(
+        total=Sum(F('price') * F('stock'))
+    )['total'] or 0 if business else 0
     return render(request, 'products/product_list.html', {
         'products': products,
         'listing_counts': listing_counts,
         'total_products': total_products,
         'active_products': active_products,
         'low_stock': low_stock,
-        'total_categories': total_categories,
+        'inventory_value': inventory_value,
+        'search_query': search_query,
         'business': business,
     })
 
 @login_required
 def product_add(request):
     business   = get_user_business(request.user)
-    categories = Category.objects.all()
+    categories = Category.objects.filter(business=business)
     if request.method == 'POST':
         title       = request.POST.get('title')
         description = request.POST.get('description', '')
@@ -107,7 +115,7 @@ def product_add(request):
 def product_edit(request, pk):
     business = get_user_business(request.user)
     product  = get_object_or_404(Product, pk=pk, business=business)
-    categories = Category.objects.all()
+    categories = Category.objects.filter(business=business)
     if request.method == 'POST':
         product.title       = request.POST.get('title')
         product.description = request.POST.get('description', '')

@@ -18,6 +18,7 @@ urlpatterns = [
     path('dashboard/listings/<int:pk>/status/', views.listing_status_update, name='listing_status_update'),
     # Publishing
     path('dashboard/products/<int:product_id>/publish/', views.publish_product, name='publish_product'),
+    path('dashboard/products/<int:product_id>/select-channels/', views.select_channels_to_publish, name='select_channels_to_publish'),
     # API
     path('api/', include(router.urls)),
 ]

@@ -82,7 +82,54 @@ def channel_toggle(request, pk):
     return redirect('channel_list')
 
 @login_required
+def select_channels_to_publish(request, product_id):
+    business = get_user_business(request.user)
+    product = get_object_or_404(Product, pk=product_id, business=business)
+    channels = Channel.objects.filter(business=business, is_active=True)
+
+    if not channels.exists():
+        messages.error(request, 'No active channels connected. Please connect a channel first.')
+        return redirect('channel_list')
+
+    if request.method == 'POST':
+        selected_ids = request.POST.getlist('channel_ids')
+        if not selected_ids:
+            messages.error(request, 'Please select at least one channel.')
+            return redirect('select_channels_to_publish', product_id=product.id)
+
+        selected_channels = channels.filter(id__in=selected_ids)
+        for channel in selected_channels:
+            listing, created = ProductListing.objects.get_or_create(
+                product=product,
+                channel=channel,
+                defaults={'status': 'published'}
+            )
+            if not created and listing.status != 'published':
+                listing.status = 'published'
+                listing.save()
+
+        # Unpublish from channels that were unchecked but previously published
+        unselected_channels = channels.exclude(id__in=selected_ids)
+        ProductListing.objects.filter(product=product, channel__in=unselected_channels, status='published').update(status='pending')
+
+        messages.success(request, f'"{product.title}" updated across {selected_channels.count()} channel(s).')
+        return redirect('listing_list')
+
+    # GET — show checkboxes with current publish status per channel
+    published_channel_ids = set(
+        ProductListing.objects.filter(product=product, status='published').values_list('channel_id', flat=True)
+    )
+
+    return render(request, 'channels/select_channels.html', {
+        'product': product,
+        'channels': channels,
+        'published_channel_ids': published_channel_ids,
+    })
+
+
+@login_required
 def publish_product(request, product_id):
+    """Quick Publish — publishes to ALL active channels at once."""
     business = get_user_business(request.user)
     product = get_object_or_404(Product, pk=product_id, business=business)
     channels = Channel.objects.filter(business=business, is_active=True)
@@ -103,24 +150,29 @@ def publish_product(request, product_id):
 
     messages.success(request, f'"{product.title}" published to {channels.count()} channel(s).')
     return redirect('listing_list')
-
 @login_required
 def listing_list(request):
     business = get_user_business(request.user)
     channels = Channel.objects.filter(business=business)
-    listings = ProductListing.objects.filter(
-        channel__in=channels
-    ).select_related('product', 'channel').order_by('-id')
+    listings = ProductListing.objects.filter(channel__in=channels).select_related('product', 'channel')
+
+    selected_channel_id = request.GET.get('channel')
+    if selected_channel_id:
+        listings = listings.filter(channel_id=selected_channel_id)
+
+    listings = listings.order_by('-id')  # most recently added/updated first
 
     return render(request, 'channels/listing_list.html', {
-        'listings'  : listings,
-        'total'     : listings.count(),
-        'published' : listings.filter(status='published').count(),
-        'pending'   : listings.filter(status='pending').count(),
-        'failed'    : listings.filter(status='failed').count(),
-        'products'  : Product.objects.filter(business=business),
-        'channels'  : channels.filter(is_active=True),
-        'business'  : business,
+        'listings': listings,
+        'total': ProductListing.objects.filter(channel__in=channels).count(),
+        'published': ProductListing.objects.filter(channel__in=channels, status='published').count(),
+        'pending': ProductListing.objects.filter(channel__in=channels, status='pending').count(),
+        'failed': ProductListing.objects.filter(channel__in=channels, status='failed').count(),
+        'products': Product.objects.filter(business=business),
+        'channels': channels.filter(is_active=True),
+        'all_channels': channels,
+        'selected_channel_id': int(selected_channel_id) if selected_channel_id else None,
+        'business': business,
     })
 
 @login_required

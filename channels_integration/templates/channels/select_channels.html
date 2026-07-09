@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Select Channels{% endblock %}
+{% block page_title %}Publish "{{ product.title }}"{% endblock %}
+{% block nav_products %}active{% endblock %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <div class="data-table p-4">
+
+      <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom">
+        {% if product.image %}
+        <img src="{{ product.image.url }}" style="width:56px; height:56px; object-fit:cover; border-radius:10px;">
+        {% else %}
+        <div style="width:56px; height:56px; border-radius:10px; background:#f3f4f6; display:flex; align-items:center; justify-content:center;">
+          <i class="bi bi-image text-muted"></i>
+        </div>
+        {% endif %}
+        <div>
+          <h5 class="mb-0 fw-700" style="color:#1e1b4b;">{{ product.title }}</h5>
+          <span class="text-muted" style="font-size:0.85rem;">₹{{ product.price }} &middot; {{ product.stock }} in stock</span>
+        </div>
+      </div>
+
+      <form method="post">
+        {% csrf_token %}
+
+        <p class="text-muted mb-3" style="font-size:0.88rem;">
+          Select the channels you want this product published on. Unchecking a channel that's currently published will mark it pending.
+        </p>
+
+        <div class="d-flex flex-column gap-2 mb-4">
+          {% for channel in channels %}
+          <label class="d-flex align-items-center gap-3 p-3 border rounded-3" style="cursor:pointer; transition:all 0.15s;">
+            <input type="checkbox" name="channel_ids" value="{{ channel.id }}"
+                   class="form-check-input" style="width:18px; height:18px;"
+                   {% if channel.id in published_channel_ids %}checked{% endif %}>
+            <div class="d-flex align-items-center gap-2 flex-grow-1">
+              <i class="bi
+                {% if channel.platform_type == 'facebook' %}bi-facebook text-primary
+                {% elif channel.platform_type == 'instagram' %}bi-instagram text-danger
+                {% elif channel.platform_type == 'google' %}bi-google text-info
+                {% elif channel.platform_type == 'shopify' %}bi-bag text-success
+                {% elif channel.platform_type == 'ebay' %}bi-shop text-warning
+                {% else %}bi-broadcast text-secondary{% endif %}"></i>
+              <span class="fw-600" style="color:#1e1b4b;">{{ channel.name }}</span>
+              <span class="text-muted" style="font-size:0.78rem;">({{ channel.get_platform_type_display }})</span>
+            </div>
+            {% if channel.id in published_channel_ids %}
+            <span class="badge-active">Currently Live</span>
+            {% endif %}
+          </label>
+          {% endfor %}
+        </div>
+
+        <div class="d-flex gap-2">
+          <button type="submit" class="btn-primary-custom btn flex-grow-1">
+            <i class="bi bi-send me-1"></i> Update Publishing
+          </button>
+          <a href="{% url 'product_list' %}" class="btn btn-light border">Cancel</a>
+        </div>
+      </form>
+
+    </div>
+  </div>
+</div>
+
+{% endblock %}

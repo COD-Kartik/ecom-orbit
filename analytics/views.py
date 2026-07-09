@@ -1,9 +1,12 @@
+import json
+import math
+from datetime import timedelta
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum, Count, F
+from django.utils import timezone
 from accounts.models import BusinessProfile
 from orders.models import Order, OrderItem
-import math
 
 
 def get_user_business(user):
@@ -38,8 +41,7 @@ def analytics_view(request):
         .count()
     )
 
-    # ── Fulfillment status donut segments ──
-    circumference = 2 * math.pi * 50  # r=50
+    circumference = 2 * math.pi * 50
     status_order = ['delivered', 'shipped', 'processing', 'pending', 'cancelled']
     status_counts = {s: orders.filter(status=s).count() for s in status_order}
 
@@ -47,10 +49,7 @@ def analytics_view(request):
     offset = 0
     for status in status_order:
         count = status_counts[status]
-        if total_orders > 0 and count > 0:
-            length = (count / total_orders) * circumference
-        else:
-            length = 0
+        length = (count / total_orders) * circumference if total_orders > 0 and count > 0 else 0
         donut_segments.append({
             'status': status,
             'count': count,
@@ -60,7 +59,6 @@ def analytics_view(request):
         })
         offset += length
 
-    # ── Revenue by channel ──
     channel_revenue = (
         orders.values('channel__name')
         .annotate(revenue=Sum('total_amount'), count=Count('id'))
@@ -76,22 +74,17 @@ def analytics_view(request):
                 'percent': pct,
             })
 
-    # ── Top performing products ──
     top_products = (
         OrderItem.objects.filter(order__business=business)
         .values('product__title')
-        .annotate(
-            total_sold=Sum('quantity'),
-            revenue=Sum(F('quantity') * F('unit_price'))
-        )
+        .annotate(total_sold=Sum('quantity'), revenue=Sum(F('quantity') * F('unit_price')))
         .order_by('-revenue')[:6]
     )
 
-    # ── Sales by day of week ──
     day_names = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
     day_totals = {i: 0 for i in range(7)}
     for order in orders.only('created_at', 'total_amount'):
-        weekday = order.created_at.weekday()  # Mon=0 ... Sun=6
+        weekday = order.created_at.weekday()
         day_totals[weekday] += float(order.total_amount)
 
     max_day_value = max(day_totals.values()) if any(day_totals.values()) else 1
@@ -100,6 +93,35 @@ def analytics_view(request):
         value = day_totals[i]
         height_pct = round((value / max_day_value) * 100, 1) if max_day_value > 0 else 0
         day_chart.append({'label': name, 'value': value, 'height_pct': height_pct})
+
+    today = timezone.now().date()
+    date_range = [today - timedelta(days=i) for i in range(29, -1, -1)]
+    daily_revenue = {d: 0 for d in date_range}
+    daily_orders = {d: 0 for d in date_range}
+
+    for order in orders.filter(created_at__date__gte=date_range[0]):
+        order_date = order.created_at.date()
+        if order_date in daily_revenue:
+            daily_revenue[order_date] += float(order.total_amount)
+            daily_orders[order_date] += 1
+
+    trend_labels = [d.strftime('%b %d') for d in date_range]
+    trend_revenue_data = [round(daily_revenue[d], 2) for d in date_range]
+    trend_orders_data = [daily_orders[d] for d in date_range]
+
+    channel_labels = [c['name'] for c in channel_data]
+    channel_revenue_data = [float(c['revenue']) for c in channel_data]
+    channel_orders_data = []
+    for c in channel_data:
+        if c['name'] == 'Manual':
+            channel_orders_data.append(orders.filter(channel__isnull=True).count())
+        else:
+            channel_orders_data.append(orders.filter(channel__name=c['name']).count())
+
+    chart_data = {
+        'trend': {'labels': trend_labels, 'revenue': trend_revenue_data, 'orders': trend_orders_data},
+        'channel': {'labels': channel_labels, 'revenue': channel_revenue_data, 'orders': channel_orders_data},
+    }
 
     return render(request, 'analytics/analytics.html', {
         'business': business,
@@ -113,4 +135,5 @@ def analytics_view(request):
         'top_products': top_products,
         'day_chart': day_chart,
         'has_orders': total_orders > 0,
+        'chart_data_json': json.dumps(chart_data),
     })
