@@ -46,7 +46,12 @@ def order_list(request):
     if status_filter:
         orders = orders.filter(status=status_filter)
     if search_query:
-        orders = orders.filter(customer_name__icontains=search_query)
+        from django.db.models import Q
+        cleaned_id = search_query.upper().replace('ORD-', '').replace('#', '').strip()
+        q_filter = Q(customer_name__icontains=search_query)
+        if cleaned_id.isdigit():
+            q_filter |= Q(id=int(cleaned_id))
+        orders = orders.filter(q_filter)
 
     from products.models import Product
     products = Product.objects.filter(business=business) if business else Product.objects.none()
@@ -159,75 +164,101 @@ from django.db.models import Count, Sum, Max
 @login_required
 def customer_list(request):
     business = get_user_business(request.user)
-    orders_qs = (
-        Order.objects.filter(business=business)
-        .exclude(customer_email__isnull=True)
-        .exclude(customer_email='')
-        if business else Order.objects.none()
-    )
-
-    grouped = (
-        orders_qs.values('customer_email', 'customer_name', 'customer_phone')
-        .annotate(
-            total_orders=Count('id'),
-            total_spent=Sum('total_amount'),
-            last_order_date=Max('created_at'),
-        )
-        .order_by('-total_spent')
-    )
+    orders_qs = Order.objects.filter(business=business).select_related('channel') if business else Order.objects.none()
 
     search_query = request.GET.get('q', '').strip().lower()
-    sort_by = request.GET.get('sort', 'spent-desc')
+    sort_by = request.GET.get('sort', 'date-desc')  # default: latest activity first
 
-    customers = []
-    for c in grouped:
-        if c['total_orders'] >= 10:
+    # Group ALL orders by identity key first (email if present, else phone)
+    grouped = {}
+    for order in orders_qs.order_by('-created_at'):
+        key = (order.customer_email or '').strip() or (order.customer_phone or '').strip()
+        if not key:
+            continue
+
+        if key not in grouped:
+            grouped[key] = {
+                'name': order.customer_name or 'Unknown',
+                'email': order.customer_email or '',
+                'phone': order.customer_phone or 'No phone on file',
+                'total_orders': 0,
+                'total_spent': 0,
+                'last_order_date': None,
+                'order_ids': [],
+                'orders': [],
+            }
+
+        entry = grouped[key]
+        entry['total_orders'] += 1
+        entry['total_spent'] += order.total_amount
+        entry['order_ids'].append(str(order.id))
+        if entry['last_order_date'] is None or order.created_at > entry['last_order_date']:
+            entry['last_order_date'] = order.created_at
+            entry['name'] = order.customer_name or entry['name']
+            if order.customer_email:
+                entry['email'] = order.customer_email
+            if order.customer_phone:
+                entry['phone'] = order.customer_phone
+
+        entry['orders'].append({
+            'id': order.id,
+            'date': order.created_at.strftime('%b %d, %Y · %H:%M'),
+            'channel': order.channel.name if order.channel else 'Manual',
+            'amount': str(order.total_amount),
+            'status': order.status,
+            'status_display': order.get_status_display(),
+        })
+
+    # Build the full customer list (unfiltered) — used for stat cards, so search never affects totals
+    all_customers = []
+    for key, entry in grouped.items():
+        if entry['total_orders'] >= 10:
             status = 'vip'
-        elif c['total_orders'] >= 2:
+        elif entry['total_orders'] >= 2:
             status = 'returning'
         else:
             status = 'new'
 
-        if search_query and search_query not in (c['customer_name'] or '').lower() and search_query not in (c['customer_email'] or '').lower():
-            continue
-
-        customer_orders = orders_qs.filter(customer_email=c['customer_email']).select_related('channel').order_by('-created_at')
-        order_history = [
-            {
-                'id': o.id,
-                'date': o.created_at.strftime('%b %d, %Y · %H:%M'),
-                'channel': o.channel.name if o.channel else 'Manual',
-                'amount': str(o.total_amount),
-                'status': o.status,
-                'status_display': o.get_status_display(),
-            }
-            for o in customer_orders
-        ]
-
-        customers.append({
-            'name': c['customer_name'] or 'Unknown',
-            'email': c['customer_email'],
-            'phone': c['customer_phone'] or 'No phone on file',
-            'total_orders': c['total_orders'],
-            'total_spent': c['total_spent'],
-            'last_order_date': c['last_order_date'].strftime('%b %d, %Y') if c['last_order_date'] else '',
+        all_customers.append({
+            'name': entry['name'],
+            'email': entry['email'] or 'No email on file',
+            'phone': entry['phone'],
+            'total_orders': entry['total_orders'],
+            'total_spent': entry['total_spent'],
+            'last_order_date_obj': entry['last_order_date'],
+            'last_order_date': entry['last_order_date'].strftime('%b %d, %Y') if entry['last_order_date'] else '',
             'status': status,
-            'order_history_json': json.dumps(order_history),
+            'order_ids': entry['order_ids'],
+            'order_history_json': json.dumps(entry['orders']),
         })
 
-    if sort_by == 'spent-asc':
+    # Stats are always computed from the FULL list, never the filtered/searched one
+    total_customers = len(all_customers)
+    new_count = sum(1 for c in all_customers if c['status'] == 'new')
+    returning_count = sum(1 for c in all_customers if c['status'] == 'returning')
+    vip_count = sum(1 for c in all_customers if c['status'] == 'vip')
+    repeat_rate = round((returning_count + vip_count) / total_customers * 100, 1) if total_customers > 0 else 0
+    avg_ltv = round(sum(c['total_spent'] for c in all_customers) / total_customers, 2) if total_customers > 0 else 0
+
+    # Now apply search filter (name, email, or order ID) to build the displayed list
+    customers = []
+    for c in all_customers:
+        if search_query:
+            matches_name = search_query in c['name'].lower()
+            matches_email = search_query in c['email'].lower()
+            matches_order_id = any(search_query == oid or search_query in oid for oid in c['order_ids'])
+            if not (matches_name or matches_email or matches_order_id):
+                continue
+        customers.append(c)
+
+    if sort_by == 'spent-desc':
+        customers.sort(key=lambda x: x['total_spent'], reverse=True)
+    elif sort_by == 'spent-asc':
         customers.sort(key=lambda x: x['total_spent'])
     elif sort_by == 'orders-desc':
         customers.sort(key=lambda x: x['total_orders'], reverse=True)
-    elif sort_by == 'date-desc':
-        customers.sort(key=lambda x: x['last_order_date'], reverse=True)
-
-    total_customers = len(customers)
-    new_count = sum(1 for c in customers if c['status'] == 'new')
-    returning_count = sum(1 for c in customers if c['status'] == 'returning')
-    vip_count = sum(1 for c in customers if c['status'] == 'vip')
-    repeat_rate = round((returning_count + vip_count) / total_customers * 100, 1) if total_customers > 0 else 0
-    avg_ltv = round(sum(c['total_spent'] for c in customers) / total_customers, 2) if total_customers > 0 else 0
+    else:  # date-desc, the default — latest activity first
+        customers.sort(key=lambda x: x['last_order_date_obj'] or timezone.datetime.min.replace(tzinfo=timezone.utc), reverse=True)
 
     return render(request, 'orders/customer_list.html', {
         'customers': customers,
@@ -238,9 +269,9 @@ def customer_list(request):
         'search_query': request.GET.get('q', ''),
         'sort_by': sort_by,
         'has_customers': total_customers > 0,
+        'has_results': len(customers) > 0,
         'business': business,
     })
-
 
 
 def _relative_time(dt):

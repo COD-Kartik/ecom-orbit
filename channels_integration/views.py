@@ -52,11 +52,12 @@ def channel_list(request):
         return redirect('channel_list')
 
     return render(request, 'channels/channel_list.html', {
-        'channels'        : channels,
-        'total_channels'  : channels.count(),
-        'active_channels' : channels.filter(is_active=True).count(),
-        'platform_choices': Channel.PLATFORM_CHOICES,
-        'business'        : business,
+        'channels'          : channels,
+        'total_channels'    : channels.count(),
+        'active_channels'   : channels.filter(is_active=True).count(),
+        'inactive_channels' : channels.filter(is_active=False).count(),
+        'platform_choices'  : Channel.PLATFORM_CHOICES,
+        'business'          : business,
     })
 
 @login_required

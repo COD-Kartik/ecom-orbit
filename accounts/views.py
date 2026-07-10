@@ -96,9 +96,16 @@ def register_view(request):
             messages.error(request, 'Password must be at least 8 characters.')
             return render(request, 'auth/register.html')
 
-        if User.objects.filter(email=email).exists():
-            messages.error(request, 'An account with this email already exists.')
-            return render(request, 'auth/register.html')
+        existing_user = User.objects.filter(email=email).first()
+        if existing_user:
+            if existing_user.is_active:
+                messages.error(request, 'An account with this email already exists. Please sign in instead.')
+                return render(request, 'auth/register.html')
+            else:
+                generate_and_send_code(existing_user)
+                request.session['pending_verification_email'] = email
+                messages.info(request, 'We found an unverified account with this email. A new verification code has been sent.')
+                return redirect('verify_code')
 
         base_username = email.split('@')[0].lower()
         username = base_username
@@ -116,7 +123,7 @@ def register_view(request):
         user.is_active = False
         names = full_name.strip().split(' ', 1)
         user.first_name = names[0]
-        user.last_name  = names[1] if len(names) > 1 else ''
+        user.last_name = names[1] if len(names) > 1 else ''
         user.save()
 
         slug = slugify(business_name)
@@ -137,7 +144,6 @@ def register_view(request):
         return redirect('verify_code')
 
     return render(request, 'auth/register.html')
-
 
 # ── Code Verification ────────────────────────────────────────────
 def verify_code_view(request):
@@ -272,11 +278,16 @@ def delete_account(request):
     if request.method == 'POST':
         business = get_user_business(request.user)
         typed_name = request.POST.get('confirm_business_name', '').strip()
+        password = request.POST.get('confirm_password', '')
+
+        if not check_password(password, request.user.password):
+            messages.error(request, 'Incorrect password. Account not deleted.')
+            return redirect('settings')
 
         if business and typed_name == business.business_name:
             user = request.user
             logout(request)
-            user.delete()  # cascades to delete BusinessProfile, Products, Orders, etc.
+            user.delete()
             messages.success(request, 'Your account has been permanently deleted.')
             return redirect('landing')
         else:

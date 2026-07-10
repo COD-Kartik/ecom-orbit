@@ -11,13 +11,6 @@
 
 {% block content %}
 
-{% if messages %}
-    {% for message in messages %}
-    <div class="message-banner {% if message.tags == 'success' %}success{% else %}error{% endif %}">
-        {{ message }}
-    </div>
-    {% endfor %}
-{% endif %}
 
 <div class="settings-container">
 
@@ -230,7 +223,10 @@
                 To confirm this deletion, please type your store name
                 <strong style="color: var(--text-dark);">{{ business.business_name|default:"your business" }}</strong> below:
 
-                <input type="text" name="confirm_business_name" id="confirm-store-name-input" class="form-input" style="margin-top: 14px;" placeholder="Type store name exactly..." oninput="checkStoreConfirmation(this.value)">
+                <input type="text" name="confirm_business_name" id="confirm-store-name-input" class="form-input" style="margin-top: 14px;" placeholder="Type store name exactly..." oninput="checkDeleteFormValid()">
+
+                <label style="display:block; margin-top:16px; margin-bottom:6px; font-size:0.82rem; font-weight:700; color:var(--text-medium); text-transform:uppercase; letter-spacing:0.5px;">Confirm Your Password</label>
+                <input type="password" name="confirm_password" id="confirm-password-input" class="form-input" placeholder="Enter your account password" oninput="checkDeleteFormValid()">
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn-cancel" onclick="closeDeleteModal()">Cancel</button>
@@ -311,12 +307,19 @@
         document.getElementById('delete-submit-btn').disabled = true;
         document.getElementById('delete-modal-overlay').classList.add('active');
     }
-    function closeDeleteModal() {
-        document.getElementById('delete-modal-overlay').classList.remove('active');
-    }
-    function checkStoreConfirmation(typedName) {
-        document.getElementById('delete-submit-btn').disabled = (typedName.trim() !== savedBusinessName);
-    }
+    function openDeleteModal() {
+    document.getElementById('confirm-store-name-input').value = '';
+    document.getElementById('confirm-password-input').value = '';
+    document.getElementById('delete-submit-btn').disabled = true;
+    document.getElementById('delete-modal-overlay').classList.add('active');
+}
+    function checkDeleteFormValid() {
+    const nameTyped = document.getElementById('confirm-store-name-input').value.trim();
+    const passwordTyped = document.getElementById('confirm-password-input').value;
+    const nameValid = nameTyped === savedBusinessName;
+    const passwordValid = passwordTyped.length > 0;
+    document.getElementById('delete-submit-btn').disabled = !(nameValid && passwordValid);
+}
 </script>
 
 {% endblock %}

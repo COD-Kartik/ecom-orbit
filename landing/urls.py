@@ -13,5 +13,6 @@ urlpatterns = [
     path('privacy/', views.privacy_page, name='privacy_page'),
     path('blog/', views.blog_page, name='blog_page'),
     path('terms/', views.terms_page, name='terms_page'),
-path('cookies/', views.cookie_policy_page, name='cookie_policy_page'),
+    path('cookies/', views.cookie_policy_page, name='cookie_policy_page'),
+    path('blog/<slug:slug>/', views.blog_post_detail, name='blog_post_detail'),
 ]

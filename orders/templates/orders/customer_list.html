@@ -62,24 +62,25 @@
     </div>
 </section>
 
-{% if has_customers %}
+{% if total_customers > 0 %}
 <div class="customers-card">
     <div class="table-filter-bar">
         <form method="get" style="display:flex; gap:10px; flex-wrap:wrap; width:100%;">
             <div class="search-box-wrapper">
                 <svg class="search-icon-svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                <input type="text" name="q" value="{{ search_query }}" placeholder="Search customers by name or email..." class="search-input">
+                <input type="text" name="q" value="{{ search_query }}" placeholder="Search by name, email, or order ID..." class="search-input">
             </div>
             <select name="sort" class="dropdown-filter" onchange="this.form.submit()">
+                <option value="date-desc" {% if sort_by == 'date-desc' %}selected{% endif %}>Sort by: Latest Activity</option>
                 <option value="spent-desc" {% if sort_by == 'spent-desc' %}selected{% endif %}>Sort by: Total Spent (High to Low)</option>
                 <option value="spent-asc" {% if sort_by == 'spent-asc' %}selected{% endif %}>Sort by: Total Spent (Low to High)</option>
                 <option value="orders-desc" {% if sort_by == 'orders-desc' %}selected{% endif %}>Sort by: Total Orders</option>
-                <option value="date-desc" {% if sort_by == 'date-desc' %}selected{% endif %}>Sort by: Last Order Date</option>
             </select>
             <button type="submit" class="dropdown-filter" style="cursor:pointer;">Filter</button>
         </form>
     </div>
 
+    {% if has_results %}
     <div class="table-wrapper">
         <table class="customers-table">
             <thead>
@@ -102,7 +103,7 @@
                     data-spent="₹{{ c.total_spent }}"
                     data-lastdate="{{ c.last_order_date }}"
                     data-status="{{ c.status }}"
-                    data-history='{{ c.order_history_json|escapejs }}'>
+                    data-history="{{ c.order_history_json }}">
                     <td>
                         <div class="customer-identity">
                             <div class="avatar-initials {% cycle 'color-1' 'color-2' 'color-3' 'color-4' 'color-5' 'color-6' 'color-7' 'color-8' %}">{{ c.name|slice:":2"|upper }}</div>
@@ -117,13 +118,22 @@
                     <td style="color: var(--text-muted); font-size: 0.82rem;">{{ c.last_order_date }}</td>
                     <td><span class="badge-status {{ c.status }}">{{ c.status|title }}</span></td>
                     <td style="text-align: right;">
-                        <button class="action-row-btn" type="button"><i class="bi bi-eye"></i></button>
+                        <button class="action-row-btn" type="button" onclick="openCustomerDrawer(this.closest('tr'))"><i class="bi bi-eye"></i></button>
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
+    {% else %}
+    <div style="text-align:center; padding:60px 20px; color:var(--text-muted);">
+        <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="margin-bottom:12px; opacity:0.5;">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        </svg>
+        <p style="font-size:0.9rem; margin:0;">No customers match "<strong>{{ search_query }}</strong>"</p>
+        <p style="font-size:0.8rem; margin-top:6px;"><a href="{% url 'customer_list' %}" style="color:var(--primary);">Clear search</a></p>
+    </div>
+    {% endif %}
 </div>
 {% else %}
 <div class="empty-state-card">
@@ -177,60 +187,65 @@
 </div>
 
 <script>
+function openCustomerDrawer(row) {
+    const name = row.dataset.name;
+    const email = row.dataset.email;
+    const phone = row.dataset.phone;
+    const orders = row.dataset.orders;
+    const spent = row.dataset.spent;
+    const lastdate = row.dataset.lastdate;
+    const status = row.dataset.status;
+    const history = JSON.parse(row.dataset.history || '[]');
+
+    document.getElementById('drawer-cust-name').innerText = name;
+    document.getElementById('drawer-cust-fullname').innerText = name;
+    document.getElementById('drawer-cust-email').innerText = email;
+    document.getElementById('drawer-cust-phone').innerText = phone;
+    document.getElementById('drawer-cust-orders').innerText = orders;
+    document.getElementById('drawer-cust-spent').innerText = spent;
+    document.getElementById('drawer-cust-lastdate').innerText = lastdate;
+    document.getElementById('drawer-cust-tier').innerText = status.charAt(0).toUpperCase() + status.slice(1);
+
+    const badge = document.getElementById('drawer-cust-badge');
+    badge.innerText = status.charAt(0).toUpperCase() + status.slice(1);
+    badge.className = 'badge-status drawer-subtitle-badge ' + status;
+
+    const avatar = document.getElementById('drawer-cust-avatar');
+    const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+    avatar.innerText = initials;
+    avatar.className = 'drawer-avatar ' + status;
+
+    const ordersList = document.getElementById('drawer-orders-list');
+    ordersList.innerHTML = '';
+    if (history.length === 0) {
+        ordersList.innerHTML = '<p style="color:var(--text-muted); font-size:0.85rem;">No order history found.</p>';
+    } else {
+        history.forEach(function (o) {
+            ordersList.innerHTML += `
+                <div class="past-order-row">
+                    <div class="order-left-details">
+                        <span class="order-row-id">#ORD-${o.id}</span>
+                        <span class="order-row-date">${o.date}</span>
+                        <span class="order-row-channel">${o.channel}</span>
+                    </div>
+                    <div class="order-right-details">
+                        <span class="order-row-amount">₹${o.amount}</span>
+                        <span class="order-mini-badge ${o.status}">${o.status_display}</span>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    document.getElementById('backdrop').classList.add('active');
+    document.getElementById('customer-drawer').classList.add('active');
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.customer-row').forEach(function (row) {
-        row.addEventListener('click', function () {
-            const name = row.dataset.name;
-            const email = row.dataset.email;
-            const phone = row.dataset.phone;
-            const orders = row.dataset.orders;
-            const spent = row.dataset.spent;
-            const lastdate = row.dataset.lastdate;
-            const status = row.dataset.status;
-            const history = JSON.parse(row.dataset.history || '[]');
-
-            document.getElementById('drawer-cust-name').innerText = name;
-            document.getElementById('drawer-cust-fullname').innerText = name;
-            document.getElementById('drawer-cust-email').innerText = email;
-            document.getElementById('drawer-cust-phone').innerText = phone;
-            document.getElementById('drawer-cust-orders').innerText = orders;
-            document.getElementById('drawer-cust-spent').innerText = spent;
-            document.getElementById('drawer-cust-lastdate').innerText = lastdate;
-            document.getElementById('drawer-cust-tier').innerText = status.charAt(0).toUpperCase() + status.slice(1);
-
-            const badge = document.getElementById('drawer-cust-badge');
-            badge.innerText = status.charAt(0).toUpperCase() + status.slice(1);
-            badge.className = 'badge-status drawer-subtitle-badge ' + status;
-
-            const avatar = document.getElementById('drawer-cust-avatar');
-            const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
-            avatar.innerText = initials;
-            avatar.className = 'drawer-avatar ' + status;
-
-            const ordersList = document.getElementById('drawer-orders-list');
-            ordersList.innerHTML = '';
-            if (history.length === 0) {
-                ordersList.innerHTML = '<p style="color:var(--text-muted); font-size:0.85rem;">No order history found.</p>';
-            } else {
-                history.forEach(function (o) {
-                    ordersList.innerHTML += `
-                        <div class="past-order-row">
-                            <div class="order-left-details">
-                                <span class="order-row-id">#ORD-${o.id}</span>
-                                <span class="order-row-date">${o.date}</span>
-                                <span class="order-row-channel">${o.channel}</span>
-                            </div>
-                            <div class="order-right-details">
-                                <span class="order-row-amount">₹${o.amount}</span>
-                                <span class="order-mini-badge ${o.status}">${o.status_display}</span>
-                            </div>
-                        </div>
-                    `;
-                });
-            }
-
-            document.getElementById('backdrop').classList.add('active');
-            document.getElementById('customer-drawer').classList.add('active');
+        row.addEventListener('click', function (e) {
+            if (e.target.closest('.action-row-btn')) return; // avoid double-trigger from the eye button
+            openCustomerDrawer(row);
         });
     });
 });

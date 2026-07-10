@@ -4,7 +4,7 @@ class NoCacheMiddleware:
 
     def __call__(self, request):
         response = self.get_response(request)
-        if request.path.startswith('/dashboard/'):
+        if request.user.is_authenticated:
             response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
             response['Pragma'] = 'no-cache'
             response['Expires'] = '0'
