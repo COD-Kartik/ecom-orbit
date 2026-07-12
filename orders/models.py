@@ -28,7 +28,8 @@ class Order(models.Model):
     payment_status    = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default='unpaid')
     created_at        = models.DateTimeField(auto_now_add=True)
     updated_at        = models.DateTimeField(auto_now=True)
-
+    internal_notes = models.TextField(blank=True, null=True)
+    cancellation_reason = models.CharField(max_length=255, blank=True, null=True)
     def __str__(self):
         return f"Order #{self.id} - {self.customer_name}"
 
@@ -62,6 +63,9 @@ class Discount(models.Model):
     expiry_date       = models.DateField()
     is_active         = models.BooleanField(default=True)
     created_at        = models.DateTimeField(auto_now_add=True)
+    applicable_products = models.ManyToManyField('products.Product', blank=True, related_name='discounts')
+    applicable_categories = models.ManyToManyField('products.Category', blank=True, related_name='discounts')
+    applicable_channels = models.ManyToManyField('channels_integration.Channel', blank=True, related_name='discounts')
 
     class Meta:
         unique_together = ('business', 'code')

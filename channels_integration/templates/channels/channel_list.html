@@ -152,9 +152,9 @@
                    title="{% if channel.is_active %}Deactivate{% else %}Activate{% endif %}">
                   <i class="bi {% if channel.is_active %}bi-pause-circle{% else %}bi-play-circle{% endif %}"></i>
                 </a>
-                <a href="{% url 'channel_delete' channel.id %}"
+                <a href="javascript:void(0)"
                    class="btn btn-sm btn-light border text-danger"
-                   onclick="return confirm('Remove {{ channel.name }}?')"
+                   onclick="showDeleteModal('{% url 'channel_delete' channel.id %}', 'Are you sure you want to remove \'{{ channel.name }}\'? This will unpublish it from all listings.')"
                    title="Remove channel">
                   <i class="bi bi-trash"></i>
                 </a>

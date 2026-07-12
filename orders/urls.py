@@ -26,6 +26,8 @@ urlpatterns = [
     path('dashboard/marketing/<int:pk>/update/', views.discount_update, name='discount_update'),
     path('dashboard/marketing/<int:pk>/delete/', views.discount_delete, name='discount_delete'),
     path('dashboard/notifications/dismiss/', views.dismiss_notification, name='dismiss_notification'),
+    path('dashboard/orders/<int:pk>/notes/', views.order_notes_update, name='order_notes_update'),
+    path('dashboard/orders/bulk-update/', views.order_bulk_update, name='order_bulk_update'),
     path('api/', include(router.urls)),
 ]
     

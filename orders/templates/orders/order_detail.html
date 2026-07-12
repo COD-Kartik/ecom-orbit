@@ -109,6 +109,46 @@
     </div>
   </div>
 
+  <!-- Internal Notes -->
+<div class="dashboard-card" style="padding: 24px; margin-bottom: 20px;">
+    <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--text-dark); margin-bottom: 12px; display:flex; align-items:center; gap:8px;">
+        <i class="bi bi-sticky"></i> Internal Notes
+    </h4>
+    <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 14px;">Private notes — not visible to the customer.</p>
+    <form method="post" action="{% url 'order_notes_update' order.id %}">
+        {% csrf_token %}
+        <textarea name="internal_notes" class="order-input" rows="3" placeholder="e.g. Customer requested faster shipping, called to confirm address...">{{ order.internal_notes|default:'' }}</textarea>
+        <button type="submit" class="btn-primary-custom btn mt-2" style="padding: 8px 20px; font-size: 0.85rem;">Save Notes</button>
+    </form>
+</div>
+
+<!-- Order Timeline -->
+<div class="dashboard-card" style="padding: 24px; margin-bottom: 20px;">
+    <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--text-dark); margin-bottom: 18px; display:flex; align-items:center; gap:8px;">
+        <i class="bi bi-clock-history"></i> Order Timeline
+    </h4>
+    <div style="display:flex; flex-direction:column;">
+        {% for step in timeline %}
+        <div style="display:flex; gap:14px; align-items:flex-start;">
+            <div style="display:flex; flex-direction:column; align-items:center;">
+                <div style="width:14px; height:14px; border-radius:50%; background:{% if step.done %}var(--primary){% else %}#e5e7eb{% endif %}; flex-shrink:0; margin-top:2px;"></div>
+                {% if not forloop.last %}
+                <div style="width:2px; flex:1; min-height:28px; background:{% if step.done %}var(--primary){% else %}#e5e7eb{% endif %};"></div>
+                {% endif %}
+            </div>
+            <div style="padding-bottom:20px;">
+                <div style="font-weight:700; font-size:0.88rem; color:{% if step.done %}var(--text-dark){% else %}var(--text-muted){% endif %};">{{ step.label }}</div>
+                {% if step.timestamp %}
+                <div style="font-size:0.78rem; color:var(--text-muted); margin-top:2px;">{{ step.timestamp|date:"M d, Y · H:i" }}</div>
+                {% else %}
+                <div style="font-size:0.78rem; color:var(--text-light);">Pending</div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
   <!-- Status & Delete Panel -->
   <div class="dashboard-card" style="padding: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 24px;">
     
@@ -117,16 +157,24 @@
       <label style="display: block; color: var(--text-muted); font-size: 0.72rem; text-transform: uppercase; font-weight: 700; margin-bottom: 8px; letter-spacing: 0.5px;">
         Fulfillment Status
       </label>
-      <form method="post" action="{% url 'order_status_update' order.id %}" style="margin: 0;">
+      <form method="post" action="{% url 'order_status_update' order.id %}" style="margin: 0;" id="status-form">
         {% csrf_token %}
-        <select name="status" class="order-input badge-status badge-{{ order.status }}" onchange="this.form.submit()" style="border: 1px solid rgba(0, 0, 0, 0.05); font-weight: 600; cursor: pointer; outline: none; padding: 10px 14px; border-radius: var(--radius-sm); font-size: 0.88rem; max-width: 240px;">
+        <select name="status" id="status-select" class="order-input badge-status badge-{{ order.status }}" data-original-value="{{ order.status }}" onchange="handleStatusChange(this)" style="border: 1px solid rgba(0, 0, 0, 0.05); font-weight: 600; cursor: pointer; outline: none; padding: 10px 14px; border-radius: var(--radius-sm); font-size: 0.88rem; max-width: 240px;">
           <option value="pending" {% if order.status == 'pending' %}selected{% endif %}>Pending</option>
           <option value="processing" {% if order.status == 'processing' %}selected{% endif %}>Processing</option>
           <option value="shipped" {% if order.status == 'shipped' %}selected{% endif %}>Shipped</option>
           <option value="delivered" {% if order.status == 'delivered' %}selected{% endif %}>Delivered</option>
+          {% if order.status != 'delivered' %}
           <option value="cancelled" {% if order.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
-        </select>
+          {% endif %}
+      </select>
+      <input type="hidden" name="cancellation_reason" id="cancellation-reason-input" value="{{ order.cancellation_reason|default:'' }}">
       </form>
+      {% if order.status == 'cancelled' and order.cancellation_reason %}
+      <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 8px;">
+        <strong>Reason:</strong> {{ order.cancellation_reason }}
+      </p>
+      {% endif %}
     </div>
 
     <!-- Danger Zone Delete Button -->
@@ -145,4 +193,6 @@
   </div>
 
 </div>
+
+
 {% endblock %}

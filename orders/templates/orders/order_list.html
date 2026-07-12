@@ -10,6 +10,17 @@
 {% endblock %}
 
 {% block content %}
+
+<style>
+  .orders-grid th { font-size: 0.85rem !important; padding: 16px 18px !important; }
+  .orders-grid td { font-size: 0.98rem !important; padding: 18px !important; }
+  .orders-grid .status-dropdown { font-size: 0.88rem !important; padding: 7px 14px !important; }
+  .orders-grid .order-input { font-size: 0.95rem !important; padding: 10px 14px !important; }
+  .orders-grid .card-title-text { font-size: 1.15rem !important; }
+  .orders-grid .action-btn-orders { width: 38px !important; height: 38px !important; }
+  .orders-grid .action-btn-orders i { font-size: 1.1rem; }
+</style>
+
 <div class="orders-page-container">
 
   <!-- Stats Cards Row (5 cards) -->
@@ -65,7 +76,7 @@
     </div>
   </section>
 
-  <!-- Main Layout Grid -->
+<!-- Main Layout Grid -->
   <div class="orders-grid">
 
     <!-- Left Column: Orders List Table -->
@@ -76,10 +87,10 @@
         
         <form method="get" style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
           <div style="position: relative; display: flex; align-items: center;">
-            <input type="text" name="q" value="{{ search_query }}" placeholder="Search customer..." class="order-input" style="padding: 8px 12px; width: 220px; font-size: 0.85rem;">
+            <input type="text" name="q" value="{{ search_query }}" placeholder="Search customer or order #..." class="order-input" style="padding: 8px 12px; width: 200px; font-size: 0.85rem;">
           </div>
           
-          <select name="status" class="status-dropdown" onchange="this.form.submit()" style="padding: 8px 12px; font-size: 0.85rem;">
+          <select name="status" class="status-dropdown" style="padding: 8px 12px; font-size: 0.85rem;">
             <option value="">All Statuses</option>
             <option value="pending" {% if current_status == 'pending' %}selected{% endif %}>Pending</option>
             <option value="processing" {% if current_status == 'processing' %}selected{% endif %}>Processing</option>
@@ -87,16 +98,38 @@
             <option value="delivered" {% if current_status == 'delivered' %}selected{% endif %}>Delivered</option>
             <option value="cancelled" {% if current_status == 'cancelled' %}selected{% endif %}>Cancelled</option>
           </select>
-          
-          
+
+          <input type="date" name="date_from" value="{{ date_from }}" class="order-input" style="padding: 7px 10px; width: 150px; font-size: 0.82rem;" title="From date">
+          <span style="color: var(--text-muted); font-size: 0.82rem;">to</span>
+          <input type="date" name="date_to" value="{{ date_to }}" class="order-input" style="padding: 7px 10px; width: 150px; font-size: 0.82rem;" title="To date">
+
+          <button type="submit" class="btn btn-sm btn-light border">Filter</button>
+          {% if search_query or current_status or date_from or date_to %}
+          <a href="{% url 'order_list' %}" class="btn btn-sm btn-light border" style="text-decoration:none;">Clear</a>
+          {% endif %}
         </form>
       </div>
 
+      <div id="bulk-action-bar" style="display:none; align-items:center; gap:12px; padding:12px 24px; background:var(--primary-light, #eef2ff); border-bottom:1px solid var(--border-color);">
+          <span id="bulk-selected-count" style="font-size:0.85rem; font-weight:700; color:var(--primary);">0 selected</span>
+          <select id="bulk-status-select" class="order-input" style="width:auto; padding:6px 12px; font-size:0.82rem;">
+              <option value="pending">Set to Pending</option>
+              <option value="processing">Set to Processing</option>
+              <option value="shipped">Set to Shipped</option>
+              <option value="delivered">Set to Delivered</option>
+              <option value="cancelled">Set to Cancelled</option>
+          </select>
+          <button type="button" onclick="submitBulkUpdate()" class="btn-primary-custom btn" style="padding:6px 16px; font-size:0.82rem;">Apply</button>
+          <button type="button" onclick="clearBulkSelection()" class="btn btn-sm btn-light border">Clear Selection</button>
+      </div>
+
+    
       <!-- Table Container -->
       <div class="orders-table-container" style="overflow-x: auto; padding: 0 12px 12px;">
         <table class="orders-table" style="width: 100%; border-collapse: collapse; min-width: 800px;">
-          <thead>
+         <thead>
             <tr style="text-align: left; border-bottom: 1px solid var(--border-color);">
+              <th style="padding: 14px 8px; width:30px;"><input type="checkbox" id="select-all-orders" onchange="toggleAllOrders(this)" style="cursor:pointer;"></th>
               <th style="padding: 14px 16px; font-size: 0.72rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Order ID</th>
               <th style="padding: 14px 16px; font-size: 0.72rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Date</th>
               <th style="padding: 14px 16px; font-size: 0.72rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Customer</th>
@@ -106,9 +139,14 @@
               <th style="padding: 14px 16px; font-size: 0.72rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; text-align: right;">Action</th>
             </tr>
           </thead>
-          <tbody>
+          <form id="bulk-orders-form" method="post" action="{% url 'order_bulk_update' %}">
+{% csrf_token %}
+<tbody>
             {% for order in orders %}
             <tr style="border-bottom: 1px solid var(--border-color); font-size: 0.88rem; color: var(--text-medium);">
+              <td style="padding: 14px 8px;">
+                <input type="checkbox" name="order_ids" value="{{ order.id }}" class="order-checkbox" onchange="updateBulkBar()" style="cursor:pointer;">
+              </td>
               <td style="padding: 14px 16px;">
                 <a href="{% url 'order_detail' order.id %}" style="font-weight: 700; color: var(--primary); text-decoration: none;">#ORD-{{ order.id }}</a>
               </td>
@@ -125,16 +163,17 @@
                 </span>
               </td>
               <td style="padding: 14px 16px;">
-                <!-- Status Update Dropdown (Inline Form) -->
                 <form method="post" action="{% url 'order_status_update' order.id %}" style="display: inline-block; margin: 0;">
                   {% csrf_token %}
-                  <select name="status" class="status-dropdown badge-status badge-{{ order.status }}" onchange="this.form.submit()" style="border: 1px solid rgba(0, 0, 0, 0.05); border-radius: 6px; cursor: pointer; outline: none; font-size: 0.75rem; font-weight: 600; padding: 4px 10px;">
+                  <select name="status" class="status-dropdown badge-status badge-{{ order.status }}" data-original-value="{{ order.status }}" onchange="handleStatusChange(this)" style="border: 1px solid rgba(0, 0, 0, 0.05); border-radius: 6px; cursor: pointer; outline: none; font-size: 0.75rem; font-weight: 600; padding: 4px 10px;">
                     <option value="pending" {% if order.status == 'pending' %}selected{% endif %}>Pending</option>
                     <option value="processing" {% if order.status == 'processing' %}selected{% endif %}>Processing</option>
                     <option value="shipped" {% if order.status == 'shipped' %}selected{% endif %}>Shipped</option>
                     <option value="delivered" {% if order.status == 'delivered' %}selected{% endif %}>Delivered</option>
+                    {% if order.status != 'delivered' %}
                     <option value="cancelled" {% if order.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
-                  </select>
+                    {% endif %}
+                </select>
                 </form>
               </td>
               <td style="padding: 14px 16px; font-weight: 700; color: var(--text-dark);">
@@ -148,18 +187,36 @@
             </tr>
             {% empty %}
             <tr>
-              <td colspan="7" style="text-align: center; padding: 48px; color: var(--text-muted); font-size: 0.9rem;">
+              <td colspan="8" style="text-align: center; padding: 48px; color: var(--text-muted); font-size: 0.9rem;">
                 No orders yet.
               </td>
             </tr>
             {% endfor %}
           </tbody>
+</form>
         </table>
+
+        {% if page_obj.paginator.num_pages > 1 %}
+        <div style="display:flex; align-items:center; justify-content:space-between; padding:16px 24px; border-top:1px solid var(--border-color);">
+            <span style="font-size:0.82rem; color:var(--text-muted);">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }} &middot; {{ page_obj.paginator.count }} total orders
+            </span>
+            <div style="display:flex; gap:6px;">
+                {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}" class="btn btn-sm btn-light border" style="text-decoration:none;">Previous</a>
+                {% endif %}
+                {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}" class="btn btn-sm btn-light border" style="text-decoration:none;">Next</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
       </div>
     </div>
 
     <!-- Right Column: Add Manual Order Form Panel -->
-    <div class="dashboard-card">
+    <!-- Right Column: Add Manual Order Form Panel -->
+    <div class="dashboard-card" style="position: sticky; top: 50px; align-self: start; max-height: calc(100vh - 40px); overflow-y: auto;">
       <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-dark); margin-bottom: 6px; display: flex; align-items: center; gap: 8px;">
         <i class="bi bi-plus-circle" style="color: var(--primary);"></i> Add Manual Order
       </h3>
@@ -213,4 +270,44 @@
   </div>
 
 </div>
+
+<script>
+function updateBulkBar() {
+    const checked = document.querySelectorAll('.order-checkbox:checked');
+    const bar = document.getElementById('bulk-action-bar');
+    const countLabel = document.getElementById('bulk-selected-count');
+    if (checked.length > 0) {
+        bar.style.display = 'flex';
+        countLabel.innerText = checked.length + ' selected';
+    } else {
+        bar.style.display = 'none';
+    }
+}
+
+function toggleAllOrders(checkbox) {
+    document.querySelectorAll('.order-checkbox').forEach(cb => cb.checked = checkbox.checked);
+    updateBulkBar();
+}
+
+function clearBulkSelection() {
+    document.querySelectorAll('.order-checkbox').forEach(cb => cb.checked = false);
+    document.getElementById('select-all-orders').checked = false;
+    updateBulkBar();
+}
+
+function submitBulkUpdate() {
+    const status = document.getElementById('bulk-status-select').value;
+    const form = document.getElementById('bulk-orders-form');
+    let hiddenStatus = form.querySelector('input[name="bulk_status"]');
+    if (!hiddenStatus) {
+        hiddenStatus = document.createElement('input');
+        hiddenStatus.type = 'hidden';
+        hiddenStatus.name = 'bulk_status';
+        form.appendChild(hiddenStatus);
+    }
+    hiddenStatus.value = status;
+    form.submit();
+}
+</script>
+
 {% endblock %}

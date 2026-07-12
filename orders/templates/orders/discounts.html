@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load dict_extra %}
 
 {% block title %}Discount Codes{% endblock %}
 {% block page_title %}Discount Code Directory{% endblock %}
@@ -10,6 +11,7 @@
 {% endblock %}
 
 {% block content %}
+
 
 <!-- Stat Cards -->
 <div class="metrics-grid-discounts">
@@ -87,7 +89,10 @@
                             data-usage-limit="{{ d.usage_limit|default:'' }}"
                             data-start-date="{{ d.start_date|date:'Y-m-d' }}"
                             data-expiry-date="{{ d.expiry_date|date:'Y-m-d' }}"
-                            data-active="{% if d.is_active %}true{% else %}false{% endif %}">
+                            data-active="{% if d.is_active %}true{% else %}false{% endif %}"
+                            data-product-ids="{{ d.applicable_products.all|id_list }}"
+                            data-category-ids="{{ d.applicable_categories.all|id_list }}"
+                            data-channel-ids="{{ d.applicable_channels.all|id_list }}">
                             <td><span class="code-pill">{{ d.code }}</span></td>
                             <td><span class="type-badge">{% if d.discount_type == 'percentage' %}Percentage{% else %}Fixed Amt{% endif %}</span></td>
                             <td style="font-weight: 700; color: var(--text-dark);">
@@ -99,7 +104,7 @@
                             <td>
                                 <div class="action-btn-group">
                                     <button type="button" class="btn-icon" onclick="editRow(this)" title="Edit code"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" /></svg></button>
-                                    <a href="{% url 'discount_delete' d.id %}" class="btn-icon delete" onclick="return confirm('Delete discount code {{ d.code }}?')" title="Delete code"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg></a>
+                                    <a href="javascript:void(0)" class="btn-icon delete" onclick="showDeleteModal('{% url 'discount_delete' d.id %}', 'Are you sure you want to delete discount code \'{{ d.code }}\'?')" title="Delete code"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg></a>
                                 </div>
                             </td>
                         </tr>
@@ -165,6 +170,41 @@
                     <input type="date" name="expiry_date" id="form-expiry-date" class="form-input-sm" required>
                 </div>
 
+                <div class="form-group-sm">
+                    <label class="form-label-sm">Applies To (leave all unchecked for storewide)</label>
+                    <div style="border:1.5px solid var(--border-color); border-radius:var(--radius-sm); padding:10px; max-height:140px; overflow-y:auto; background:var(--bg-main);">
+                        <div style="font-size:0.7rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:6px;">Products</div>
+                        {% for p in products %}
+                        <label style="display:flex; align-items:center; gap:6px; font-size:0.82rem; margin-bottom:4px; cursor:pointer;">
+                            <input type="checkbox" name="applicable_products" value="{{ p.id }}" class="discount-scope-check" data-scope-id="product-{{ p.id }}">
+                            {{ p.title }}
+                        </label>
+                        {% empty %}
+                        <span style="font-size:0.78rem; color:var(--text-light);">No products yet</span>
+                        {% endfor %}
+
+                        <div style="font-size:0.7rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin:10px 0 6px;">Categories</div>
+                        {% for c in categories %}
+                        <label style="display:flex; align-items:center; gap:6px; font-size:0.82rem; margin-bottom:4px; cursor:pointer;">
+                            <input type="checkbox" name="applicable_categories" value="{{ c.id }}" class="discount-scope-check" data-scope-id="category-{{ c.id }}">
+                            {{ c.name }}
+                        </label>
+                        {% empty %}
+                        <span style="font-size:0.78rem; color:var(--text-light);">No categories yet</span>
+                        {% endfor %}
+
+                        <div style="font-size:0.7rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin:10px 0 6px;">Channels</div>
+                        {% for ch in channels %}
+                        <label style="display:flex; align-items:center; gap:6px; font-size:0.82rem; margin-bottom:4px; cursor:pointer;">
+                            <input type="checkbox" name="applicable_channels" value="{{ ch.id }}" class="discount-scope-check" data-scope-id="channel-{{ ch.id }}">
+                            {{ ch.name }}
+                        </label>
+                        {% empty %}
+                        <span style="font-size:0.78rem; color:var(--text-light);">No channels yet</span>
+                        {% endfor %}
+                    </div>
+                </div>
+
                 <div class="form-group-sm" style="margin-bottom: 18px;">
                     <label class="form-label-sm">Activation Status</label>
                     <div class="toggle-switch-wrapper">
@@ -218,30 +258,50 @@
     }
 
     function editRow(button) {
-        const row = button.closest('tr');
-        const id = row.dataset.id;
+    const row = button.closest('tr');
+    const id = row.dataset.id;
 
-        document.getElementById('form-code-input').value = row.dataset.code;
-        document.getElementById('form-type-select').value = row.dataset.type;
-        handleTypeChange(row.dataset.type);
-        document.getElementById('form-value-input').value = row.dataset.value;
-        document.getElementById('form-min-order').value = row.dataset.minOrder || '';
-        document.getElementById('form-usage-limit').value = row.dataset.usageLimit || '';
-        document.getElementById('form-start-date').value = row.dataset.startDate;
-        document.getElementById('form-expiry-date').value = row.dataset.expiryDate;
-        const isActive = row.dataset.active === 'true';
-        document.getElementById('form-active-toggle').checked = isActive;
-        toggleActiveText(isActive);
+    document.getElementById('form-code-input').value = row.dataset.code;
+    document.getElementById('form-type-select').value = row.dataset.type;
+    handleTypeChange(row.dataset.type);
+    document.getElementById('form-value-input').value = row.dataset.value;
+    document.getElementById('form-min-order').value = row.dataset.minOrder || '';
+    document.getElementById('form-usage-limit').value = row.dataset.usageLimit || '';
+    document.getElementById('form-start-date').value = row.dataset.startDate;
+    document.getElementById('form-expiry-date').value = row.dataset.expiryDate;
+    const isActive = row.dataset.active === 'true';
+    document.getElementById('form-active-toggle').checked = isActive;
+    toggleActiveText(isActive);
 
-        discountForm.action = createUrl.replace('/create/', '/' + id + '/update/');
+    discountForm.action = createUrl.replace('/create/', '/' + id + '/update/');
 
-        document.getElementById('form-submit-btn').innerHTML = `
-            <span>Update Discount Code</span>
-            <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M4.5 12.75l6 6 9-13.5" /></svg>
-        `;
-        document.getElementById('form-title-label').innerText = 'Edit Discount Code';
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+    // Reset all scope checkboxes first, then check the ones saved for this discount
+    document.querySelectorAll('.discount-scope-check').forEach(cb => cb.checked = false);
+
+    const productIds = (row.dataset.productIds || '').split(',').filter(Boolean);
+    const categoryIds = (row.dataset.categoryIds || '').split(',').filter(Boolean);
+    const channelIds = (row.dataset.channelIds || '').split(',').filter(Boolean);
+
+    productIds.forEach(pid => {
+        const cb = document.querySelector(`[data-scope-id="product-${pid}"]`);
+        if (cb) cb.checked = true;
+    });
+    categoryIds.forEach(cid => {
+        const cb = document.querySelector(`[data-scope-id="category-${cid}"]`);
+        if (cb) cb.checked = true;
+    });
+    channelIds.forEach(chid => {
+        const cb = document.querySelector(`[data-scope-id="channel-${chid}"]`);
+        if (cb) cb.checked = true;
+    });
+
+    document.getElementById('form-submit-btn').innerHTML = `
+        <span>Update Discount Code</span>
+        <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M4.5 12.75l6 6 9-13.5" /></svg>
+    `;
+    document.getElementById('form-title-label').innerText = 'Edit Discount Code';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
 
     function resetForm() {
         discountForm.reset();
@@ -253,6 +313,7 @@
             <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
         `;
         document.getElementById('form-title-label').innerText = 'Create Discount Code';
+        document.querySelectorAll('.discount-scope-check').forEach(cb => cb.checked = false);
     }
 </script>
 

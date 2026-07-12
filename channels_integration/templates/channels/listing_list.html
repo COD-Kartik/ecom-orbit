@@ -147,9 +147,9 @@
                     <option value="failed" {% if listing.status == 'failed' %}selected{% endif %}>Failed</option>
                   </select>
                 </form>
-                <a href="{% url 'listing_delete' listing.id %}"
+                <a href="javascript:void(0)"
                    class="btn btn-sm btn-light border text-danger"
-                   onclick="return confirm('Remove this listing?')">
+                   onclick="showDeleteModal('{% url 'listing_delete' listing.id %}', 'Are you sure you want to remove this product listing?')">
                   <i class="bi bi-trash"></i>
                 </a>
               </div>
@@ -177,7 +177,7 @@
   </div>
 
   <!-- Quick Publish -->
-  <div class="col-lg-3">
+  <div class="col-lg-3" style="position: sticky; top: 50px; align-self: start; max-height: calc(100vh - 40px); overflow-y: auto;">
     <div class="form-card">
       <h6 class="fw-700 mb-1" style="color:#1e1b4b;">
         <i class="bi bi-send me-2" style="color:#7c3aed;"></i>

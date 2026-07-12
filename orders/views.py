@@ -13,7 +13,10 @@ from products.models import Product
 from datetime import datetime
 from django.contrib import messages
 from .models import Discount
-
+from django.core.paginator import Paginator
+from django.db.models import Q
+from products.models import Product, Category
+from channels_integration.models import Channel
 
 
 def get_user_business(user):
@@ -42,31 +45,45 @@ def order_list(request):
 
     status_filter = request.GET.get('status')
     search_query = request.GET.get('q')
+    date_from = request.GET.get('date_from')
+    date_to = request.GET.get('date_to')
+
+    # Stat cards should always reflect the full unfiltered set for this business
+    stats_base = Order.objects.filter(business=business) if business else Order.objects.none()
 
     if status_filter:
         orders = orders.filter(status=status_filter)
     if search_query:
-        from django.db.models import Q
         cleaned_id = search_query.upper().replace('ORD-', '').replace('#', '').strip()
         q_filter = Q(customer_name__icontains=search_query)
         if cleaned_id.isdigit():
             q_filter |= Q(id=int(cleaned_id))
         orders = orders.filter(q_filter)
+    if date_from:
+        orders = orders.filter(created_at__date__gte=date_from)
+    if date_to:
+        orders = orders.filter(created_at__date__lte=date_to)
 
-    from products.models import Product
+    paginator = Paginator(orders, 20)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+
     products = Product.objects.filter(business=business) if business else Product.objects.none()
 
     return render(request, 'orders/order_list.html', {
-        'orders': orders,
+        'orders': page_obj,
+        'page_obj': page_obj,
         'products': products,
-        'total_orders': orders.count(),
-        'pending_count': orders.filter(status='pending').count(),
-        'processing_count': orders.filter(status='processing').count(),
-        'shipped_count': orders.filter(status='shipped').count(),
-        'delivered_count': orders.filter(status='delivered').count(),
-        'cancelled_count': orders.filter(status='cancelled').count(),
+        'total_orders': stats_base.count(),
+        'pending_count': stats_base.filter(status='pending').count(),
+        'processing_count': stats_base.filter(status='processing').count(),
+        'shipped_count': stats_base.filter(status='shipped').count(),
+        'delivered_count': stats_base.filter(status='delivered').count(),
+        'cancelled_count': stats_base.filter(status='cancelled').count(),
         'current_status': status_filter or '',
         'search_query': search_query or '',
+        'date_from': date_from or '',
+        'date_to': date_to or '',
         'business': business,
     })
 
@@ -74,7 +91,30 @@ def order_list(request):
 def order_detail(request, pk):
     business = get_user_business(request.user)
     order = get_object_or_404(Order, pk=pk, business=business)
-    return render(request, 'orders/order_detail.html', {'order': order, 'business': business})
+
+    # Build a simple timeline from real order data — no separate activity log table needed
+    status_order = ['pending', 'processing', 'shipped', 'delivered']
+    timeline = [{'label': 'Order Placed', 'timestamp': order.created_at, 'done': True}]
+
+    if order.status == 'cancelled':
+        timeline.append({'label': 'Cancelled', 'timestamp': order.updated_at, 'done': True})
+    else:
+        current_index = status_order.index(order.status) if order.status in status_order else 0
+        labels = {'pending': 'Pending', 'processing': 'Processing', 'shipped': 'Shipped', 'delivered': 'Delivered'}
+        for i, s in enumerate(status_order):
+            if i == 0:
+                continue  # already added as "Order Placed"
+            timeline.append({
+                'label': labels[s],
+                'timestamp': order.updated_at if i <= current_index else None,
+                'done': i <= current_index,
+            })
+
+    return render(request, 'orders/order_detail.html', {
+        'order': order,
+        'business': business,
+        'timeline': timeline,
+    })
 
 @login_required
 def order_status_update(request, pk):
@@ -84,8 +124,21 @@ def order_status_update(request, pk):
         new_status = request.POST.get('status')
         if new_status in dict(Order.STATUS_CHOICES):
             order.status = new_status
+            if new_status == 'cancelled':
+                order.cancellation_reason = request.POST.get('cancellation_reason', '').strip()
             order.save()
     return redirect(request.META.get('HTTP_REFERER', 'order_list'))
+
+
+@login_required
+def order_notes_update(request, pk):
+    business = get_user_business(request.user)
+    order = get_object_or_404(Order, pk=pk, business=business)
+    if request.method == 'POST':
+        order.internal_notes = request.POST.get('internal_notes', '').strip()
+        order.save()
+        messages.success(request, 'Notes saved.')
+    return redirect('order_detail', pk=order.id)
 
 @login_required
 def order_payment_update(request, pk):
@@ -131,6 +184,20 @@ def order_add(request):
         return redirect('order_list')
 
     return render(request, 'orders/order_list.html', {'products': products})
+
+@login_required
+def order_bulk_update(request):
+    business = get_user_business(request.user)
+    if request.method == 'POST':
+        order_ids = request.POST.getlist('order_ids')
+        new_status = request.POST.get('bulk_status')
+        if order_ids and new_status in dict(Order.STATUS_CHOICES):
+            orders_to_update = Order.objects.filter(id__in=order_ids, business=business)
+            if new_status == 'cancelled':
+                orders_to_update = orders_to_update.exclude(status='delivered')
+            count = orders_to_update.update(status=new_status)
+            messages.success(request, f'{count} order(s) updated to "{new_status}".')
+    return redirect(request.META.get('HTTP_REFERER', 'order_list'))
 
 @login_required
 def order_delete(request, pk):
@@ -427,11 +494,15 @@ def discounts_view(request):
     today = timezone.now().date()
     active_codes_count = sum(1 for d in discounts if d.status == 'active')
     total_redemptions = sum(d.times_used for d in discounts)
-    total_discount_given = 0  # Requires order-level discount tracking; not available yet, kept honest at 0
+    total_discount_given = 0
     expiring_soon_count = sum(
         1 for d in discounts
         if d.status == 'active' and (d.expiry_date - today).days <= 7
     )
+
+    products = Product.objects.filter(business=business) if business else Product.objects.none()
+    categories = Category.objects.filter(business=business) if business else Category.objects.none()
+    channels = Channel.objects.filter(business=business) if business else Channel.objects.none()
 
     return render(request, 'orders/discounts.html', {
         'discounts': discounts,
@@ -440,8 +511,10 @@ def discounts_view(request):
         'total_discount_given': total_discount_given,
         'expiring_soon_count': expiring_soon_count,
         'business': business,
+        'products': products,
+        'categories': categories,
+        'channels': channels,
     })
-
 
 @login_required
 def discount_create(request):
@@ -452,7 +525,7 @@ def discount_create(request):
             messages.error(request, f'Discount code "{code}" already exists.')
             return redirect('discounts_view')
 
-        Discount.objects.create(
+        discount = Discount.objects.create(
             business=business,
             code=code,
             discount_type=request.POST.get('discount_type'),
@@ -463,8 +536,21 @@ def discount_create(request):
             expiry_date=request.POST.get('expiry_date'),
             is_active=request.POST.get('is_active') == 'true',
         )
+
+        product_ids = request.POST.getlist('applicable_products')
+        category_ids = request.POST.getlist('applicable_categories')
+        channel_ids = request.POST.getlist('applicable_channels')
+
+        if product_ids:
+            discount.applicable_products.set(product_ids)
+        if category_ids:
+            discount.applicable_categories.set(category_ids)
+        if channel_ids:
+            discount.applicable_channels.set(channel_ids)
+
         messages.success(request, f'Discount code "{code}" created successfully.')
     return redirect('discounts_view')
+
 
 
 @login_required
@@ -481,6 +567,15 @@ def discount_update(request, pk):
         discount.expiry_date = request.POST.get('expiry_date')
         discount.is_active = request.POST.get('is_active') == 'true'
         discount.save()
+
+        product_ids = request.POST.getlist('applicable_products')
+        category_ids = request.POST.getlist('applicable_categories')
+        channel_ids = request.POST.getlist('applicable_channels')
+
+        discount.applicable_products.set(product_ids)
+        discount.applicable_categories.set(category_ids)
+        discount.applicable_channels.set(channel_ids)
+
         messages.success(request, f'Discount code "{discount.code}" updated successfully.')
     return redirect('discounts_view')
 
