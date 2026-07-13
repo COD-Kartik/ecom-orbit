@@ -19,6 +19,9 @@ urlpatterns = [
     # Publishing
     path('dashboard/products/<int:product_id>/publish/', views.publish_product, name='publish_product'),
     path('dashboard/products/<int:product_id>/select-channels/', views.select_channels_to_publish, name='select_channels_to_publish'),
+    # test connection
+    path('dashboard/channels/<int:pk>/test-connection/', views.test_flipkart_connection, name='test_flipkart_connection'),
+    
     # API
     path('api/', include(router.urls)),
 ]

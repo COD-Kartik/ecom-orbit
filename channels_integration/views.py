@@ -6,6 +6,9 @@ from .serializers import ChannelSerializer, ProductListingSerializer
 from products.models import Product
 from accounts.models import BusinessProfile
 from django.contrib import messages
+from django.utils import timezone
+from .flipkart_client import get_flipkart_access_token
+
 
 def get_user_business(user):
     try:
@@ -193,3 +196,25 @@ def listing_delete(request, pk):
     channels = Channel.objects.filter(business=business)
     get_object_or_404(ProductListing, pk=pk, channel__in=channels).delete()
     return redirect('listing_list')
+
+
+#
+@login_required
+def test_flipkart_connection(request, pk):
+    business = get_user_business(request.user)
+    channel = get_object_or_404(Channel, pk=pk, business=business)
+
+    result = get_flipkart_access_token()
+    channel.last_sync_attempt = timezone.now()
+
+    if result['success']:
+        channel.connection_status = 'connected'
+        channel.last_sync_error = None
+        messages.success(request, f'"{channel.name}" connected successfully to Flipkart.')
+    else:
+        channel.connection_status = 'error'
+        channel.last_sync_error = f"HTTP {result.get('status_code')}: {result.get('error')}"
+        messages.error(request, f'Connection to "{channel.name}" failed. See error details below.')
+
+    channel.save()
+    return redirect('channel_list')

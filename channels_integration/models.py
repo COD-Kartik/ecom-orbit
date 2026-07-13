@@ -10,6 +10,7 @@ class Channel(models.Model):
         ('linkedin', 'LinkedIn'),
         ('pinterest', 'Pinterest'),
         ('youtube', 'YouTube'),
+        ('flipkart', 'Flipkart'),
         ('other', 'Other'),
     )
 
@@ -19,6 +20,9 @@ class Channel(models.Model):
     api_credentials = models.JSONField(default=dict, blank=True)
     is_active = models.BooleanField(default = True)
     created_at = models.DateTimeField(auto_now_add=True)
+    connection_status = models.CharField(max_length=20, default='not_connected')
+    last_sync_attempt = models.DateTimeField(blank=True, null=True)
+    last_sync_error = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return f"{self.name} ({self.platform_type})"

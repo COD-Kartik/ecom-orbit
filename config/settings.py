@@ -12,14 +12,10 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 import os
 from pathlib import Path
 from dotenv import load_dotenv
-from pathlib import Path
 from datetime import timedelta
 
-
-
-load_dotenv()
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / '.env', override=True)
 
 
 # Quick-start development settings - unsuitable for production
@@ -182,3 +178,8 @@ EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = os.getenv('EMAIL_HOST_USER')
 FRONTEND_URL = 'http://127.0.0.1:8000'
+
+
+FLIPKART_API_KEY = os.getenv('FLIPKART_API_KEY')
+FLIPKART_API_SECRET = os.getenv('FLIPKART_API_SECRET')
+FLIPKART_SANDBOX_BASE_URL = 'https://sandbox-api.flipkart.net'

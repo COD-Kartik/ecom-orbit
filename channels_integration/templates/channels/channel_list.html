@@ -138,6 +138,26 @@
             {% endif %}
           </div>
 
+          <!-- Real API Connection Status -->
+          <div class="mt-2">
+            {% if channel.connection_status == 'connected' %}
+            <span style="font-size:0.72rem; padding:3px 8px; border-radius:6px; background:#ecfdf5; color:#059669; font-weight:600;">
+              <i class="bi bi-check-circle-fill"></i> API Connected
+            </span>
+            {% elif channel.connection_status == 'error' %}
+            <span style="font-size:0.72rem; padding:3px 8px; border-radius:6px; background:#fee2e2; color:#dc2626; font-weight:600;" title="{{ channel.last_sync_error }}">
+              <i class="bi bi-x-circle-fill"></i> Connection Failed
+            </span>
+            {% else %}
+            <span style="font-size:0.72rem; padding:3px 8px; border-radius:6px; background:#f3f4f6; color:#6b7280; font-weight:600;">
+              <i class="bi bi-dash-circle"></i> Not Tested
+            </span>
+            {% endif %}
+            {% if channel.last_sync_attempt %}
+            <span style="font-size:0.7rem; color:#9ca3af; margin-left:6px;">Last checked {{ channel.last_sync_attempt|date:"d M, H:i" }}</span>
+            {% endif %}
+          </div>
+
           <!-- Channel Meta -->
           <div class="mt-3 pt-3" style="border-top:1px solid #f3f4f6;">
             <div class="d-flex align-items-center justify-content-between">
@@ -147,6 +167,13 @@
               </div>
               <!-- Actions -->
               <div class="d-flex gap-2">
+                {% if channel.platform_type == 'flipkart' %}
+                <a href="{% url 'test_flipkart_connection' channel.id %}"
+                   class="btn btn-sm btn-light border text-primary"
+                   title="Test Flipkart API Connection">
+                  <i class="bi bi-plug"></i>
+                </a>
+                {% endif %}
                 <a href="{% url 'channel_toggle' channel.id %}"
                    class="btn btn-sm btn-light border"
                    title="{% if channel.is_active %}Deactivate{% else %}Activate{% endif %}">
