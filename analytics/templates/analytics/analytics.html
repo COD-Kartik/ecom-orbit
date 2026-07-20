@@ -6,228 +6,539 @@
 {% block nav_analytics %}active{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/analytics.css' %}">
+<link rel="stylesheet" href="{% static 'css/analytics.css' %}?v=1.2">
+<style>
+    /* Prevent layout shifting during Chart.js loads */
+    .chart-container-box {
+        position: relative;
+        height: 280px;
+        width: 100%;
+    }
+
+    /* KPI Metric Cards Inline Fallback to bypass browser cache */
+    .kpi-metric-card {
+        background: #ffffff !important;
+        border-radius: 16px !important;
+        border: 1px solid #c7d2fe !important;
+        padding: 24px !important;
+        position: relative !important;
+        overflow: hidden !important;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        box-shadow: 0 1px 3px rgba(9, 8, 30, 0.01), 0 10px 20px -5px rgba(9, 8, 30, 0.03) !important;
+        display: block !important;
+    }
+    .kpi-metric-card:hover {
+        transform: translateY(-4px) !important;
+        border-color: #a5b4fc !important;
+        box-shadow: 0 12px 32px -4px rgba(79, 70, 229, 0.1), 0 4px 12px -2px rgba(9, 8, 30, 0.04) !important;
+    }
+    .card-inner {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        position: relative !important;
+        z-index: 3 !important;
+    }
+    .metric-data {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 4px !important;
+    }
+    .metric-label {
+        font-size: 0.76rem !important;
+        font-weight: 700 !important;
+        color: #64748b !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.5px !important;
+    }
+    .metric-value {
+        font-size: 1.8rem !important;
+        font-weight: 800 !important;
+        color: #0f172a !important;
+        letter-spacing: -0.5px !important;
+        line-height: 1.2 !important;
+        margin: 0 !important;
+    }
+    .metric-trend {
+        font-size: 0.74rem !important;
+        font-weight: 600 !important;
+        color: #64748b !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 4px !important;
+    }
+    .metric-icon {
+        width: 48px !important;
+        height: 48px !important;
+        border-radius: 12px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 1.35rem !important;
+        box-shadow: inset 0 -2px 4px rgba(0,0,0,0.02) !important;
+    }
+    .stat-total {
+        background: linear-gradient(135deg, #ffffff 0%, #f5f7ff 100%) !important;
+        border-left: 5px solid #4f46e5 !important;
+    }
+    .stat-total .metric-icon { background-color: #eef2ff !important; color: #4f46e5 !important; }
+
+    .stat-active {
+        background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%) !important;
+        border-left: 5px solid #10b981 !important;
+        color: #10b981 !important;
+    }
+    .stat-active .metric-icon { background-color: #ecfdf5 !important; color: #10b981 !important; }
+
+    .stat-warning {
+        background: linear-gradient(135deg, #ffffff 0%, #fffbeb 100%) !important;
+        border-left: 5px solid #f59e0b !important;
+        color: #f59e0b !important;
+    }
+    .stat-warning .metric-icon { background-color: #fffbeb !important; color: #f59e0b !important; }
+
+    .stat-value {
+        background: linear-gradient(135deg, #ffffff 0%, #faf5ff 100%) !important;
+        border-left: 5px solid #7c3aed !important;
+        color: #7c3aed !important;
+    }
+    .stat-value .metric-icon { background-color: #f5f3ff !important; color: #7c3aed !important; }
+</style>
 {% endblock %}
 
 {% block content %}
 
-<!-- 1. TOP METRIC CARDS ROW -->
-<section class="metrics-row">
-    <div class="metric-card">
-        <div class="metric-header">
-            <div class="metric-icon revenue">
-                <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 10.136 12 10.513 12 9.5c0-.987.904-1.724 2.12-1.48M6.75 19.5a12.75 12.75 0 0110.5 0v-15a12.75 12.75 0 01-10.5 0v15z" /></svg>
+<!-- ANALYTICS TOOLBAR (No Navy Banner, matches Dashboard style) -->
+<div class="analytics-toolbar" style="background: #ffffff; border-radius: 16px; border: 1px solid var(--border-color); padding: 18px 24px; display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; margin-bottom: 24px; box-shadow: var(--card-shadow);">
+    <div>
+        <h2 style="font-size: 1.35rem; font-weight: 800; color: var(--text-dark); margin: 0;">Analytics Suite</h2>
+        <p style="font-size: 0.82rem; color: var(--text-muted); margin: 4px 0 0;">Comprehensive insights and performance metrics for your business.</p>
+    </div>
+    
+    <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+        <!-- Date Filtering Form (GET server-side filter) -->
+        <form method="get" id="date-filter-form" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+            <select name="date_range" id="date-range-select" class="dropdown-filter" onchange="handleRangeChange(this.value)">
+                <option value="7" {% if date_range == '7' %}selected{% endif %}>Last 7 Days</option>
+                <option value="30" {% if date_range == '30' %}selected{% endif %}>Last 30 Days</option>
+                <option value="90" {% if date_range == '90' %}selected{% endif %}>Last 90 Days</option>
+                <option value="custom" {% if date_range == 'custom' %}selected{% endif %}>Custom Range</option>
+            </select>
+            
+            <div id="custom-date-inputs" style="display: {% if date_range == 'custom' %}flex{% else %}none{% endif %}; align-items: center; gap: 8px;">
+                <input type="date" name="date_from" value="{{ date_from }}" class="dropdown-filter" style="height: 38px;">
+                <span style="color: var(--text-muted); font-size: 0.82rem; font-weight: 600;">to</span>
+                <input type="date" name="date_to" value="{{ date_to }}" class="dropdown-filter" style="height: 38px;">
+                <button type="submit" class="btn btn-primary" style="padding: 8px 16px; border-radius: 8px; font-weight: 700; font-size: 0.82rem; height: 38px;">Apply</button>
+            </div>
+        </form>
+
+        <a href="{% url 'reports_view' %}" class="btn btn-outline-primary" style="padding: 8px 16px; border-radius: 8px; font-weight: 700; font-size: 0.82rem; height: 38px; display: inline-flex; align-items: center; justify-content: center; border: 1.5px solid var(--primary); text-decoration: none; color: var(--primary);">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 6px;"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
+            Export Report
+        </a>
+    </div>
+</div>
+
+<!-- 1. KPI CARDS GRID -->
+<section class="kpi-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 24px;">
+    <!-- Revenue -->
+    <div class="kpi-metric-card stat-total">
+        <div class="card-inner">
+            <div class="metric-data">
+                <span class="metric-label">Total Revenue</span>
+                <h3 class="metric-value">₹{{ total_revenue|floatformat:2 }}</h3>
+                <span class="metric-trend {% if revenue_trend_up %}text-success{% else %}text-danger{% endif %}">
+                    <i class="bi {% if revenue_trend_up %}bi-arrow-up-short{% else %}bi-arrow-down-short{% endif %}"></i>
+                    {{ revenue_trend_str }}
+                </span>
+            </div>
+            <div class="metric-icon">
+                <i class="bi bi-currency-rupee"></i>
             </div>
         </div>
-        <div class="metric-body">
-            <span class="metric-title-text">Total Revenue</span>
-            <span class="metric-value-text">₹{{ total_revenue }}</span>
-        </div>
+        <!-- Absolute Sparkline background Overlay -->
+        <svg viewBox="0 0 100 20" class="metric-sparkline" style="position: absolute; bottom: 0; left: 0; width: 100%; height: 35px; opacity: 0.15; pointer-events: none; stroke: #4f46e5; stroke-width: 1.5; fill: none;">
+            <path d="M0 15 Q 10 5, 20 12 T 40 8 T 60 15 T 80 5 T 100 12" />
+        </svg>
     </div>
 
-    <div class="metric-card">
-        <div class="metric-header">
-            <div class="metric-icon orders">
-                <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z" /></svg>
+    <!-- Orders -->
+    <div class="kpi-metric-card stat-active">
+        <div class="card-inner">
+            <div class="metric-data">
+                <span class="metric-label">Total Orders</span>
+                <h3 class="metric-value">{{ total_orders }}</h3>
+                <span class="metric-trend {% if orders_trend_up %}text-success{% else %}text-danger{% endif %}">
+                    <i class="bi {% if orders_trend_up %}bi-arrow-up-short{% else %}bi-arrow-down-short{% endif %}"></i>
+                    {{ orders_trend_str }}
+                </span>
+            </div>
+            <div class="metric-icon">
+                <i class="bi bi-cart-check"></i>
             </div>
         </div>
-        <div class="metric-body">
-            <span class="metric-title-text">Total Orders</span>
-            <span class="metric-value-text">{{ total_orders }}</span>
-        </div>
+        <svg viewBox="0 0 100 20" class="metric-sparkline" style="position: absolute; bottom: 0; left: 0; width: 100%; height: 35px; opacity: 0.15; pointer-events: none; stroke: #10b981; stroke-width: 1.5; fill: none;">
+            <path d="M0 10 Q 15 18, 30 5 T 60 12 T 80 8 T 100 15" />
+        </svg>
     </div>
 
-    <div class="metric-card">
-        <div class="metric-header">
-            <div class="metric-icon aov">
-                <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 14.25l6-6m4.5-3.75L3.75 19.5M21 19.5l-6-6" /></svg>
+    <!-- AOV -->
+    <div class="kpi-metric-card stat-warning">
+        <div class="card-inner">
+            <div class="metric-data">
+                <span class="metric-label">Avg. Order Value</span>
+                <h3 class="metric-value">₹{{ avg_order_value|floatformat:2 }}</h3>
+                <span class="metric-trend {% if aov_trend_up %}text-success{% else %}text-danger{% endif %}">
+                    <i class="bi {% if aov_trend_up %}bi-arrow-up-short{% else %}bi-arrow-down-short{% endif %}"></i>
+                    {{ aov_trend_str }}
+                </span>
+            </div>
+            <div class="metric-icon">
+                <i class="bi bi-graph-up-arrow"></i>
             </div>
         </div>
-        <div class="metric-body">
-            <span class="metric-title-text">Avg. Order Value</span>
-            <span class="metric-value-text">₹{{ avg_order_value }}</span>
-        </div>
+        <svg viewBox="0 0 100 20" class="metric-sparkline" style="position: absolute; bottom: 0; left: 0; width: 100%; height: 35px; opacity: 0.15; pointer-events: none; stroke: #f59e0b; stroke-width: 1.5; fill: none;">
+            <path d="M0 5 Q 20 15, 40 8 T 70 18 T 100 8" />
+        </svg>
     </div>
 
-    <div class="metric-card">
-        <div class="metric-header">
-            <div class="metric-icon customers">
-                <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.109A9.342 9.342 0 0012 20.25a9.34 9.34 0 00-3.011-.514v-.108c0-1.112-.285-2.16-.786-3.07M11.25 12.75A4.5 4.5 0 117 8.25m4.25 4.5a4.5 4.5 0 01-4.25-4.5m4.25 4.5A4.5 4.5 0 0012 17.25a4.5 4.5 0 003.582-1.776M11.25 12.75a4.5 4.5 0 01-3.667-1.897M12 17.25a4.5 4.5 0 01-3.667-1.897m7.167.397a4.5 4.5 0 003.582-1.776M15.502 12h.008v.008h-.008V12z" /></svg>
+    <!-- Customers -->
+    <div class="kpi-metric-card stat-value">
+        <div class="card-inner">
+            <div class="metric-data">
+                <span class="metric-label">Total Customers</span>
+                <h3 class="metric-value">{{ total_customers }}</h3>
+                <span class="metric-trend {% if customers_trend_up %}text-success{% else %}text-danger{% endif %}">
+                    <i class="bi {% if customers_trend_up %}bi-arrow-up-short{% else %}bi-arrow-down-short{% endif %}"></i>
+                    {{ customers_trend_str }}
+                </span>
+            </div>
+            <div class="metric-icon">
+                <i class="bi bi-people"></i>
             </div>
         </div>
-        <div class="metric-body">
-            <span class="metric-title-text">Total Customers</span>
-            <span class="metric-value-text">{{ total_customers }}</span>
-        </div>
+        <svg viewBox="0 0 100 20" class="metric-sparkline" style="position: absolute; bottom: 0; left: 0; width: 100%; height: 35px; opacity: 0.15; pointer-events: none; stroke: #7c3aed; stroke-width: 1.5; fill: none;">
+            <path d="M0 12 Q 10 18, 30 12 T 60 5 T 90 15 T 100 10" />
+        </svg>
     </div>
 </section>
 
 {% if has_orders %}
 
-<div class="analytics-card" style="margin-bottom: 24px;">
-    <div class="card-header" style="flex-wrap: wrap; gap: 12px;">
-        <span class="card-title">Sales Performance</span>
-        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-            <select id="chart-type-select" class="dropdown-filter" onchange="renderAnalyticsChart()">
-                <option value="line">Trend Over Time</option>
-                <option value="bar">By Channel</option>
-            </select>
-            <select id="chart-metric-select" class="dropdown-filter" onchange="renderAnalyticsChart()">
-                <option value="revenue">Revenue (₹)</option>
-                <option value="orders">Order Count</option>
-            </select>
+<!-- 2. SALES PERFORMANCE & SALES BY WEEKDAY ROW -->
+<div class="grid-2col" style="margin-bottom: 24px; grid-template-columns: 1.6fr 1fr;">
+    <!-- Sales Performance Card -->
+    <div class="analytics-card">
+        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap;">
+            <span class="card-title">Sales Performance</span>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <!-- Granularity Dropdown -->
+                <select id="chart-granularity-select" class="dropdown-filter" onchange="renderSalesChart()">
+                    <option value="daily">Daily</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="monthly">Monthly</option>
+                </select>
+                <!-- Plotted Metric Toggle Dropdown -->
+                <select id="chart-metric-select" class="dropdown-filter" onchange="renderSalesChart()">
+                    <option value="revenue">Revenue (₹)</option>
+                    <option value="orders">Order Count</option>
+                </select>
+            </div>
+        </div>
+        <div class="chart-container-box">
+            <canvas id="sales-performance-chart"></canvas>
         </div>
     </div>
-    <div style="position: relative; height: 320px; margin-top: 10px;">
-        <canvas id="analytics-chart"></canvas>
+
+    <!-- Sales by Day of Week Card -->
+    <div class="analytics-card">
+        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+            <span class="card-title">Sales by Day of Week</span>
+            <!-- Metric Toggle linked to main or independent toggle -->
+            <select id="weekday-metric-select" class="dropdown-filter" onchange="renderWeekdayChart()">
+                <option value="revenue">Revenue (₹)</option>
+                <option value="orders">Orders</option>
+            </select>
+        </div>
+        <div class="chart-container-box">
+            <canvas id="weekday-performance-chart"></canvas>
+        </div>
     </div>
 </div>
 
-<!-- 2 & 3. REVENUE BY CHANNEL + FULFILLMENT STATUS -->
-<div class="grid-2col" style="margin-top: 24px;">
+<!-- 3. REVENUE BY CHANNEL & FULFILLMENT STATUS ROW -->
+<div class="grid-2col" style="margin-bottom: 24px; grid-template-columns: 1fr 1.2fr;">
+    <!-- Revenue by Channel List with brand progress bars -->
     <div class="analytics-card">
         <div class="card-header">
             <span class="card-title">Revenue by Channel</span>
         </div>
-
-        {% if channel_data %}
-        <div class="channel-breakdown-list">
+        
+        <div class="channel-breakdown-list" style="display: flex; flex-direction: column; gap: 16px; margin-top: 10px;">
             {% for c in channel_data %}
-            <div class="channel-item">
-                <div class="channel-header">
-                    <div class="channel-name-box"><span class="channel-dot manual"></span><span>{{ c.name }}</span></div>
-                    <span class="channel-percentage">{{ c.percent }}% <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: normal;">(₹{{ c.revenue }})</span></span>
+            <div class="channel-item" style="display: flex; flex-direction: column; gap: 6px;">
+                <div class="channel-header" style="display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem; font-weight: 700; color: var(--text-medium);">
+                    <div class="channel-name-box" style="display: flex; align-items: center; gap: 8px;">
+                        <span class="channel-dot" style="width: 8px; height: 8px; border-radius: 50%; background-color: {{ c.color }};"></span>
+                        <span>{{ c.name }}</span>
+                    </div>
+                    <span class="channel-percentage" style="color: var(--text-dark); font-weight: 800;">
+                        {{ c.percent }}% 
+                        <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 500; margin-left: 4px;">(₹{{ c.revenue|floatformat:2 }})</span>
+                    </span>
                 </div>
-                <div class="channel-bar-bg"><div class="channel-bar-fill manual" style="width: {{ c.percent }}%;"></div></div>
+                <div class="channel-bar-bg" style="width: 100%; height: 8px; background-color: #f1f5f9; border-radius: 9999px; overflow: hidden;">
+                    <div class="channel-bar-fill" style="width: {{ c.percent }}%; height: 100%; border-radius: 9999px; background-color: {{ c.color }}; transition: width 0.3s ease;"></div>
+                </div>
             </div>
+            {% empty %}
+            <p style="color: var(--text-muted); font-size: 0.85rem; text-align: center; padding: 30px 0;">No sales channel data in range.</p>
             {% endfor %}
         </div>
-        {% else %}
-        <p style="color:var(--text-muted); font-size:0.85rem; text-align:center; padding:30px 0;">No channel revenue data yet.</p>
-        {% endif %}
     </div>
 
+    <!-- Fulfillment Status donut chart -->
     <div class="analytics-card">
-        <div class="card-header"><span class="card-title">Fulfillment Status</span></div>
-        <div class="order-status-container">
-            <div class="donut-svg-wrapper">
-                <svg class="donut-svg" width="140" height="140" viewBox="0 0 140 140">
-                    <circle cx="70" cy="70" r="50" stroke="#f1f5f9" stroke-width="14" fill="none"/>
-                    {% for seg in donut_segments %}
-                    <circle class="donut-segment" cx="70" cy="70" r="50" stroke="{{ seg.color }}" stroke-width="14" fill="none" stroke-dasharray="{{ seg.dasharray }}" stroke-dashoffset="{{ seg.dashoffset }}" />
-                    {% endfor %}
-                </svg>
-                <div class="donut-svg-center">
-                    <span class="donut-center-val">{{ total_orders }}</span>
-                    <span class="donut-center-lbl">Orders</span>
+        <div class="card-header">
+            <span class="card-title">Fulfillment Status</span>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; margin-top: 10px;">
+            <!-- Donut chart canvas wrapper -->
+            <div style="position: relative; width: 140px; height: 140px; flex-shrink: 0;">
+                <canvas id="fulfillment-donut-chart"></canvas>
+                <!-- Centered text overlay -->
+                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; pointer-events: none; z-index: 10;">
+                    <span style="display: block; font-size: 1.4rem; font-weight: 900; color: var(--text-dark); line-height: 1.1;">{{ total_orders }}</span>
+                    <span style="display: block; font-size: 0.68rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Orders</span>
                 </div>
             </div>
-            <div class="status-legend">
-                <div class="status-legend-item"><span class="status-legend-label"><span class="status-dot delivered"></span> Delivered</span><span class="status-legend-val">{{ status_counts.delivered }}</span></div>
-                <div class="status-legend-item"><span class="status-legend-label"><span class="status-dot shipped"></span> Shipped</span><span class="status-legend-val">{{ status_counts.shipped }}</span></div>
-                <div class="status-legend-item"><span class="status-legend-label"><span class="status-dot processing"></span> Processing</span><span class="status-legend-val">{{ status_counts.processing }}</span></div>
-                <div class="status-legend-item"><span class="status-legend-label"><span class="status-dot pending"></span> Pending</span><span class="status-legend-val">{{ status_counts.pending }}</span></div>
-                <div class="status-legend-item"><span class="status-legend-label"><span class="status-dot cancelled"></span> Cancelled</span><span class="status-legend-val">{{ status_counts.cancelled }}</span></div>
+
+            <!-- Legends Table -->
+            <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 8px; max-width: 280px; width: 100%;">
+                {% for s in status_data %}
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 6px;">
+                    <span style="display: flex; align-items: center; gap: 8px; font-weight: 600; color: var(--text-medium);">
+                        <span style="width: 8px; height: 8px; border-radius: 50%; background-color: {{ s.color }};"></span>
+                        {{ s.status }}
+                    </span>
+                    <span style="font-weight: 700; color: var(--text-dark);">
+                        {{ s.count }}
+                        <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 500; margin-left: 4px;">({{ s.percent }}%)</span>
+                    </span>
+                </div>
+                {% endfor %}
             </div>
         </div>
     </div>
 </div>
 
-<!-- 4 & 5. TOP PRODUCTS + DAY OF WEEK -->
-<div class="grid-2col" style="margin-top: 24px;">
-    <div class="analytics-card">
-        <div class="card-header"><span class="card-title">Top Performing Products</span></div>
-        {% if top_products %}
-        <div class="products-table-container">
-            <table class="products-table">
-                <thead>
-                    <tr><th>Product Name</th><th style="text-align:center;">Sold</th><th>Revenue</th></tr>
-                </thead>
-                <tbody>
-                    {% for p in top_products %}
-                    <tr>
-                        <td class="product-name-col">{{ p.product__title|default:"Deleted Product" }}</td>
-                        <td style="text-align:center; font-weight:600;">{{ p.total_sold }}</td>
-                        <td style="font-weight:700;">₹{{ p.revenue }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        {% else %}
-        <p style="color:var(--text-muted); font-size:0.85rem; text-align:center; padding:30px 0;">No product sales yet.</p>
-        {% endif %}
+<!-- 4. TOP PRODUCTS ROW -->
+<div class="analytics-card" style="margin-bottom: 24px;">
+    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+        <span class="card-title">Top Performing Products</span>
+        <a href="{% url 'product_list' %}" style="font-size: 0.82rem; font-weight: 700; color: var(--primary); text-decoration: none;">View All Products &rarr;</a>
     </div>
-
-<div class="analytics-card day-chart-card">
-        <div class="card-header"><span class="card-title">Sales by Day of Week</span></div>
-        <div class="day-chart-container">
-            {% for d in day_chart %}
-            <div class="day-bar-column">
-                <div class="day-bar-wrapper"><div class="day-bar-fill" style="height: {{ d.height_pct }}%;"></div></div>
-                <span class="day-label">{{ d.label }}</span>
-            </div>
-            {% endfor %}
-        </div>
+    
+    {% if top_products %}
+    <div style="overflow-x: auto; margin-top: 10px;">
+        <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85rem;">
+            <thead>
+                <tr style="border-bottom: 1.5px solid #e2e8f0; color: var(--text-muted); font-weight: 700;">
+                    <th style="padding: 12px 16px;">Product Title</th>
+                    <th style="padding: 12px 16px; text-align: center; width: 120px;">Units Sold</th>
+                    <th style="padding: 12px 16px; text-align: right; width: 150px;">Revenue Generated</th>
+                    <th style="padding: 12px 16px; width: 220px;">Market Share (Revenue Relative to Top)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in top_products %}
+                <tr style="border-bottom: 1px solid #f1f5f9;">
+                    <td style="padding: 14px 16px; font-weight: 700; color: var(--text-dark);">{{ p.product.title }}</td>
+                    <td style="padding: 14px 16px; text-align: center; font-weight: 800; color: var(--text-medium);">{{ p.sold }}</td>
+                    <td style="padding: 14px 16px; text-align: right; font-weight: 800; color: var(--text-dark);">₹{{ p.revenue|floatformat:2 }}</td>
+                    <td style="padding: 14px 16px; vertical-align: middle;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="flex-grow: 1; height: 6px; background-color: #f1f5f9; border-radius: 3px; overflow: hidden;">
+                                <div style="width: {{ p.percent }}%; height: 100%; background-color: var(--primary); border-radius: 3px;"></div>
+                            </div>
+                            <span style="font-size: 0.74rem; font-weight: 700; color: var(--text-muted); width: 35px; text-align: right;">{{ p.percent }}%</span>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
+    {% else %}
+    <p style="color: var(--text-muted); font-size: 0.85rem; text-align: center; padding: 40px 0;">No sales recorded for any products in range.</p>
+    {% endif %}
 </div>
 
 {% else %}
 
-<!-- Empty state for new users with no orders yet -->
-<div class="analytics-card" style="text-align:center; padding:60px 20px;">
-    <svg width="56" height="56" fill="none" stroke="var(--text-light)" stroke-width="1.5" viewBox="0 0 24 24" style="margin-bottom:16px; opacity:0.6;">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/>
-    </svg>
-    <h3 style="font-size:1.1rem; font-weight:700; color:var(--text-dark); margin-bottom:8px;">No analytics data yet</h3>
-    <p style="color:var(--text-muted); font-size:0.9rem;">Once you start receiving orders, your revenue trends, top products, and channel performance will show up here.</p>
+<!-- EMPTY STATE (No sales recorded in period) -->
+<div class="analytics-card" style="text-align: center; padding: 60px 24px; margin-bottom: 24px;">
+    <div style="width: 56px; height: 56px; background-color: #f8fafc; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+        <i class="bi bi-graph-down" style="font-size: 1.8rem; color: var(--text-light-muted);"></i>
+    </div>
+    <h3 style="font-size: 1.1rem; font-weight: 800; color: var(--text-dark); margin: 0 0 8px;">No sales data available</h3>
+    <p style="color: var(--text-muted); font-size: 0.85rem; max-width: 450px; margin: 0 auto 16px;">There are no orders processed for this business profile within the selected date range.</p>
+    <a href="{% url 'order_list' %}" class="btn btn-primary" style="padding: 8px 16px; border-radius: 8px; font-weight: 700; font-size: 0.82rem; text-decoration: none; display: inline-block;">Manage Orders</a>
 </div>
 
 {% endif %}
 
+<!-- FOOTER SECTION (Dashboard-style centered design) -->
+<footer style="margin-top: 48px; padding: 24px 0; border-top: 1.5px solid #e2e8f0; text-align: center; font-size: 0.82rem; color: #64748b;">
+    <span>&copy; {% now "Y" %} E-Com Orbit. All rights reserved.</span>
+</footer>
+{% endblock %}
+
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
-    const chartData = {{ chart_data_json|safe }};
-    let analyticsChartInstance = null;
-
-    function renderAnalyticsChart() {
-        const chartType = document.getElementById('chart-type-select').value;
-        const metric = document.getElementById('chart-metric-select').value;
-        const ctx = document.getElementById('analytics-chart').getContext('2d');
-
-        let labels, data, label;
-
-        if (chartType === 'line') {
-            labels = chartData.trend.labels;
-            data = metric === 'revenue' ? chartData.trend.revenue : chartData.trend.orders;
-            label = metric === 'revenue' ? 'Revenue (₹)' : 'Orders';
+    // Load parsed JSON dataset
+    const parsedData = {{ chart_data_json|safe }};
+    
+    // Date filter preset change logic
+    function handleRangeChange(val) {
+        const customInputs = document.getElementById('custom-date-inputs');
+        if (val === 'custom') {
+            customInputs.style.display = 'flex';
         } else {
-            labels = chartData.channel.labels;
-            data = metric === 'revenue' ? chartData.channel.revenue : chartData.channel.orders;
-            label = metric === 'revenue' ? 'Revenue (₹)' : 'Orders';
+            customInputs.style.display = 'none';
+            document.getElementById('date-filter-form').submit();
+        }
+    }
+
+    // Chart instances
+    let salesChartInstance = null;
+    let weekdayChartInstance = null;
+    let donutChartInstance = null;
+
+    // Helper: Group daily data points into weeks or months
+    function groupDailyPoints(points, granularity) {
+        if (granularity === 'daily') return points;
+        
+        const groups = {};
+        points.forEach(p => {
+            let key;
+            if (granularity === 'weekly') {
+                // Group by week starting (based on Date objects)
+                const d = new Date(p.date);
+                const day = d.getDay();
+                const diff = d.getDate() - day + (day === 0 ? -6 : 1); // adjust to Monday
+                const monday = new Date(d.setDate(diff));
+                key = 'W/C ' + monday.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            } else {
+                // Group by month
+                const d = new Date(p.date);
+                key = d.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
+            }
+            
+            if (!groups[key]) {
+                groups[key] = { label: key, revenue: 0.0, orders: 0 };
+            }
+            groups[key].revenue += p.revenue;
+            groups[key].orders += p.orders;
+        });
+        
+        return Object.values(groups);
+    }
+
+    // Drawing Sales Performance chart
+    function renderSalesChart() {
+        const granularity = document.getElementById('chart-granularity-select').value;
+        const metric = document.getElementById('chart-metric-select').value;
+        const canvas = document.getElementById('sales-performance-chart');
+        if (!canvas) return;
+        
+        const ctx = canvas.getContext('2d');
+        const rawPoints = parsedData.daily;
+        const grouped = groupDailyPoints(rawPoints, granularity);
+
+        const labels = grouped.map(g => g.label);
+        const data = metric === 'revenue' ? grouped.map(g => g.revenue) : grouped.map(g => g.orders);
+        const label = metric === 'revenue' ? 'Revenue (₹)' : 'Order Count';
+
+        if (salesChartInstance) {
+            salesChartInstance.destroy();
         }
 
-        if (analyticsChartInstance) {
-            analyticsChartInstance.destroy();
-        }
+        // Fill area gradient
+        const gradient = ctx.createLinearGradient(0, 0, 0, 260);
+        gradient.addColorStop(0, 'rgba(79, 70, 229, 0.15)');
+        gradient.addColorStop(1, 'rgba(79, 70, 229, 0.00)');
 
-        analyticsChartInstance = new Chart(ctx, {
-            type: chartType,
+        salesChartInstance = new Chart(ctx, {
+            type: 'line',
             data: {
                 labels: labels,
                 datasets: [{
                     label: label,
                     data: data,
                     borderColor: '#4f46e5',
-                    backgroundColor: chartType === 'line' ? 'rgba(79,70,229,0.08)' : [
-                        '#4f46e5', '#10b981', '#f59e0b', '#3b82f6', '#ec4899', '#8b5cf6'
-                    ],
-                    fill: chartType === 'line',
+                    backgroundColor: gradient,
+                    fill: true,
                     tension: 0.35,
-                    borderWidth: 2,
-                    pointRadius: chartType === 'line' ? 3 : 0,
-                    borderRadius: chartType === 'bar' ? 6 : 0,
+                    borderWidth: 2.5,
+                    pointRadius: granularity === 'daily' ? 2 : 4,
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: '#4f46e5',
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: { 
+                        beginAtZero: true, 
+                        grid: { color: '#f1f5f9' },
+                        ticks: {
+                            callback: function(value) {
+                                return metric === 'revenue' ? '₹' + value.toLocaleString() : value;
+                            }
+                        }
+                    },
+                    x: { 
+                        grid: { display: false },
+                        ticks: { maxTicksLimit: 12 }
+                    }
+                }
+            }
+        });
+    }
+
+    // Drawing Sales by Weekday chart
+    function renderWeekdayChart() {
+        const metric = document.getElementById('weekday-metric-select').value;
+        const canvas = document.getElementById('weekday-performance-chart');
+        if (!canvas) return;
+
+        const ctx = canvas.getContext('2d');
+        const labels = parsedData.weekday.labels;
+        const data = metric === 'revenue' ? parsedData.weekday.revenue : parsedData.weekday.orders;
+        const label = metric === 'revenue' ? 'Revenue (₹)' : 'Orders';
+
+        if (weekdayChartInstance) {
+            weekdayChartInstance.destroy();
+        }
+
+        weekdayChartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: label,
+                    data: data,
+                    backgroundColor: '#7c3aed',
+                    borderRadius: 6,
+                    borderWidth: 0,
+                    barThickness: 20,
                 }]
             },
             options: {
@@ -235,16 +546,68 @@
                 maintainAspectRatio: false,
                 plugins: { legend: { display: false } },
                 scales: {
-                    y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
+                    y: { 
+                        beginAtZero: true, 
+                        grid: { color: '#f1f5f9' },
+                        ticks: {
+                            callback: function(value) {
+                                return metric === 'revenue' ? '₹' + value.toLocaleString() : value;
+                            }
+                        }
+                    },
                     x: { grid: { display: false } }
                 }
             }
         });
     }
 
-    document.addEventListener('DOMContentLoaded', renderAnalyticsChart);
+    // Drawing Fulfillment Status donut chart
+    function renderDonutChart() {
+        const canvas = document.getElementById('fulfillment-donut-chart');
+        if (!canvas) return;
+
+        const ctx = canvas.getContext('2d');
+        if (donutChartInstance) {
+            donutChartInstance.destroy();
+        }
+
+        donutChartInstance = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: parsedData.status.labels,
+                datasets: [{
+                    data: parsedData.status.data,
+                    backgroundColor: parsedData.status.colors,
+                    borderWidth: 2,
+                    borderColor: '#ffffff',
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '70%',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const index = context.dataIndex;
+                                const count = parsedData.status.data[index];
+                                const pct = parsedData.status.percents[index];
+                                return ` ${context.label}: ${count} (${pct}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Auto load charts on load
+    document.addEventListener('DOMContentLoaded', () => {
+        renderSalesChart();
+        renderWeekdayChart();
+        renderDonutChart();
+    });
 </script>
 {% endblock %}
-
-{% endblock %}
-
