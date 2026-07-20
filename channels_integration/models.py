@@ -4,9 +4,6 @@ from products.models import Product
 
 class Channel(models.Model):
     PLATFORM_CHOICES = (
-        ('facebook', 'Facebook'),
-        ('instagram', 'Instagram'),
-        ('twitter', 'Twitter'),
         ('linkedin', 'LinkedIn'),
         ('pinterest', 'Pinterest'),
         ('youtube', 'YouTube'),
@@ -61,9 +58,10 @@ class SyncLog(models.Model):
 
     def __str__(self):
         return f"{self.channel.name} - {self.action} - {self.created_at}"
-    
+
+
 class WebhookLog(models.Model):
-    channel = models.ForeignKey(Channel, on_delete=models.CASCADE, null=True, blank=True, related_name='webhook_logs')
+    channel = models.ForeignKey(Channel, on_delete=models.CASCADE, related_name='webhook_logs', blank=True, null=True)
     event_type = models.CharField(max_length=50, blank=True)
     raw_payload = models.JSONField()
     received_at = models.DateTimeField(auto_now_add=True)
@@ -72,4 +70,4 @@ class WebhookLog(models.Model):
         ordering = ['-received_at']
 
     def __str__(self):
-        return f"Webhook event at {self.received_at}"
+        return f"{self.event_type or 'Webhook'} - {self.received_at}"

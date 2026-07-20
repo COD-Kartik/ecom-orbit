@@ -441,13 +441,26 @@ function showWebhookToast(summary, timeLabel, rawPayload) {
         <pre style="display:none; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin-top:12px; font-size:0.72rem; max-height:240px; overflow:auto; white-space:pre-wrap;">${payloadJson.replace(/</g, '&lt;')}</pre>
     `;
     container.appendChild(toast);
-    setTimeout(() => { if (toast.parentElement) toast.remove(); }, 10000);
+
+    // Store the auto-dismiss timer on the element itself so we can cancel it
+    // if the user expands the toast to read the full payload.
+    toast.dismissTimer = setTimeout(() => { if (toast.parentElement) toast.remove(); }, 10000);
 }
 
 function toggleWebhookToastDetail(headerEl) {
     const toast = headerEl.closest('#webhook-toast-container > div');
     const pre = toast.querySelector('pre');
-    pre.style.display = pre.style.display === 'none' ? 'block' : 'none';
+    const isOpening = pre.style.display === 'none';
+    pre.style.display = isOpening ? 'block' : 'none';
+
+    if (isOpening) {
+        // Reading the full message now — cancel auto-dismiss so it doesn't
+        // vanish mid-read. Stays until the user closes it manually.
+        clearTimeout(toast.dismissTimer);
+    } else {
+        // Collapsed back down — give it a fresh 10 seconds before dismissing.
+        toast.dismissTimer = setTimeout(() => { if (toast.parentElement) toast.remove(); }, 10000);
+    }
 }
 
 function pollWebhookLogs() {
