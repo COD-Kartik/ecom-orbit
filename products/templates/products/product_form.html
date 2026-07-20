@@ -2,204 +2,300 @@
 {% load static %}
 
 {% block title %}{% if product %}Edit Product{% else %}Add Product{% endif %}{% endblock %}
-{% block page_title %}{% if product %}Edit Product{% else %}Add Product{% endif %}{% endblock %}
+
+{% block page_title %}
+<a href="{% url 'product_list' %}" class="d-flex align-items-center gap-2 text-decoration-none fw-700" style="font-size: 0.92rem; color: #334155;">
+  <i class="bi bi-arrow-left"></i> Back to Products
+</a>
+{% endblock %}
+
 {% block nav_products %}active{% endblock %}
 
-{% block content %}
-<div class="row g-4" justify-content-center>
+{% block extra_css %}
+<link href="{% static 'css/products.css' %}?v=2" rel="stylesheet">
+<style>
+.image-preview-wrapper {
+    width: 100%;
+    aspect-ratio: 16/9;
+    background: #f8fafc;
+    border: 2px dashed #c7d2fe;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+}
+.image-preview-wrapper:hover {
+    background: #f1f5f9;
+    border-color: #a5b4fc;
+}
+</style>
+{% endblock %}
 
-  <!-- Left Column — Main Form -->
-  <div class="col-lg-8 col-xl-7">
-    <div class="form-card mb-4">
-      <h6 class="fw-700 mb-4" style="color:#1e1b4b;">
-        <i class="bi bi-box-seam me-2" style="color:#7c3aed;"></i>
-        Product Information
-      </h6>
-      <form method="post" enctype="multipart/form-data" id="productForm">
-        {% csrf_token %}
+{% block content %}
+
+<!-- Hero Banner Section -->
+<div class="product-hero-banner mb-4">
+  <div class="hero-left">
+    <h1 class="hero-title">{% if product %}Edit Product{% else %}Add New Product{% endif %}</h1>
+    <p class="hero-subtitle">{% if product %}Manage details, variants, inventory, and connected marketplaces for this product.{% else %}Create a new product and manage its details, variants, inventory and status.{% endif %}</p>
+  </div>
+  <div class="hero-right">
+    <svg viewBox="0 0 200 200" class="hero-illustration" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <!-- Glowing gradients -->
+        <linearGradient id="bag-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#a78bfa" />
+          <stop offset="100%" stop-color="#4f46e5" />
+        </linearGradient>
+        <linearGradient id="box-top" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#fbbf24" />
+          <stop offset="100%" stop-color="#d97706" />
+        </linearGradient>
+        <filter id="hero-shadow" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#09081e" flood-opacity="0.15"/>
+        </filter>
+      </defs>
+      <!-- Shopping Bag -->
+      <g filter="url(#hero-shadow)" transform="translate(45, 45)">
+        <!-- Bag Handles -->
+        <path d="M25 20 C25 5, 45 5, 45 20" stroke="#c7d2fe" stroke-width="3" fill="none" />
+        <!-- Bag Body -->
+        <rect x="15" y="20" width="40" height="55" rx="4" fill="url(#bag-grad)" stroke="#ffffff" stroke-width="1.5"/>
+      </g>
+      <!-- Open Cardboard Box -->
+      <g filter="url(#hero-shadow)" transform="translate(100, 75)">
+        <!-- Box base -->
+        <path d="M10 20 L40 10 L70 20 L70 45 L40 55 L10 45 Z" fill="#d97706" stroke="#f59e0b" stroke-width="1"/>
+        <path d="M10 20 L40 30 L70 20" stroke="#f59e0b" stroke-width="1" fill="none"/>
+        <path d="M40 30 L40 55" stroke="#f59e0b" stroke-width="1"/>
+        <!-- Flaps -->
+        <path d="M10 20 L0 10 L30 0 L40 10 Z" fill="#b45309" opacity="0.9"/>
+        <path d="M70 20 L80 10 L50 0 L40 10 Z" fill="#b45309" opacity="0.9"/>
+      </g>
+      <!-- Sparkles -->
+      <path d="M160 50 L163 55 L168 56 L163 57 L160 62 L157 57 L152 56 L157 55 Z" fill="#fbbf24"/>
+      <path d="M35 110 L37 113 L42 114 L37 115 L35 120 L33 115 L28 114 L33 113 Z" fill="#a78bfa"/>
+    </svg>
+  </div>
+</div>
+
+<form method="post" enctype="multipart/form-data" id="productForm" style="margin-bottom: 100px;">
+  {% csrf_token %}
+  <div class="row g-4 justify-content-center">
+    
+    <!-- Left Column — Form Fields -->
+    <div class="col-lg-8">
+      <!-- Product Info Card -->
+      <div class="form-card-info mb-4">
+        <h6 class="fw-700 mb-4" style="color:#0f172a;">
+          <i class="bi bi-box-seam me-2" style="color:#4f46e5;"></i>
+          Product Information
+        </h6>
+        
         <div class="mb-3">
           <label class="form-label">Product Title <span class="text-danger">*</span></label>
           <input type="text" name="title" class="form-control"
                  placeholder="e.g. Blue Cotton T-Shirt"
                  value="{{ product.title|default:'' }}" required>
         </div>
+        
         <div class="mb-3">
           <label class="form-label">Description</label>
-          <textarea name="description" class="form-control" rows="4"
-                    placeholder="Describe your product...">{{ product.description|default:'' }}</textarea>
+          <div class="description-editor-wrapper">
+            <div class="editor-toolbar d-flex align-items-center gap-2 px-3 py-2 border border-bottom-0" style="background:#f8fafc; border-color:#c7d2fe !important; border-top-left-radius:10px; border-top-right-radius:10px;">
+              <button type="button" class="btn btn-sm btn-editor" title="Bold"><i class="bi bi-type-bold"></i></button>
+              <button type="button" class="btn btn-sm btn-editor" title="Italic"><i class="bi bi-type-italic"></i></button>
+              <button type="button" class="btn btn-sm btn-editor" title="Underline"><i class="bi bi-type-underline"></i></button>
+              <span class="editor-divider" style="width:1px; height:16px; background:#c7d2fe; display:inline-block;"></span>
+              <button type="button" class="btn btn-sm btn-editor" title="Bullet List"><i class="bi bi-list-ul"></i></button>
+              <button type="button" class="btn btn-sm btn-editor" title="Numbered List"><i class="bi bi-list-ol"></i></button>
+              <span class="editor-divider" style="width:1px; height:16px; background:#c7d2fe; display:inline-block;"></span>
+              <button type="button" class="btn btn-sm btn-editor" title="Insert Link"><i class="bi bi-link-45deg"></i></button>
+            </div>
+            <textarea name="description" class="form-control editor-textarea" rows="4"
+                      placeholder="Describe your product...">{{ product.description|default:'' }}</textarea>
+          </div>
         </div>
+        
         <div class="row g-3">
           <div class="col-sm-6">
             <label class="form-label">Price (₹) <span class="text-danger">*</span></label>
             <div class="input-group">
-              <span class="input-group-text">₹</span>
-              <input type="number" name="price" class="form-control"
+              <span class="input-group-text bg-light border-end-0 fw-600" style="color:#475569; border-color:#c7d2fe;">₹</span>
+              <input type="number" name="price" class="form-control border-start-0"
                      placeholder="0.00" step="0.01" min="0"
                      value="{{ product.price|default:'' }}" required>
             </div>
           </div>
           <div class="col-sm-6">
             <label class="form-label">Stock Quantity <span class="text-danger">*</span></label>
-            <input type="number" name="stock" class="form-control"
-                   placeholder="0" min="0"
-                   value="{{ product.stock|default:'' }}" required>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Variants Section -->
-    <div class="form-card">
-      <h6 class="fw-700 mb-1" style="color:#1e1b4b;">
-        <i class="bi bi-collection me-2" style="color:#7c3aed;"></i>
-        Product Variants
-        <span class="text-muted fw-400 fs-6 ms-1">(optional)</span>
-      </h6>
-      <p class="text-muted mb-4" style="font-size:0.85rem;">
-        Add variants like sizes or colors with separate prices and stock.
-      </p>
-      <div id="variantsContainer">
-        <div class="variant-row row g-2 mb-2 align-items-center">
-          <div class="col-sm-5">
-            <input type="text" name="variant_name[]" class="form-control"
-                   placeholder="Variant name (e.g. Size L)">
-          </div>
-          <div class="col-sm-3">
-            <input type="number" name="variant_price[]" class="form-control"
-                   placeholder="Price" step="0.01" min="0">
-          </div>
-          <div class="col-sm-3">
-            <input type="number" name="variant_stock[]" class="form-control"
-                   placeholder="Stock" min="0">
-          </div>
-          <div class="col-sm-1">
-            <button type="button" class="btn btn-light border text-danger btn-sm remove-variant">
-              <i class="bi bi-trash"></i>
-            </button>
-          </div>
-        </div>
-      </div>
-      <button type="button" id="addVariant" class="btn btn-light border btn-sm mt-2">
-        <i class="bi bi-plus-lg me-1"></i> Add Variant
-      </button>
-    </div>
-  </div>
-
- 
-
-    <!-- Product Image -->
-    <div class="form-card mb-4">
-      <h6 class="fw-700 mb-3" style="color:#1e1b4b;">
-        <i class="bi bi-image me-2" style="color:#7c3aed;"></i>
-        Product Image
-      </h6>
-      <div class="text-center mb-3">
-        <div id="imagePreview"
-             style="width:100%; aspect-ratio:16/9; background:#f9fafb; border:2px dashed #e5e7eb;
-                    border-radius:10px; display:flex; align-items:center; justify-content:center;
-                    overflow:hidden; cursor:pointer;"
-             onclick="document.getElementById('imageInput').click()">
-          {% if product.image %}
-            <img src="{{ product.image.url }}" style="width:100%; height:100%; object-fit:contain;">
-          {% else %}
-            <div class="text-center text-muted">
-              <i class="bi bi-cloud-upload" style="font-size:2rem;"></i>
-              <p class="mt-2 mb-0" style="font-size:0.82rem;">Click to upload image</p>
+            <div class="input-group">
+              <span class="input-group-text bg-light border-end-0" style="color:#475569; border-color:#c7d2fe;"><i class="bi bi-box-seam"></i></span>
+              <input type="number" name="stock" class="form-control border-start-0"
+                     placeholder="0" min="0"
+                     value="{{ product.stock|default:'' }}" required>
             </div>
-          {% endif %}
+          </div>
         </div>
       </div>
-      <input type="file" name="image" id="imageInput" class="d-none" accept="image/*">
-      <button type="button" class="btn btn-light border w-100 btn-sm"
-              onclick="document.getElementById('imageInput').click()">
-        <i class="bi bi-upload me-1"></i>
-        {% if product.image %}Change Image{% else %}Upload Image{% endif %}
-      </button>
-    </div>
 
-    <!-- Organisation -->
-    <div class="form-card mb-4">
-      <h6 class="fw-700 mb-3" style="color:#1e1b4b;">
-        <i class="bi bi-folder me-2" style="color:#7c3aed;"></i>
-        Category & Status
-      </h6>
-      <div class="mb-3">
-        <label class="form-label">Category</label>
-        <select name="category" class="form-select">
-          <option value="">— No Category —</option>
-          {% for cat in categories %}
-            <option value="{{ cat.id }}"
-              {% if product.category.id == cat.id %}selected{% endif %}>
-              {{ cat.name }}
-            </option>
-          {% endfor %}
-        </select>
+      <!-- Variants Section Card -->
+      <div class="form-card-variants">
+        <h6 class="fw-700 mb-1" style="color:#0f172a;">
+          <i class="bi bi-collection me-2" style="color:#4f46e5;"></i>
+          Product Variants
+          <span class="text-muted fw-400 fs-6 ms-1">(optional)</span>
+        </h6>
+        <p class="text-muted mb-4" style="font-size:0.82rem;">
+          Add variants like size, color or material with individual price and stock.
+        </p>
+        
+        <div id="variantsContainer">
+          <div class="variant-row row g-2 mb-2 align-items-center">
+            <div class="col-sm-5">
+              <input type="text" name="variant_name[]" class="form-control form-control-sm"
+                     placeholder="Variant Name (e.g. Size L)">
+            </div>
+            <div class="col-sm-3">
+              <input type="number" name="variant_price[]" class="form-control form-control-sm"
+                     placeholder="Price (₹)" step="0.01" min="0">
+            </div>
+            <div class="col-sm-3">
+              <input type="number" name="variant_stock[]" class="form-control form-control-sm"
+                     placeholder="Stock" min="0">
+            </div>
+            <div class="col-sm-1 text-center">
+              <button type="button" class="btn btn-light border text-danger btn-sm remove-variant p-2 d-inline-flex align-items-center justify-content-center" style="border-radius: 8px; width: 34px; height: 34px;">
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <button type="button" id="addVariant" class="btn btn-outline-primary btn-sm mt-3" style="border-color:#4f46e5; color:#4f46e5; font-weight:600; border-radius:8px; padding: 8px 16px;">
+          <i class="bi bi-plus-lg me-1"></i> Add Another Variant
+        </button>
       </div>
-      <div>
-        <label class="form-label">Status</label>
-        <select name="is_active" class="form-select">
-          <option value="true" {% if product.is_active %}selected{% endif %}>Active</option>
-          <option value="false" {% if not product.is_active %}selected{% endif %}>Inactive</option>
-        </select>
+    </div>
+    
+    <!-- Right Column — Sidebar Configurations -->
+    <div class="col-lg-4">
+      <!-- Image Upload Widget -->
+      <div class="form-card-image mb-4">
+        <h6 class="fw-700 mb-3" style="color:#0f172a;">
+          <i class="bi bi-image me-2" style="color:#4f46e5;"></i>
+          Product Image
+        </h6>
+        <div class="text-center mb-0">
+          <div id="imagePreview" class="image-preview-wrapper" onclick="document.getElementById('imageInput').click()" style="display: {% if product.image %}flex{% else %}none{% endif %};">
+            {% if product.image %}
+              <img src="{{ product.image.url }}" style="width:100%; height:100%; object-fit:contain;">
+            {% endif %}
+          </div>
+          <div id="uploadDropZone" class="upload-drop-zone" onclick="document.getElementById('imageInput').click()" style="display: {% if product.image %}none{% else %}flex{% endif %};">
+            <div class="upload-icon-circle"><i class="bi bi-cloud-upload"></i></div>
+            <h5 class="upload-title">Drag & drop an image here</h5>
+            <span class="text-muted" style="font-size:0.8rem;">or</span>
+            <button type="button" class="btn btn-browse my-1">Browse Image</button>
+            <span class="upload-subtitle">PNG, JPG, WEBP up to 5MB</span>
+          </div>
+          <input type="file" name="image" id="imageInput" class="d-none" accept="image/*">
+        </div>
+        
+        <div class="tip-alert-box mt-3 d-flex align-items-start gap-2">
+          <i class="bi bi-info-circle-fill" style="margin-top:2px;"></i>
+          <span>Tip: Use a high-quality image with a white background for best results.</span>
+        </div>
+      </div>
+
+      <!-- Categories & Status Card -->
+      <div class="form-card-category mb-4">
+        <h6 class="fw-700 mb-3" style="color:#0f172a;">
+          <i class="bi bi-folder me-2" style="color:#4f46e5;"></i>
+          Category & Status
+        </h6>
+        
+        <div class="mb-3">
+          <label class="form-label">Category</label>
+          <select name="category" class="form-select">
+            <option value="">— No Category —</option>
+            {% for cat in categories %}
+              <option value="{{ cat.id }}"
+                {% if product.category.id == cat.id %}selected{% endif %}>
+                {{ cat.name }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+        
+        <div>
+          <label class="form-label">Status</label>
+          <select name="is_active" class="form-select">
+            <option value="true" {% if product.is_active %}selected{% endif %}>Active</option>
+            <option value="false" {% if not product.is_active %}selected{% endif %}>Inactive</option>
+          </select>
+        </div>
       </div>
     </div>
 
-    <!-- Action Buttons -->
-    <div class="form-card">
-      <button type="submit" form="productForm" class="btn-primary-custom btn w-100 mb-2">
-        <i class="bi bi-check-lg me-1"></i>
-        {% if product %}Update Product{% else %}Save Product{% endif %}
-      </button>
-      <a href="{% url 'product_list' %}" class="btn btn-light border w-100">
-        <i class="bi bi-arrow-left me-1"></i> Cancel
-      </a>
-    </div>
+  </div>
+</form>
 
+<!-- Sticky bottom action bar -->
+<div class="sticky-action-bar border-top">
+  <div class="d-flex align-items-center justify-content-end gap-3 px-4 py-3" style="max-width: 1400px; margin: 0 auto;">
+    <a href="{% url 'product_list' %}" class="btn btn-outline-cancel">Cancel</a>
+    <button type="submit" form="productForm" class="btn btn-primary-save"><i class="bi bi-check-lg me-2"></i>Save Product</button>
   </div>
 </div>
-</form>
+
 {% endblock %}
 
 {% block extra_js %}
 <script>
-  // Image preview
+  // Image preview reader logic
   document.getElementById('imageInput').addEventListener('change', function(e) {
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
       reader.onload = function(e) {
-        document.getElementById('imagePreview').innerHTML =
-  `       <img src="${e.target.result}" style="width:100%; height:100%; object-fit:contain;">`;
+        document.getElementById('uploadDropZone').style.display = 'none';
+        const preview = document.getElementById('imagePreview');
+        preview.style.display = 'flex';
+        preview.innerHTML = `<img src="${e.target.result}" style="width:100%; height:100%; object-fit:contain;">`;
       }
       reader.readAsDataURL(file);
     }
-
   });
 
-  // Add variant row
+  // Add variant row logic
   document.getElementById('addVariant').addEventListener('click', function() {
     const container = document.getElementById('variantsContainer');
     const row = document.createElement('div');
     row.className = 'variant-row row g-2 mb-2 align-items-center';
     row.innerHTML = `
       <div class="col-sm-5">
-        <input type="text" name="variant_name[]" class="form-control" placeholder="Variant name (e.g. Size L)">
+        <input type="text" name="variant_name[]" class="form-control form-control-sm" placeholder="Variant Name (e.g. Size L)">
       </div>
       <div class="col-sm-3">
-        <input type="number" name="variant_price[]" class="form-control" placeholder="Price" step="0.01" min="0">
+        <input type="number" name="variant_price[]" class="form-control form-control-sm" placeholder="Price (₹)" step="0.01" min="0">
       </div>
       <div class="col-sm-3">
-        <input type="number" name="variant_stock[]" class="form-control" placeholder="Stock" min="0">
+        <input type="number" name="variant_stock[]" class="form-control form-control-sm" placeholder="Stock" min="0">
       </div>
-      <div class="col-sm-1">
-        <button type="button" class="btn btn-light border text-danger btn-sm remove-variant">
+      <div class="col-sm-1 text-center">
+        <button type="button" class="btn btn-light border text-danger btn-sm remove-variant p-2 d-inline-flex align-items-center justify-content-center" style="border-radius: 8px; width: 34px; height: 34px;">
           <i class="bi bi-trash"></i>
         </button>
       </div>`;
     container.appendChild(row);
   });
 
-  // Remove variant row
+  // Remove variant row logic
   document.addEventListener('click', function(e) {
     if (e.target.closest('.remove-variant')) {
       e.target.closest('.variant-row').remove();

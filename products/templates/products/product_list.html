@@ -6,110 +6,212 @@
 {% block nav_products %}active{% endblock %}
 {% load dict_extra %}
 
+{% block extra_css %}
+<link href="{% static 'css/products.css' %}?v=2" rel="stylesheet">
+{% endblock %}
+
 {% block content %}
+
+<!-- Hero Banner Section -->
+<div class="product-hero-banner mb-4">
+  <div class="hero-left">
+    <h1 class="hero-title">Product Catalog</h1>
+    <p class="hero-subtitle">Manage, track inventory, and publish your items across multiple connected marketplace channels from a single workspace.</p>
+  </div>
+  <div class="hero-right">
+    <svg viewBox="0 0 200 200" class="hero-illustration" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <!-- Glowing gradients -->
+        <linearGradient id="bag-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#a78bfa" />
+          <stop offset="100%" stop-color="#4f46e5" />
+        </linearGradient>
+        <linearGradient id="box-top" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#fbbf24" />
+          <stop offset="100%" stop-color="#d97706" />
+        </linearGradient>
+        <filter id="hero-shadow" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#09081e" flood-opacity="0.12"/>
+        </filter>
+      </defs>
+      <!-- Shopping Bag -->
+      <g filter="url(#hero-shadow)" transform="translate(45, 45)">
+        <!-- Bag Handles -->
+        <path d="M25 20 C25 5, 45 5, 45 20" stroke="#c7d2fe" stroke-width="3" fill="none" />
+        <!-- Bag Body -->
+        <rect x="15" y="20" width="40" height="55" rx="4" fill="url(#bag-grad)" stroke="#ffffff" stroke-width="1.5"/>
+      </g>
+      <!-- Open Cardboard Box -->
+      <g filter="url(#hero-shadow)" transform="translate(100, 75)">
+        <!-- Box base -->
+        <path d="M10 20 L40 10 L70 20 L70 45 L40 55 L10 45 Z" fill="#d97706" stroke="#f59e0b" stroke-width="1"/>
+        <path d="M10 20 L40 30 L70 20" stroke="#f59e0b" stroke-width="1" fill="none"/>
+        <path d="M40 30 L40 55" stroke="#f59e0b" stroke-width="1"/>
+        <!-- Flaps -->
+        <path d="M10 20 L0 10 L30 0 L40 10 Z" fill="#b45309" opacity="0.9"/>
+        <path d="M70 20 L80 10 L50 0 L40 10 Z" fill="#b45309" opacity="0.9"/>
+      </g>
+      <!-- Sparkles -->
+      <path d="M160 50 L163 55 L168 56 L163 57 L160 62 L157 57 L152 56 L157 55 Z" fill="#fbbf24"/>
+      <path d="M35 110 L37 113 L42 114 L37 115 L35 120 L33 115 L28 114 L33 113 Z" fill="#a78bfa"/>
+    </svg>
+  </div>
+</div>
 
 <!-- Stats Row -->
 <div class="row g-3 mb-4">
+  <!-- KPI 1: Total Products -->
   <div class="col-sm-6 col-xl-3">
-    <div class="stat-card">
-      <div class="d-flex align-items-center justify-content-between mb-3">
-        <div class="stat-icon" style="background:#ede9fe;">
-          <i class="bi bi-box-seam" style="color:#7c3aed;"></i>
+    <div class="kpi-metric-card stat-total">
+      <div class="card-inner">
+        <div class="metric-data">
+          <span class="metric-label">Total Products</span>
+          <h3 class="metric-value" id="stat-total-val">{{ total_products }}</h3>
+          <span class="metric-trend"><i class="bi bi-box"></i> Catalog size</span>
         </div>
-        <span class="badge-active">Total</span>
+        <div class="metric-icon">
+          <i class="bi bi-box-seam"></i>
+        </div>
       </div>
-      <div class="stat-num">{{ total_products }}</div>
-      <div class="stat-label">Total Products</div>
     </div>
   </div>
+
+  <!-- KPI 2: Active Products -->
   <div class="col-sm-6 col-xl-3">
-    <div class="stat-card">
-      <div class="d-flex align-items-center justify-content-between mb-3">
-        <div class="stat-icon" style="background:#dcfce7;">
-          <i class="bi bi-check-circle" style="color:#16a34a;"></i>
+    <div class="kpi-metric-card stat-active">
+      <div class="card-inner">
+        <div class="metric-data">
+          <span class="metric-label">Active Products</span>
+          <h3 class="metric-value" id="stat-active-val">{{ active_products }}</h3>
+          <span class="metric-trend text-success"><i class="bi bi-arrow-up-short"></i> Live listings</span>
         </div>
-        <span class="badge-active">Live</span>
+        <div class="metric-icon">
+          <i class="bi bi-check-circle"></i>
+        </div>
       </div>
-      <div class="stat-num">{{ active_products }}</div>
-      <div class="stat-label">Active Products</div>
     </div>
   </div>
+
+  <!-- KPI 3: Low Stock -->
   <div class="col-sm-6 col-xl-3">
-    <div class="stat-card">
-      <div class="d-flex align-items-center justify-content-between mb-3">
-        <div class="stat-icon" style="background:#fee2e2;">
-          <i class="bi bi-exclamation-triangle" style="color:#dc2626;"></i>
+    <div class="kpi-metric-card stat-warning">
+      <div class="card-inner">
+        <div class="metric-data">
+          <span class="metric-label">Low Stock Items</span>
+          <h3 class="metric-value" id="stat-low-val">{{ low_stock }}</h3>
+          <span class="metric-trend {% if low_stock > 0 %}text-warning{% endif %}">
+            <i class="bi bi-exclamation-triangle"></i> Needs review
+          </span>
         </div>
-        <span class="badge-inactive">Low</span>
+        <div class="metric-icon">
+          <i class="bi bi-bell"></i>
+        </div>
       </div>
-      <div class="stat-num">{{ low_stock }}</div>
-      <div class="stat-label">Low Stock Items</div>
     </div>
   </div>
+
+  <!-- KPI 4: Valuation -->
   <div class="col-sm-6 col-xl-3">
-    <div class="stat-card">
-      <div class="d-flex align-items-center justify-content-between mb-3">
-        <div class="stat-icon" style="background:#eef2ff;">
-          <i class="bi bi-currency-rupee" style="color:#4f46e5;"></i>
+    <div class="kpi-metric-card stat-value">
+      <div class="card-inner">
+        <div class="metric-data">
+          <span class="metric-label">Inventory Value</span>
+          <h3 class="metric-value">₹{{ inventory_value|floatformat:0 }}</h3>
+          <span class="metric-trend"><i class="bi bi-currency-rupee"></i> Total valuation</span>
         </div>
-        <span class="badge-active">Value</span>
+        <div class="metric-icon">
+          <i class="bi bi-currency-rupee"></i>
+        </div>
       </div>
-      <div class="stat-num">₹{{ inventory_value|floatformat:0 }}</div>
-      <div class="stat-label">Total Inventory Value</div>
-      <div class="stat-num">{{ total_categories }}</div>
-      
     </div>
   </div>
 </div>
 
-<!-- Product Table -->
-<div class="data-table">
-<!-- Table Header -->
-  <div class="d-flex align-items-center justify-content-between p-3 border-bottom">
-    <div class="d-flex align-items-center gap-2">
-      <h6 class="mb-0 fw-700" style="color:#1e1b4b;">All Products</h6>
-      <span class="badge bg-light text-secondary ms-1">{{ total_products }}</span>
-    </div>
-    <div class="d-flex gap-2">
-      <form method="get" class="d-flex gap-2">
-        <input type="text" name="q" value="{{ search_query }}" class="form-control form-control-sm" placeholder="Search products..." style="width:220px;">
-        <button type="submit" class="btn btn-sm btn-light border">Search</button>
-      </form>
-      <a href="{% url 'product_add' %}" class="btn-primary-custom btn d-flex align-items-center gap-1">
-        <i class="bi bi-plus-lg"></i> Add Product
+<!-- Search & Filter Toolbar Controls -->
+<div class="filter-control-panel mb-4">
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 p-3">
+    <form method="get" class="search-form-wrapper flex-grow-1" style="max-width:320px;" onsubmit="event.preventDefault();">
+      <div class="search-input-box">
+        <i class="bi bi-search search-icon"></i>
+        <input type="text" id="productSearchInput" value="{{ search_query }}" class="form-control form-control-sm" placeholder="Search title, SKU, ID..." autocomplete="off">
+      </div>
+    </form>
+    <div class="filter-selectors-group d-flex flex-wrap gap-2 align-items-center">
+      <!-- Category Filter (Populated dynamically) -->
+      <select id="categoryFilter" class="form-select select-filter">
+        <option value="all">All Categories</option>
+      </select>
+      
+      <!-- Status Filter -->
+      <select id="statusFilter" class="form-select select-filter">
+        <option value="all">All Statuses</option>
+        <option value="active">Active</option>
+        <option value="inactive">Inactive</option>
+      </select>
+
+      <!-- Stock Filter -->
+      <select id="stockFilter" class="form-select select-filter">
+        <option value="all">All Stock Levels</option>
+        <option value="instock">In Stock</option>
+        <option value="lowstock">Low Stock (≤5)</option>
+        <option value="outofstock">Out of Stock</option>
+      </select>
+
+      <!-- Sort dropdown -->
+      <select id="sortDropdown" class="form-select select-filter">
+        <option value="title-asc">Sort: A-Z</option>
+        <option value="title-desc">Sort: Z-A</option>
+        <option value="price-asc">Sort: Price Low-High</option>
+        <option value="price-desc">Sort: Price High-Low</option>
+        <option value="stock-asc">Sort: Stock Low-High</option>
+        <option value="stock-desc">Sort: Stock High-Low</option>
+      </select>
+
+      <a href="{% url 'product_add' %}" class="btn-primary-custom btn d-flex align-items-center gap-2">
+        <i class="bi bi-plus-lg"></i> <span>Add Product</span>
       </a>
     </div>
   </div>
+</div>
 
-  <!-- Table -->
-  <table class="table">
+<!-- Product Table Card Container -->
+<div class="data-table mb-4">
+  <table class="table" id="productsTable">
     <thead>
       <tr>
         <th>Product</th>
         <th>Category</th>
         <th>Price</th>
-        <th>Stock</th>
+        <th>Stock Level</th>
         <th>Status</th>
-        <th>Added</th>
-        <th>Actions</th>
+        <th>Date Added</th>
+        <th class="text-end">Actions</th>
       </tr>
     </thead>
-    <tbody>
+    <tbody id="productsTableBody">
       {% for product in products %}
-      <tr>
+      <tr class="product-row-item" 
+          data-title="{{ product.title|lower }}" 
+          data-id="{{ product.id }}"
+          data-category="{% if product.category %}{{ product.category.name|lower }}{% else %}unassigned{% endif %}"
+          data-price="{{ product.price }}"
+          data-stock="{{ product.stock }}"
+          data-status="{% if product.is_active %}active{% else %}inactive{% endif %}">
         <td>
-          <div class="d-flex align-items-center gap-3">
-            {% if product.image %}
-              <img src="{{ product.image.url }}" class="product-thumb" alt="{{ product.title }}">
-            {% else %}
-              <div class="product-thumb-placeholder"><i class="bi bi-image"></i></div>
-            {% endif %}
+          <div class="product-avatar-col">
+            <div class="product-thumb-container">
+              {% if product.image %}
+                <img src="{{ product.image.url }}" class="product-thumb" alt="{{ product.title }}">
+              {% else %}
+                <div class="product-thumb-placeholder"><i class="bi bi-image"></i></div>
+              {% endif %}
+            </div>
             <div>
-              <div class="fw-600" style="color:#1e1b4b;">{{ product.title }}</div>
-              <div class="text-muted" style="font-size:0.78rem;">ID #{{ product.id }}</div>
+              <div class="fw-700" style="color:#0f172a; font-size:0.92rem;">{{ product.title }}</div>
+              <div class="text-muted" style="font-size:0.76rem; font-weight: 500;">ID #{{ product.id }}</div>
               {% with count=listing_counts|get_item:product.id %}
-              <span style="font-size:0.72rem; padding:2px 8px; border-radius:6px; font-weight:600; display:inline-block; margin-top:4px; {% if count > 0 %}background:#ecfdf5; color:#059669;{% else %}background:#f3f4f6; color:#6b7280;{% endif %}">
-                  {% if count > 0 %}Live on {{ count }} channel{{ count|pluralize }}{% else %}Not published{% endif %}
+              <span class="product-row-badge {% if count > 0 %}live{% else %}draft{% endif %}">
+                  {% if count > 0 %}Live on {{ count }} channel{{ count|pluralize }}{% else %}Draft / Not Published{% endif %}
               </span>
               {% endwith %}
             </div>
@@ -117,48 +219,62 @@
         </td>
         <td>
           {% if product.category %}
-            <span class="badge bg-light text-secondary">{{ product.category.name }}</span>
+            <span class="badge bg-light text-dark fw-600 border border-light-subtle px-2 py-1" style="font-size: 0.74rem;">{{ product.category.name }}</span>
           {% else %}
-            <span class="text-muted">—</span>
+            <span class="text-muted" style="font-size: 0.82rem;">Unassigned</span>
           {% endif %}
         </td>
-        <td><strong>₹{{ product.price }}</strong></td>
+        <td><strong style="color: #0f172a; font-size: 0.94rem;">₹{{ product.price }}</strong></td>
         <td>
-          {% if product.stock <= 5 %}
-            <span style="color:#dc2626; font-weight:600;">{{ product.stock }} ⚠</span>
-          {% else %}
-            {{ product.stock }}
-          {% endif %}
+          <div class="d-flex flex-column gap-1" style="max-width: 120px;">
+            <div class="d-flex align-items-center justify-content-between">
+              <span class="stock-badge {% if product.stock == 0 %}out{% elif product.stock <= 5 %}low{% else %}in{% endif %}">
+                {% if product.stock == 0 %}Out{% elif product.stock <= 5 %}Low{% else %}In Stock{% endif %}
+              </span>
+              <strong style="color: #0f172a; font-size: 0.84rem;">{{ product.stock }}</strong>
+            </div>
+            <div class="progress" style="height: 5px; background-color: #f1f5f9; border-radius: 999px; overflow: hidden; width: 100%;">
+              <div class="progress-bar {% if product.stock == 0 %}bg-danger{% elif product.stock <= 5 %}bg-warning{% else %}bg-success{% endif %}" role="progressbar" style="width: {% if product.stock == 0 %}0%{% elif product.stock <= 5 %}30%{% else %}100%{% endif %}; border-radius: 999px;"></div>
+            </div>
+          </div>
         </td>
         <td>
           {% if product.is_active %}
-            <span class="badge-active">Active</span>
+            <span class="badge-status success"><span class="status-dot success"></span>Active</span>
           {% else %}
-            <span class="badge-inactive">Inactive</span>
+            <span class="badge-status danger"><span class="status-dot danger"></span>Inactive</span>
           {% endif %}
         </td>
-        <td style="color:#6b7280;">{{ product.created_at|date:"d M Y" }}</td>
+        <td style="color:#64748b; font-size: 0.85rem; font-weight: 500;">{{ product.created_at|date:"d M Y" }}</td>
         <td>
-          <div class="d-flex gap-2">
-            <a href="{% url 'product_edit' product.id %}" class="btn btn-sm btn-light border" title="Edit">
+          <div class="action-buttons-wrapper justify-content-end">
+            <!-- View / Edit -->
+            <a href="{% url 'product_edit' product.id %}" class="action-btn-circle" title="Edit Product">
               <i class="bi bi-pencil"></i>
             </a>
-            <a href="javascript:void(0)" class="btn btn-sm btn-light border text-danger" title="Delete"
+            <!-- Publish to Channels -->
+            <a href="{% url 'select_channels_to_publish' product.id %}" class="action-btn-circle text-success" title="Publish Product">
+              <i class="bi bi-send"></i>
+            </a>
+            <!-- Delete -->
+            <a href="javascript:void(0)" class="action-btn-circle text-danger" title="Delete Product"
               onclick="showDeleteModal('{% url 'product_delete' product.id %}', &quot;Are you sure you want to delete '{{ product.title }}'? This action cannot be undone.&quot;)">
               <i class="bi bi-trash"></i>
-            </a>
-            <a href="{% url 'select_channels_to_publish' product.id %}" 
-              class="btn btn-sm btn-light border text-success" title="Publish to channels">
-              <i class="bi bi-send"></i>
             </a>
           </div>
         </td>
       </tr>
       {% empty %}
-      <tr>
-        <td colspan="7" class="text-center py-5">
-          <i class="bi bi-box-seam" style="font-size:2.5rem; color:#d1d5db;"></i>
-          <p class="mt-3 text-muted">No products yet. <a href="{% url 'product_add' %}">Add your first product</a></p>
+      <tr id="emptyRowPlaceholder">
+        <td colspan="7" class="p-0">
+          <div class="product-empty-state">
+            <i class="bi bi-box-seam empty-state-icon"></i>
+            <h3 class="empty-state-title">No Products Found</h3>
+            <p class="empty-state-desc">Your product inventory is currently empty. Get started by adding your first catalog product.</p>
+            <a href="{% url 'product_add' %}" class="btn btn-primary-custom d-inline-flex align-items-center gap-2">
+              <i class="bi bi-plus-lg"></i> Add New Product
+            </a>
+          </div>
         </td>
       </tr>
       {% endfor %}
@@ -166,4 +282,141 @@
   </table>
 </div>
 
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const searchInput = document.getElementById("productSearchInput");
+    const categoryFilter = document.getElementById("categoryFilter");
+    const statusFilter = document.getElementById("statusFilter");
+    const stockFilter = document.getElementById("stockFilter");
+    const sortDropdown = document.getElementById("sortDropdown");
+    const tableBody = document.getElementById("productsTableBody");
+    const rows = Array.from(tableBody.querySelectorAll(".product-row-item"));
+    
+    // 1. Populate Category filter options dynamically from visible cells
+    const categoriesSet = new Set();
+    rows.forEach(row => {
+        const cat = row.getAttribute("data-category");
+        if (cat && cat !== "unassigned") {
+            // Find text display value
+            const badge = row.querySelector("td:nth-child(2) span");
+            if (badge) {
+                categoriesSet.add(badge.innerText.trim());
+            }
+        }
+    });
+    
+    categoriesSet.forEach(catName => {
+        const opt = document.createElement("option");
+        opt.value = catName.toLowerCase();
+        opt.innerText = catName;
+        categoryFilter.appendChild(opt);
+    });
+
+    // 2. Main Filtering Handler
+    function filterTable() {
+        const query = searchInput.value.toLowerCase().trim();
+        const selectedCat = categoryFilter.value;
+        const selectedStatus = statusFilter.value;
+        const selectedStock = stockFilter.value;
+        
+        let visibleCount = 0;
+        
+        rows.forEach(row => {
+            const title = row.getAttribute("data-title");
+            const id = row.getAttribute("data-id");
+            const cat = row.getAttribute("data-category");
+            const status = row.getAttribute("data-status");
+            const stock = parseInt(row.getAttribute("data-stock")) || 0;
+            
+            // Search query matches title or product ID
+            const matchesSearch = title.includes(query) || id.includes(query);
+            
+            // Category matches
+            const matchesCategory = (selectedCat === "all") || (cat === selectedCat);
+            
+            // Status matches
+            const matchesStatus = (selectedStatus === "all") || (status === selectedStatus);
+            
+            // Stock level matches
+            let matchesStock = true;
+            if (selectedStock === "instock") {
+                matchesStock = stock > 5;
+            } else if (selectedStock === "lowstock") {
+                matchesStock = stock <= 5 && stock > 0;
+            } else if (selectedStock === "outofstock") {
+                matchesStock = stock === 0;
+            }
+            
+            if (matchesSearch && matchesCategory && matchesStatus && matchesStock) {
+                row.style.display = "";
+                visibleCount++;
+            } else {
+                row.style.display = "none";
+            }
+        });
+        
+        // Handle empty state row
+        let emptyRow = document.getElementById("dynamicEmptyRow");
+        if (visibleCount === 0 && rows.length > 0) {
+            if (!emptyRow) {
+                emptyRow = document.createElement("tr");
+                emptyRow.id = "dynamicEmptyRow";
+                emptyRow.innerHTML = `
+                    <td colspan="7" class="p-0">
+                      <div class="product-empty-state">
+                        <i class="bi bi-box-seam empty-state-icon"></i>
+                        <h5 class="empty-state-title">No matching products found</h5>
+                        <p class="empty-state-desc">Try clearing your filters or adjustment search terms.</p>
+                      </div>
+                    </td>`;
+                tableBody.appendChild(emptyRow);
+            }
+        } else {
+            if (emptyRow) {
+                emptyRow.remove();
+            }
+        }
+    }
+    
+    // 3. Sorting Handler
+    function sortTable() {
+        const sortVal = sortDropdown.value;
+        
+        rows.sort((a, b) => {
+            if (sortVal === "title-asc") {
+                return a.getAttribute("data-title").localeCompare(b.getAttribute("data-title"));
+            } else if (sortVal === "title-desc") {
+                return b.getAttribute("data-title").localeCompare(a.getAttribute("data-title"));
+            } else if (sortVal === "price-asc") {
+                return parseFloat(a.getAttribute("data-price")) - parseFloat(b.getAttribute("data-price"));
+            } else if (sortVal === "price-desc") {
+                return parseFloat(b.getAttribute("data-price")) - parseFloat(a.getAttribute("data-price"));
+            } else if (sortVal === "stock-asc") {
+                return parseInt(a.getAttribute("data-stock")) - parseInt(b.getAttribute("data-stock"));
+            } else if (sortVal === "stock-desc") {
+                return parseInt(b.getAttribute("data-stock")) - parseInt(a.getAttribute("data-stock"));
+            }
+            return 0;
+        });
+        
+        // Re-append sorted rows
+        rows.forEach(row => {
+            tableBody.appendChild(row);
+        });
+    }
+
+    // Bind event handlers
+    searchInput.addEventListener("input", filterTable);
+    categoryFilter.addEventListener("change", filterTable);
+    statusFilter.addEventListener("change", filterTable);
+    stockFilter.addEventListener("change", filterTable);
+    sortDropdown.addEventListener("change", sortTable);
+    
+    // Run initial filter in case search query parameter was passed
+    filterTable();
+});
+</script>
 {% endblock %}

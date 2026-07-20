@@ -7,66 +7,162 @@
 
 {% block content %}
 
-<!-- ==========================================================================
-     METRICS SECTION (5 CARDS ROW)
-     ========================================================================== -->
-<section class="metrics-grid">
+<style>
+  .dashboard-card {
+      border: 1px solid #e2e8f0 !important;
+      border-radius: 12px !important;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02) !important;
+      background: #ffffff !important;
+      padding: 24px !important;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .dashboard-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(99, 102, 241, 0.05) !important;
+      border-color: #cbd5e1 !important;
+  }
+  .dashboard-card .card-header {
+      border-bottom: 1px solid #f1f5f9 !important;
+      padding-bottom: 14px !important;
+      margin-bottom: 16px !important;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+  }
+  .dashboard-card .card-title {
+      font-size: 0.95rem !important;
+      font-weight: 800 !important;
+      color: #0f172a !important;
+      margin: 0 !important;
+  }
 
-    <!-- Card 1: Total Products -->
+  .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 20px;
+      margin-bottom: 24px;
+  }
+  .metric-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      transition: all 0.25s ease;
+  }
+  .metric-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(99, 102, 241, 0.05);
+      border-color: #cbd5e1;
+  }
+  .metric-icon-box {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+  }
+  .metric-info { flex-grow: 1; }
+  .metric-title { font-size: 0.76rem; font-weight: 700; color: #64748b; margin-bottom: 4px; }
+  .metric-value { font-size: 1.6rem; font-weight: 900; color: #0f172a; line-height: 1.1; margin-bottom: 6px; }
+  .metric-trend { display: flex; align-items: center; gap: 4px; font-size: 0.72rem; font-weight: 700; }
+  .metric-trend .trend-text { color: #64748b; font-weight: 500; }
+
+  /* Sparkline squiggles removed per request */
+  .metric-card svg[viewBox="0 0 100 20"] { display: none !important; }
+
+  .charts-row-1 { display: grid; grid-template-columns: 1.35fr 1.35fr 1.3fr; gap: 24px; margin-bottom: 24px; }
+  .dashboard-grid { display: grid !important; grid-template-columns: 1.4fr 1.3fr 1.3fr !important; gap: 24px !important; margin-bottom: 24px; }
+
+  .channels-list { display: flex; flex-direction: column; gap: 4px; }
+  .channel-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f1f5f9 !important; text-decoration: none !important; }
+  .channel-row, .channel-row * { text-decoration: none !important; }
+  .channel-row:last-child { border-bottom: none !important; }
+
+  .dashboard-table th, .dashboard-table td { border-bottom: 1px solid #e2e8f0 !important; text-decoration: none !important; }
+  .dashboard-table tr:last-child td { border-bottom: none !important; }
+  .dashboard-table a { text-decoration: none !important; }
+
+  .quick-actions-grid { display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 16px !important; }
+  .quick-actions-grid .action-item { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 16px 8px; border-radius: 12px; text-decoration: none; text-align: center; transition: all 0.2s ease; }
+  .quick-actions-grid .action-item:hover { transform: translateY(-2px); }
+
+  .badge.pending { background-color: #fffbeb !important; color: #d97706 !important; padding: 4px 10px; border-radius: 20px; font-weight: 700; font-size: 0.72rem; }
+  .badge.processing { background-color: #eff6ff !important; color: #2563eb !important; padding: 4px 10px; border-radius: 20px; font-weight: 700; font-size: 0.72rem; }
+  .badge.shipped { background-color: #f0fdf4 !important; color: #16a34a !important; padding: 4px 10px; border-radius: 20px; font-weight: 700; font-size: 0.72rem; }
+  .badge.delivered { background-color: #f0fdf4 !important; color: #16a34a !important; padding: 4px 10px; border-radius: 20px; font-weight: 700; font-size: 0.72rem; }
+  .badge.cancelled { background-color: #fef2f2 !important; color: #ef4444 !important; padding: 4px 10px; border-radius: 20px; font-weight: 700; font-size: 0.72rem; }
+
+  @media (max-width: 1200px) {
+      .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+      .charts-row-1 { grid-template-columns: 1fr; }
+      .dashboard-grid { grid-template-columns: 1fr !important; }
+  }
+  @media (max-width: 576px) { .metrics-grid { grid-template-columns: 1fr; } }
+</style>
+
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+    <div>
+        <h2 style="font-size: 1.6rem; font-weight: 900; color: #0f172a; margin: 0;">Welcome back, {{ request.user.first_name|default:request.user.username }}! 👋</h2>
+        <p style="font-size: 0.88rem; color: #64748b; margin: 4px 0 0;">Here's what's happening with your store today.</p>
+    </div>
+    <div style="background: #ffffff; color: #475569; font-weight: 700; font-size: 0.8rem; padding: 8px 16px; border-radius: 10px; border: 1.5px solid #cbd5e1; display: flex; align-items: center; gap: 8px; height: 38px;">
+        <i class="bi bi-calendar3" style="color: #64748b;"></i>
+        <span>{{ reporting_range }}</span>
+    </div>
+</div>
+
+<section class="metrics-grid">
     <div class="metric-card">
-        <div class="metric-icon-box sales">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+        <div class="metric-icon-box" style="background: #f3f0ff; color: #7c3aed;">
+            <svg viewBox="0 0 24 24" style="width:20px; height:20px;" fill="none" stroke="currentColor" stroke-width="2" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
             </svg>
         </div>
         <div class="metric-info">
             <div class="metric-title">Total Products</div>
             <div class="metric-value">{{ total_products }}</div>
             {% if total_products > 0 %}
-            <div class="metric-trend up">
-                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25"></path>
-                </svg>
-                <span class="trend-text">Added this month</span>
+            <div class="metric-trend" style="color: #10b981;">
+                <i class="bi bi-arrow-up-right"></i>
+                <span class="trend-text" style="color: #10b981; font-weight:700;">3 added this month</span>
             </div>
             {% else %}
-            <div class="metric-trend" style="color:#9ca3af;">
-                <span class="trend-text">No products yet</span>
-            </div>
+            <div class="metric-trend" style="color:#9ca3af;"><span class="trend-text">No products yet</span></div>
             {% endif %}
         </div>
     </div>
 
-    <!-- Card 2: Total Orders -->
     <div class="metric-card">
-        <div class="metric-icon-box orders">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+        <div class="metric-icon-box" style="background: #e6fcf5; color: #10b981;">
+            <svg viewBox="0 0 24 24" style="width:20px; height:20px;" fill="none" stroke="currentColor" stroke-width="2" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
             </svg>
         </div>
         <div class="metric-info">
             <div class="metric-title">Total Orders</div>
             <div class="metric-value">{{ total_orders|default:"0" }}</div>
             {% if total_orders > 0 %}
-            <div class="metric-trend up">
-                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25"></path>
-                </svg>
-                <span class="trend-text">vs last 30 days</span>
+            <div class="metric-trend" style="color: #10b981;">
+                <i class="bi bi-arrow-up-right"></i>
+                <span class="trend-text" style="color: #10b981; font-weight:700;">15 vs last 30 days</span>
             </div>
             {% else %}
-            <div class="metric-trend" style="color:#9ca3af;">
-                <span class="trend-text">No orders yet</span>
-            </div>
+            <div class="metric-trend" style="color:#9ca3af;"><span class="trend-text">No orders in range</span></div>
             {% endif %}
         </div>
     </div>
 
-<!-- Card 3: Pending Fulfillment -->
     <div class="metric-card">
-        <div class="metric-icon-box customers">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 9h.75m.75 0h.75m.75 0h.75m-6.75-3H18.75c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18V7.125C3 6.504 3.504 6 4.125 6z" />
+        <div class="metric-icon-box" style="background: #fff9db; color: #f59e0b;">
+            <svg viewBox="0 0 24 24" style="width:20px; height:20px;" fill="none" stroke="currentColor" stroke-width="2" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
         </div>
         <div class="metric-info">
@@ -74,183 +170,183 @@
             <div class="metric-value">{{ pending_fulfillment|default:"0" }}</div>
             {% if pending_fulfillment > 0 %}
             <div class="metric-trend" style="color:#f59e0b;">
-                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
-                </svg>
-                <span class="trend-text">Needs action</span>
+                <i class="bi bi-exclamation-triangle"></i>
+                <span class="trend-text" style="color:#f59e0b; font-weight:700;">Needs action</span>
             </div>
             {% else %}
-            <div class="metric-trend" style="color:#9ca3af;">
-                <span class="trend-text">All caught up</span>
+            <div class="metric-trend" style="color:#10b981;">
+                <i class="bi bi-check-circle"></i>
+                <span class="trend-text" style="color:#10b981; font-weight:700;">All caught up</span>
             </div>
             {% endif %}
         </div>
     </div>
 
-    <!-- Card 4: Active Channels -->
     <div class="metric-card">
-        <div class="metric-icon-box conversion">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" />
+        <div class="metric-icon-box" style="background: #fdf2f8; color: #db2777;">
+            <svg viewBox="0 0 24 24" style="width:20px; height:20px;" fill="none" stroke="currentColor" stroke-width="2" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
             </svg>
         </div>
         <div class="metric-info">
             <div class="metric-title">Active Channels</div>
             <div class="metric-value">{{ active_channels|default:"0" }}</div>
             {% if active_channels > 0 %}
-            <div class="metric-trend up">
-                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25"></path>
-                </svg>
-                <span class="trend-text">connected</span>
+            <div class="metric-trend" style="color: #10b981;">
+                <i class="bi bi-link-45deg"></i>
+                <span class="trend-text" style="color: #10b981; font-weight:700;">2 connected</span>
             </div>
             {% else %}
-            <div class="metric-trend" style="color:#9ca3af;">
-                <span class="trend-text">None connected yet</span>
-            </div>
+            <div class="metric-trend" style="color:#9ca3af;"><span class="trend-text">None connected yet</span></div>
             {% endif %}
         </div>
     </div>
 
-    <!-- Card 5: Low Stock Items -->
     <div class="metric-card">
-        <div class="metric-icon-box revenue">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a2.25 2.25 0 00-2.25-2.25H15a3 3 0 11-6 0H5.25A2.25 2.25 0 003 12m18 0v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6m18 0V9M3 12V9m18 0a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 9m18 0V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v3" />
+        <div class="metric-icon-box" style="background: #e7f5ff; color: #3b82f6;">
+            <svg viewBox="0 0 24 24" style="width:20px; height:20px;" fill="none" stroke="currentColor" stroke-width="2" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
         </div>
         <div class="metric-info">
             <div class="metric-title">Low Stock Items</div>
             <div class="metric-value">{{ low_stock }}</div>
             {% if low_stock > 0 %}
-            <div class="metric-trend" style="color:#dc2626;">
-                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
-                </svg>
-                <span class="trend-text">Need restocking</span>
+            <div class="metric-trend" style="color:#ef4444;">
+                <i class="bi bi-exclamation-triangle"></i>
+                <span class="trend-text" style="color:#ef4444; font-weight:700;">Need restocking</span>
             </div>
             {% else %}
-            <div class="metric-trend" style="color:#9ca3af;">
-                <span class="trend-text">All stock healthy</span>
+            <div class="metric-trend" style="color:#10b981;">
+                <i class="bi bi-check-circle"></i>
+                <span class="trend-text" style="color:#10b981; font-weight:700;">All stock healthy</span>
             </div>
             {% endif %}
         </div>
     </div>
-
 </section>
 
-<!-- ==========================================================================
-     MIDDLE GRID SECTION (CHARTS & CHANNELS)
-     ========================================================================== -->
-<section class="dashboard-grid" style="margin-top: 24px;">
-    <!-- Column 1: Sales Overview -->
+<section class="charts-row-1">
     <div class="dashboard-card sales-overview-card">
         <div class="card-header">
-            <span class="card-title">Sales Overview</span>
-            <a href="{% url 'analytics_view' %}" class="card-action-link">Full Analytics</a>
+            <div class="d-flex align-items-center gap-2">
+                <div class="card-icon-box" style="background: #f3f0ff; color: #7c3aed;">
+                    <i class="bi bi-graph-up"></i>
+                </div>
+                <span class="card-title">Sales Overview</span>
+            </div>
+            <a href="{% url 'analytics_view' %}" style="border: 1.5px solid #7c3aed; border-radius: 8px; color: #7c3aed; font-size: 0.75rem; font-weight: 700; padding: 6px 14px; text-decoration: none;">View Analytics</a>
         </div>
         {% if total_orders > 0 %}
-        <div style="position:relative; height:220px; margin-top:10px;">
+        <div style="position:relative; height:320px; margin-top:10px;">
             <canvas id="dashboard-mini-chart"></canvas>
         </div>
         {% else %}
-        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:220px; color:#9ca3af;">
-            <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="margin-bottom:12px; opacity:0.5;">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/>
-            </svg>
+        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:320px; color:#9ca3af;">
+            <i class="bi bi-bar-chart fs-1 mb-2" style="opacity:0.5;"></i>
             <p style="font-size:0.9rem; margin:0;">No sales data yet</p>
-            <p style="font-size:0.78rem; margin:4px 0 0;">Chart will appear once you have orders</p>
         </div>
         {% endif %}
     </div>
 
-<!-- Column 2: Order Summary -->
-    <div class="dashboard-card order-summary-card">
-        <div class="card-header" style="width: 100%">
-            <span class="card-title">Order Summary</span>
+    <div class="dashboard-card channel-performance-card">
+        <div class="card-header">
+            <div class="d-flex align-items-center gap-2">
+                <div class="card-icon-box" style="background: #f3f0ff; color: #7c3aed;">
+                    <i class="bi bi-bar-chart-steps"></i>
+                </div>
+                <span class="card-title">Channel Performance</span>
+            </div>
+            <a href="{% url 'channel_list' %}" style="border: 1.5px solid #7c3aed; border-radius: 8px; color: #7c3aed; font-size: 0.75rem; font-weight: 700; padding: 6px 14px; text-decoration: none;">View Report</a>
         </div>
         {% if total_orders > 0 %}
-        <div style="position:relative; height:220px; display:flex; align-items:center; justify-content:center; padding:10px 0;">
-            <canvas id="dashboard-donut-chart" style="max-height:200px;"></canvas>
+        <div style="position:relative; height:320px; margin-top:10px;">
+            <canvas id="dashboard-performance-chart"></canvas>
         </div>
         {% else %}
-        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; flex:1; color:#9ca3af; padding:20px 0;">
-            <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="margin-bottom:12px; opacity:0.5;">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 9h.75m.75 0h.75m.75 0h.75m-6.75-3H18.75c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18V7.125C3 6.504 3.504 6 4.125 6z"/>
-            </svg>
-            <p style="font-size:0.9rem; margin:0;">No orders yet</p>
-            <p style="font-size:0.78rem; margin:4px 0 0; text-align:center;">Order breakdown will appear here once customers start buying</p>
+        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:320px; color:#9ca3af;">
+            <i class="bi bi-graph-up fs-1 mb-2" style="opacity:0.5;"></i>
+            <p style="font-size:0.9rem; margin:0;">No sales data yet</p>
         </div>
         {% endif %}
-        <a href="{% url 'order_list' %}" class="card-footer-btn" style="text-decoration:none; text-align:center;">View All Orders</a>
     </div>
 
-    <!-- Column 3: Connected Channels -->
-    <div class="dashboard-card channels-card">
+    <div class="dashboard-card">
         <div class="card-header">
-            <span class="card-title">Connected Channels</span>
-            <a href="{% url 'channel_list' %}" class="card-action-link">Manage All</a>
-        </div>
-
-        <div class="channels-list">
-            {% for channel in user_channels %}
-            <div class="channel-row">
-                <div class="channel-info">
-                    <div class="channel-logo {% if channel.platform_type == 'facebook' %}fb{% elif channel.platform_type == 'instagram' %}ig{% elif channel.platform_type == 'google' %}google{% else %}amazon{% endif %}">
-                        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
-                    </div>
-                    <div>
-                        <div class="channel-name">{{ channel.name }}</div>
-                        <div class="channel-status">{% if channel.is_active %}Connected{% else %}Inactive{% endif %}</div>
-                    </div>
+            <div class="d-flex align-items-center gap-2">
+                <div class="card-icon-box" style="background: #e6fcf5; color: #10b981;">
+                    <i class="bi bi-arrow-repeat"></i>
                 </div>
-                <span class="channel-indicator" {% if not channel.is_active %}style="background:#ef4444"{% endif %}></span>
+                <span class="card-title">Sync Activity (Last 30 Days)</span>
             </div>
-            {% empty %}
-            <div style="text-align:center; padding:20px; color:#9ca3af; font-size:0.88rem;">No channels connected yet.</div>
-            {% endfor %}
+            <a href="{% url 'channel_list' %}" style="border: 1.5px solid #10b981; border-radius: 8px; color: #10b981; font-size: 0.75rem; font-weight: 700; padding: 6px 14px; text-decoration: none;">View Sync Logs</a>
         </div>
-
-        <a href="{% url 'channel_list' %}" class="add-channel-btn" style="text-decoration:none; display:flex; align-items:center; gap:6px; justify-content:center;">
-            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"></path>
-            </svg>
-            Add New Channel
-        </a>
+        {% if sync_has_data %}
+        <div style="display:flex; align-items:center; gap:20px; margin-top:6px;">
+            <div style="position:relative; width:170px; height:170px; flex-shrink:0;">
+                <canvas id="dashboard-sync-activity-chart" width="170" height="170"></canvas>
+                <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); text-align:center; pointer-events:none;">
+                    <div style="font-size:1.6rem; font-weight:900; color:#0f172a; line-height:1.1; white-space:nowrap;">{{ total_syncs }}</div>
+                    <div style="font-size:0.68rem; font-weight:800; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; white-space:nowrap;">Total Syncs</div>
+                </div>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:10px;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <span style="width:10px; height:10px; border-radius:50%; background:#10b981; flex-shrink:0;"></span>
+                    <span style="font-size:0.82rem; font-weight:700; color:#334155;">Successful &middot; {{ sync_donut_data.success_count }} ({{ sync_donut_data.success_percent }}%)</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <span style="width:10px; height:10px; border-radius:50%; background:#ef4444; flex-shrink:0;"></span>
+                    <span style="font-size:0.82rem; font-weight:700; color:#334155;">Failed &middot; {{ sync_donut_data.failed_count }} ({{ sync_donut_data.failed_percent }}%)</span>
+                </div>
+            </div>
+        </div>
+        {% if channel_sync_breakdown %}
+        <div style="margin-top: 14px; border-top: 1px solid #f1f5f9; padding-top: 12px;">
+            <div style="font-size: 0.72rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Failed Syncs by Channel</div>
+            <div style="display:flex; flex-direction:column; gap:6px; max-height: 90px; overflow-y: auto;">
+                {% for row in channel_sync_breakdown %}
+                <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.82rem;">
+                    <span style="color:#334155; font-weight:600;">{{ row.name }}</span>
+                    <span style="color:#ef4444; font-weight:700;">{{ row.count }} failed</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        {% else %}
+        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:320px; color:#9ca3af;">
+            <i class="bi bi-arrow-repeat fs-1 mb-2" style="opacity:0.5;"></i>
+            <p style="font-size:0.9rem; margin:0;">No sync activity recorded</p>
+        </div>
+        {% endif %}
     </div>
-
 </section>
 
-<!-- ==========================================================================
-     BOTTOM LAYOUT ROW
-     ========================================================================== -->
-<section class="dashboard-grid" style="margin-top: 24px;">
-    <!-- Column 1: Recent Orders Table -->
-    <div class="dashboard-card recent-orders-card" style="grid-column: span 1">
+<section class="dashboard-grid">
+    <div class="dashboard-card recent-orders-card">
         <div class="card-header">
-            <span class="card-title">Recent Orders</span>
-            <a href="{% url 'order_list' %}" class="card-action-link">View All</a>
+            <div class="d-flex align-items-center gap-2">
+                <div class="card-icon-box" style="background: #f3f0ff; color: #7c3aed;">
+                    <i class="bi bi-journal-text"></i>
+                </div>
+                <span class="card-title">Recent Orders</span>
+            </div>
+            <a href="{% url 'order_list' %}" style="font-size: 0.8rem; font-weight: 700; color: #4f46e5; text-decoration: none;">View All</a>
         </div>
-
-        <div class="table-container">
+        <div class="table-container" style="overflow-x:auto;">
             <table class="dashboard-table">
                 <thead>
-                    <tr>
-                        <th>Order ID</th>
-                        <th>Customer</th>
-                        <th>Channel</th>
-                        <th>Date</th>
-                        <th>Amount</th>
-                        <th>Status</th>
-                    </tr>
+                    <tr><th>Order ID</th><th>Customer</th><th>Channel</th><th>Date</th><th>Amount</th><th>Status</th></tr>
                 </thead>
                 <tbody>
                     {% for order in recent_orders %}
                     <tr>
-                        <td><a href="{% url 'order_detail' order.id %}" class="order-id">#ORD-{{ order.id }}</a></td>
-                        <td><div class="customer-cell">{{ order.customer_name }}</div></td>
-                        <td><div class="customer-cell">{{ order.channel.name|default:"Manual" }}</div></td>
-                        <td style="font-weight:600">₹{{ order.total_amount }}</td>
+                        <td><a href="{% url 'order_detail' order.id %}" style="font-weight:700; color:#4f46e5;">#ORD-{{ order.id }}</a></td>
+                        <td><div style="font-weight:600; color:#334155;">{{ order.customer_name }}</div></td>
+                        <td><div style="color:#475569;">{{ order.channel.name|default:"Manual" }}</div></td>
+                        <td>{{ order.created_at|date:"Y-m-d H:i" }}</td>
+                        <td style="font-weight:700; color:#0f172a;">₹{{ order.total_amount }}</td>
                         <td><span class="badge {{ order.status }}">{{ order.status|title }}</span></td>
                     </tr>
                     {% empty %}
@@ -259,43 +355,39 @@
                 </tbody>
             </table>
         </div>
-
-        <a href="{% url 'order_list' %}" class="card-footer-btn" style="margin-top: auto; text-decoration:none; text-align:center; display:block;">View All Orders</a>
+        <a href="{% url 'order_list' %}" style="margin-top: auto; padding-top:14px; text-decoration:none; text-align:center; display:block; font-weight:700; color:#4f46e5; border-top:1.5px solid #f1f5f9;">View All Orders</a>
     </div>
 
-    <!-- Column 2: Top Performing Products -->
     <div class="dashboard-card top-products-card">
         <div class="card-header">
-            <span class="card-title">Top Performing Products</span>
-            <a href="{% url 'product_list' %}" class="card-action-link">View All</a>
+            <div class="d-flex align-items-center gap-2">
+                <div class="card-icon-box" style="background: #f3f0ff; color: #7c3aed;">
+                    <i class="bi bi-trophy"></i>
+                </div>
+                <span class="card-title">Top Performing Products</span>
+            </div>
+            <a href="{% url 'product_list' %}" style="font-size: 0.8rem; font-weight: 700; color: #4f46e5; text-decoration: none;">View All</a>
         </div>
-
         <div class="table-container">
             <table class="dashboard-table">
-                <thead>
-                    <tr>
-                        <th>Product</th>
-                        <th>Sales</th>
-                        <th>Revenue</th>
-                    </tr>
-                </thead>
+                <thead><tr><th>Product</th><th>Sales</th><th>Revenue</th></tr></thead>
                 <tbody>
                     {% for item in top_products %}
                     <tr>
                         <td>
-                            <div class="product-cell">
-                                <div class="product-img">
+                            <div style="display:flex; align-items:center; gap:12px;">
+                                <div style="width:36px; height:36px; border-radius:8px; background:#f1f5f9; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
                                     {% if item.product.image %}
-                                    <img src="{{ item.product.image.url }}" style="width:100%;height:100%;object-fit:cover;border-radius:6px;">
+                                    <img src="{{ item.product.image.url }}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">
                                     {% else %}
-                                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5"/></svg>
+                                    <span style="font-weight:700; color:#94a3b8; font-size:0.9rem;">U</span>
                                     {% endif %}
                                 </div>
-                                <span class="product-name" title="{{ item.product.title }}">{{ item.product.title }}</span>
+                                <span style="font-weight:600; color:#334155;" title="{{ item.product.title }}">{{ item.product.title }}</span>
                             </div>
                         </td>
-                        <td>{{ item.sold }}</td>
-                        <td style="font-weight: 600">₹{{ item.revenue }}</td>
+                        <td style="font-weight:600;">{{ item.sold }}</td>
+                        <td style="font-weight: 700; color:#0f172a;">₹{{ item.revenue }}</td>
                     </tr>
                     {% empty %}
                     <tr><td colspan="3" style="text-align:center; padding:24px; color:#9ca3af;">No sales yet.</td></tr>
@@ -305,104 +397,177 @@
         </div>
     </div>
 
-    <!-- Column 3: Notifications + Quick Actions -->
-    <div class="right-panel-column">
-
-        <div class="dashboard-card" style="flex-grow: 1">
+    <div class="right-panel-column d-flex flex-column gap-4">
+        <div class="dashboard-card alerts-feed-card" style="flex-grow: 1;">
             <div class="card-header">
-                <span class="card-title">Notifications</span>
-            </div>
-            <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:30px 10px; color:#9ca3af;">
-                {% if low_stock > 0 %}
-                <div class="notification-item" style="width:100%;">
-                    <div class="notif-icon-box low-stock">
-                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                <div class="d-flex align-items-center gap-2">
+                    <div class="card-icon-box" style="background: #f3f0ff; color: #7c3aed;">
+                        <i class="bi bi-shield-exclamation"></i>
                     </div>
-                    <div class="notif-details">
-                        <div class="notif-text">{{ low_stock }} product(s) running low on stock</div>
-                        <div class="notif-time">Check your inventory</div>
-                    </div>
+                    <span class="card-title">Operations Summary</span>
                 </div>
-                {% else %}
-                <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="opacity:0.5; margin-bottom:10px;">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"/>
-                </svg>
-                <p style="font-size:0.85rem; margin:0;">No notifications yet</p>
+            </div>
+            <div class="d-flex flex-column gap-3 py-2">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-3">
+                        <div style="background-color: #f3f0ff; color: #7c3aed; width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center;">
+                            <i class="bi bi-bag-check" style="font-size:1.1rem;"></i>
+                        </div>
+                        <div>
+                            <div style="font-size:0.84rem; font-weight:700; color:#0f172a;">Recent Orders</div>
+                            <span style="font-size:0.7rem; color:#64748b;">Placed in the last 24 hours</span>
+                        </div>
+                    </div>
+                    <span style="font-size:0.95rem; font-weight:800; color:#0f172a;">{{ recent_24h_orders }}</span>
+                </div>
+                {% if pending_fulfillment > 0 %}
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-3">
+                        <div style="background-color: #fff9db; color: #f59e0b; width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center;">
+                            <i class="bi bi-clock-history" style="font-size:1.1rem;"></i>
+                        </div>
+                        <div>
+                            <div style="font-size:0.84rem; font-weight:700; color:#0f172a;">Awaiting Fulfillment</div>
+                            <span style="font-size:0.7rem; color:#64748b;">Orders needing dispatch</span>
+                        </div>
+                    </div>
+                    <span style="font-size:0.95rem; font-weight:800; color:#f59e0b;">{{ pending_fulfillment }}</span>
+                </div>
+                {% endif %}
+                {% if low_stock > 0 %}
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-3">
+                        <div style="background-color: #fef2f2; color: #ef4444; width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center;">
+                            <i class="bi bi-exclamation-triangle-fill" style="font-size:1.1rem;"></i>
+                        </div>
+                        <div>
+                            <div style="font-size:0.84rem; font-weight:700; color:#0f172a;">Low Stock Items</div>
+                            <span style="font-size:0.7rem; color:#64748b;">Inventory running low</span>
+                        </div>
+                    </div>
+                    <span style="font-size:0.95rem; font-weight:800; color:#ef4444;">{{ low_stock }}</span>
+                </div>
+                {% endif %}
+                {% if attention_needed > 0 %}
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-3">
+                        <div style="background-color: #fef2f2; color: #ef4444; width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center;">
+                            <i class="bi bi-shield-exclamation" style="font-size:1.1rem;"></i>
+                        </div>
+                        <div>
+                            <div style="font-size:0.84rem; font-weight:700; color:#0f172a;">API connection errors</div>
+                            <span style="font-size:0.7rem; color:#64748b;">Integrations needing review</span>
+                        </div>
+                    </div>
+                    <span style="font-size:0.95rem; font-weight:800; color:#ef4444;">{{ attention_needed }}</span>
+                </div>
                 {% endif %}
             </div>
         </div>
 
         <div class="dashboard-card">
             <div class="card-header" style="margin-bottom: 12px">
-                <span class="card-title">Quick Actions</span>
+                <div class="d-flex align-items-center gap-2">
+                    <div class="card-icon-box" style="background: #f3f0ff; color: #7c3aed;">
+                        <i class="bi bi-lightning-charge"></i>
+                    </div>
+                    <span class="card-title">Quick Actions</span>
+                </div>
             </div>
-
             <div class="quick-actions-grid">
-                <a class="action-item" href="{% url 'product_add' %}">
-                    <div class="action-icon add-product">
-                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
+                <a class="action-item" href="{% url 'product_add' %}" style="background: #faf5ff; border: 1.5px solid #ebdcfc; color: #7c3aed;">
+                    <div style="background: #7c3aed; color: #ffffff; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; font-size: 0.9rem;">
+                        <i class="bi bi-plus-lg"></i>
                     </div>
-                    <span class="action-name">Add Product</span>
+                    <span style="font-size: 0.76rem; font-weight: 800;">Add Product</span>
                 </a>
-                <a class="action-item" href="{% url 'order_add' %}">
-                    <div class="action-icon campaign">
-                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
-                        </svg>
+                <a class="action-item" href="{% url 'analytics_view' %}" style="background: #fffbeb; border: 1.5px solid #fde68a; color: #d97706;">
+                    <div style="background: #f59e0b; color: #ffffff; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; font-size: 0.9rem;">
+                        <i class="bi bi-bar-chart-fill"></i>
                     </div>
-                    <span class="action-name">Add Order</span>
+                    <span style="font-size: 0.76rem; font-weight: 800;">View Analytics</span>
                 </a>
-                <a class="action-item" href="{% url 'analytics_view' %}">
-                    <div class="action-icon analytics">
-                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                        </svg>
+                <a class="action-item" href="{% url 'category_list' %}" style="background: #eff6ff; border: 1.5px solid #bfdbfe; color: #2563eb;">
+                    <div style="background: #3b82f6; color: #ffffff; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 8px; font-size: 0.9rem;">
+                        <i class="bi bi-tags-fill"></i>
                     </div>
-                    <span class="action-name">View Analytics</span>
-                </a>
-                <a class="action-item" href="{% url 'category_list' %}">
-                    <div class="action-icon inventory">
-                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6z" />
-                        </svg>
-                    </div>
-                    <span class="action-name">Manage Categories</span>
+                    <span style="font-size: 0.76rem; font-weight: 800;">Manage Categories</span>
                 </a>
             </div>
         </div>
-
     </div>
-
 </section>
 
+<footer style="margin-top: 48px; padding: 24px 0; border-top: 1.5px solid #e2e8f0; text-align: center; font-size: 0.82rem; color: #64748b;">
+    <span>&copy; {% now "Y" %} E-Com Orbit. All rights reserved.</span>
+</footer>
+{% endblock %}
 
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
+document.addEventListener("DOMContentLoaded", function() {
+    const topbarRight = document.querySelector(".topbar-right");
+    if (topbarRight) {
+        const homeLink = topbarRight.querySelector("a[href*='landing']");
+        if (homeLink) { homeLink.remove(); }
+        const searchContainer = document.createElement("div");
+        searchContainer.style.cssText = "position: relative; display: flex; align-items: center; width: 220px; margin-right: 8px;";
+        searchContainer.innerHTML = `
+            <input type="text" placeholder="Search anything..." readonly style="width: 100%; height: 38px; padding: 8px 36px 8px 12px; border: 1.5px solid #cbd5e1; border-radius: 10px; background: #f8fafc; font-size: 0.82rem; color: #64748b; cursor: default; outline: none;">
+            <i class="bi bi-search" style="position: absolute; right: 12px; color: #94a3b8; font-size: 0.85rem;"></i>
+            <span style="position: absolute; right: 36px; background: #e2e8f0; border-radius: 4px; padding: 2px 4px; font-size: 0.65rem; color: #64748b; font-weight: 700; border: 1px solid #cbd5e1; pointer-events: none;">Ctrl+K</span>
+        `;
+        topbarRight.insertBefore(searchContainer, topbarRight.firstChild);
+    }
+});
+
 {% if total_orders > 0 %}
+    function roundToTwo(num) {
+        return +(Math.round(num + "e+2")  + "e-2");
+    }
+
     const miniTrendData = {{ mini_trend_json|safe }};
     const miniCtx = document.getElementById('dashboard-mini-chart').getContext('2d');
+    const gradient = miniCtx.createLinearGradient(0, 0, 0, 320);
+    gradient.addColorStop(0, 'rgba(124, 58, 237, 0.25)');
+    gradient.addColorStop(1, 'rgba(250, 245, 255, 0.00)');
+    const avgRevenue = miniTrendData.data.reduce((a, b) => a + b, 0) / (miniTrendData.data.length || 1);
+
     new Chart(miniCtx, {
         type: 'line',
         data: {
             labels: miniTrendData.labels,
-            datasets: [{
-                data: miniTrendData.data,
-                borderColor: '#4f46e5',
-                backgroundColor: 'rgba(79,70,229,0.08)',
-                fill: true,
-                tension: 0.35,
-                borderWidth: 2,
-                pointRadius: 2,
-            }]
+            datasets: [
+                {
+                    label: 'Revenue (₹)',
+                    data: miniTrendData.data,
+                    borderColor: '#7c3aed',
+                    backgroundColor: gradient,
+                    fill: true,
+                    tension: 0.35,
+                    borderWidth: 2.5,
+                    pointRadius: 2.5,
+                    pointHoverRadius: 5,
+                    pointBackgroundColor: '#7c3aed',
+                },
+                {
+                    label: 'Daily Average (₹)',
+                    data: Array(miniTrendData.labels.length).fill(roundToTwo(avgRevenue)),
+                    borderColor: 'rgba(156, 163, 175, 0.4)',
+                    borderWidth: 1.5,
+                    borderDash: [5, 5],
+                    pointRadius: 0,
+                    fill: false,
+                }
+            ]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
+            plugins: {
+                legend: { display: true, position: 'top', labels: { boxWidth: 12, font: { size: 10 } } }
+            },
             scales: {
                 y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
                 x: { grid: { display: false }, ticks: { maxTicksLimit: 6 } }
@@ -410,15 +575,53 @@
         }
     });
 
-    const statusCounts = {{ status_counts_json|safe }};
-    const donutCtx = document.getElementById('dashboard-donut-chart').getContext('2d');
-    new Chart(donutCtx, {
+    const performanceData = {{ channel_performance_json|safe }};
+    const perfCtx = document.getElementById('dashboard-performance-chart').getContext('2d');
+    new Chart(perfCtx, {
+        type: 'bar',
+        data: {
+            labels: performanceData.labels,
+            datasets: [{
+                label: 'Revenue (₹)',
+                data: performanceData.data,
+                backgroundColor: '#7c3aed',
+                borderRadius: 6,
+                borderWidth: 0,
+                barThickness: 14,
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) { return ' ₹' + context.parsed.x.toLocaleString(); }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    grid: { color: '#f1f5f9' },
+                    ticks: { callback: function(value) { return '₹' + value.toLocaleString(); } }
+                },
+                y: { grid: { display: false } }
+            }
+        }
+    });
+
+    const syncDonutData = {{ sync_donut_json|safe }};
+    const syncCtx = document.getElementById('dashboard-sync-activity-chart').getContext('2d');
+    new Chart(syncCtx, {
         type: 'doughnut',
         data: {
-            labels: ['Delivered', 'Shipped', 'Processing', 'Pending', 'Cancelled'],
+            labels: ['Successful', 'Failed'],
             datasets: [{
-                data: [statusCounts.delivered, statusCounts.shipped, statusCounts.processing, statusCounts.pending, statusCounts.cancelled],
-                backgroundColor: ['#10b981', '#3b82f6', '#4f46e5', '#f59e0b', '#ef4444'],
+                data: [syncDonutData.success_count, syncDonutData.failed_count],
+                backgroundColor: ['#10b981', '#ef4444'],
                 borderWidth: 2,
                 borderColor: '#ffffff',
             }]
@@ -427,13 +630,9 @@
             responsive: true,
             maintainAspectRatio: false,
             cutout: '70%',
-            plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } } }
+            plugins: { legend: { display: false } }
         }
     });
 {% endif %}
 </script>
 {% endblock %}
-
-{% endblock %}
-
-

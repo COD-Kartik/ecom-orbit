@@ -1,118 +1,507 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Categories{% endblock %}
-{% block page_title %}Categories{% endblock %}
+{% block title %}Category Management{% endblock %}
+
+{% block page_title %}
+<span style="font-size: 0.85rem; font-weight: 600; color: #64748b;">Home &nbsp;&gt;&nbsp; Categories</span>
+{% endblock %}
+
 {% block nav_categories %}active{% endblock %}
 
-{% block content %}
-<div class="row g-4">
+{% block extra_css %}
+<link href="{% static 'css/categories.css' %}?v=5" rel="stylesheet">
+{% endblock %}
 
-  <!-- Left — Category List -->
-  <div class="col-lg-8">
-    <div class="data-table">
-      <div class="d-flex align-items-center justify-content-between p-3 border-bottom">
-        <h6 class="mb-0 fw-700" style="color:#1e1b4b;">All Categories</h6>
-        <span class="badge bg-light text-secondary">{{ categories|length }} total</span>
+{% block content %}
+
+<!-- Hero Banner Section -->
+<div class="product-hero-banner mb-4">
+  <div class="hero-left">
+    <h1 class="hero-title">Category Management</h1>
+    <p class="hero-subtitle">Create, organize, and monitor catalog category structures.</p>
+  </div>
+  <div class="hero-right">
+    <svg viewBox="0 0 200 200" class="hero-illustration" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="folder-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#a78bfa" />
+          <stop offset="100%" stop-color="#6d28d9" />
+        </linearGradient>
+        <linearGradient id="box-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#fbbf24" />
+          <stop offset="100%" stop-color="#d97706" />
+        </linearGradient>
+        <filter id="folder-shadow" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#09081e" flood-opacity="0.12"/>
+        </filter>
+      </defs>
+      <!-- Open Folder -->
+      <g filter="url(#folder-shadow)" transform="translate(45, 55)">
+        <!-- Back Flap -->
+        <path d="M5 15 L35 15 L45 25 L85 25 L85 70 L5 70 Z" fill="#5b21b6" />
+        <!-- Documents inside -->
+        <rect x="15" y="5" width="60" height="50" rx="3" fill="#ffffff" stroke="#c7d2fe" stroke-width="1"/>
+        <line x1="25" y1="18" x2="65" y2="18" stroke="#cbd5e1" stroke-width="2"/>
+        <line x1="25" y1="28" x2="55" y2="28" stroke="#cbd5e1" stroke-width="2"/>
+        <!-- Front Flap (Angled/Slanted) -->
+        <path d="M5 25 L85 25 L85 70 L5 70 Z" fill="url(#folder-grad)" stroke="#ffffff" stroke-width="1"/>
+      </g>
+      <!-- Box next to folder -->
+      <g filter="url(#folder-shadow)" transform="translate(130, 95)">
+        <path d="M5 15 L25 5 L45 15 L45 35 L25 45 L5 35 Z" fill="#d97706" stroke="#f59e0b" stroke-width="0.5"/>
+        <path d="M5 15 L25 22 L45 15" stroke="#f59e0b" stroke-width="0.5" fill="none"/>
+        <path d="M25 22 L25 45" stroke="#f59e0b" stroke-width="0.5"/>
+      </g>
+      <!-- Floating Sparkles -->
+      <path d="M165 40 L167 43 L172 44 L167 45 L165 48 L163 45 L158 44 L163 43 Z" fill="#fbbf24"/>
+    </svg>
+  </div>
+</div>
+
+<!-- Stats Row -->
+<div class="row g-3 mb-4">
+  <!-- KPI 1: Total Categories -->
+  <div class="col-sm-6 col-xl-3">
+    <div class="kpi-metric-card stat-total">
+      <div class="card-inner">
+        <div class="metric-data">
+          <span class="metric-label">Total Categories</span>
+          <h3 class="metric-value" id="kpi-total-cats">0</h3>
+          <span class="metric-trend"><i class="bi bi-collection"></i> All category structures</span>
+        </div>
+        <div class="metric-icon">
+          <i class="bi bi-grid-1x2"></i>
+        </div>
       </div>
-      <table class="table">
+    </div>
+  </div>
+
+  <!-- KPI 2: Active Collections -->
+  <div class="col-sm-6 col-xl-3">
+    <div class="kpi-metric-card stat-active">
+      <div class="card-inner">
+        <div class="metric-data">
+          <span class="metric-label">Active Collections</span>
+          <h3 class="metric-value" id="kpi-active-cats">0</h3>
+          <span class="metric-trend text-success"><i class="bi bi-arrow-up-short"></i> With products</span>
+        </div>
+        <div class="metric-icon">
+          <i class="bi bi-folder-check"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI 3: Empty Categories -->
+  <div class="col-sm-6 col-xl-3">
+    <div class="kpi-metric-card stat-warning">
+      <div class="card-inner">
+        <div class="metric-data">
+          <span class="metric-label">Empty Categories</span>
+          <h3 class="metric-value" id="kpi-empty-cats">0</h3>
+          <span class="metric-trend text-warning"><i class="bi bi-exclamation-triangle"></i> Unused paths</span>
+        </div>
+        <div class="metric-icon">
+          <i class="bi bi-folder-minus"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI 4: Organized Products -->
+  <div class="col-sm-6 col-xl-3">
+    <div class="kpi-metric-card stat-value">
+      <div class="card-inner">
+        <div class="metric-data">
+          <span class="metric-label">Organized Products</span>
+          <h3 class="metric-value" id="kpi-total-prods">0</h3>
+          <span class="metric-trend"><i class="bi bi-box-seam"></i> In catalog</span>
+        </div>
+        <div class="metric-icon">
+          <i class="bi bi-box-seam"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="sticky-toolbar">
+  <div class="toolbar-container">
+    <div class="search-input-box">
+      <i class="bi bi-search search-icon"></i>
+      <input type="text" id="categorySearchInput" class="form-control form-control-sm" placeholder="Search categories..." autocomplete="off">
+    </div>
+
+    <div class="toolbar-right-controls">
+      <div class="chip-filter-group">
+        <button type="button" class="filter-chip active" data-filter="all">All</button>
+        <button type="button" class="filter-chip" data-filter="active">Active</button>
+        <button type="button" class="filter-chip" data-filter="empty">Empty</button>
+      </div>
+
+      <select id="categorySortDropdown" class="form-select select-filter" style="min-width:110px; height: 36px; padding: 4px 24px 4px 8px !important;">
+        <option value="name-asc">Sort: A-Z</option>
+        <option value="name-desc">Sort: Z-A</option>
+        <option value="count-desc">Sort: Products High-Low</option>
+      </select>
+
+      <button type="button" class="btn btn-primary-custom d-flex align-items-center gap-1" onclick="document.getElementById('id_category_name').focus()" style="height: 36px; padding: 4px 14px; font-size: 0.8rem; font-weight:700;">
+        <i class="bi bi-plus-lg"></i> <span> Category</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <!-- Left Column: Category Table -->
+  <div class="col-lg-8">
+    <div class="data-table mb-0" id="categoriesDataTable" style="border-bottom-left-radius:0 !important; border-bottom-right-radius:0 !important;">
+      <table class="table" id="categoriesTable">
         <thead>
           <tr>
-            <th>#</th>
-            <th>Category Name</th>
+            <th width="20"></th>
+            <th>Category <i class="bi bi-chevron-expand ms-1 text-muted" style="font-size:0.75rem;"></i></th>
             <th>Slug</th>
             <th>Products</th>
-            <th>Actions</th>
+            <th>Created Date</th>
+            <th>Status</th>
+            <th class="text-end">Actions</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody id="categoriesTableBody">
           {% for category in categories %}
-          <tr>
-            <td style="color:#9ca3af;">{{ forloop.counter }}</td>
+          {% cycle 'background:#f5f3ff; color:#7c3aed;' 'background:#fffbeb; color:#d97706;' 'background:#eff6ff; color:#3b82f6;' 'background:#ecfdf5; color:#10b981;' 'background:#fdf2f8; color:#db2777;' as icon_style silent %}
+          <tr class="category-row-item"
+              data-name="{{ category.name|lower }}"
+              data-slug="{{ category.slug|lower }}"
+              data-count="{{ category.product_count }}">
+            <td></td>
             <td>
-              <div class="d-flex align-items-center gap-2">
-                <div class="stat-icon" style="background:#ede9fe; width:32px; height:32px;">
-                  <i class="bi bi-tag" style="color:#7c3aed; font-size:0.85rem;"></i>
+              <div class="category-name-cell">
+                <div class="category-icon-box" style="{{ icon_style }}">
+                  <i class="bi bi-folder"></i>
                 </div>
-                <strong style="color:#1e1b4b;">{{ category.name }}</strong>
+                <div>
+                  <strong style="color:#0f172a; font-size:0.92rem;">{{ category.name }}</strong>
+                  <div class="text-muted" style="font-size:0.75rem;">Catalog collection path</div>
+                </div>
               </div>
             </td>
-            <td><code style="background:#f3f4f6; padding:3px 8px; border-radius:5px; font-size:0.8rem;">{{ category.slug }}</code></td>
             <td>
-              <span class="badge-active">{{ category.product_set.count }} products</span>
+              <code style="background:#f1f5f9; padding:4px 8px; border-radius:6px; font-size:0.78rem; color:#475569;">{{ category.slug }}</code>
             </td>
             <td>
-              <div class="d-flex gap-2">
-                <a href="{% url 'category_edit' category.id %}" class="btn btn-sm btn-light border" title="Edit">
-                  <i class="bi bi-pencil"></i>
+              <div class="d-flex flex-column gap-1" style="max-width: 100px;">
+                <div class="d-flex align-items-center justify-content-between">
+                  <strong style="font-size:0.84rem; color:#0f172a;">{{ category.product_count }}</strong>
+                </div>
+                <div class="progress" style="height: 4px; background-color:#f1f5f9; border-radius:999px; overflow:hidden;">
+                  <div class="progress-bar" role="progressbar" style="background:#7c3aed; width: {% if category.product_count == 0 %}0%{% elif category.product_count > 10 %}100%{% else %}{{ category.product_count }}0%{% endif %};"></div>
+                </div>
+              </div>
+            </td>
+            <td style="color:#64748b; font-size:0.82rem; font-weight:500;">{{ category.created_at|date:"d M Y"|default:"—" }}</td>
+            <td>
+              {% if category.product_count > 0 %}
+                <span class="badge-category-status active"><span class="status-bullet active"></span>Active</span>
+              {% else %}
+                <span class="badge-category-status empty"><span class="status-bullet empty"></span>Empty</span>
+              {% endif %}
+            </td>
+            <td>
+              <div class="action-buttons-wrapper justify-content-end" style="gap: 10px;">
+                <!-- Edit button shortcut -->
+                <a href="javascript:void(0)" class="action-btn-circle" title="Edit"
+                  onclick="editCategory('{{ category.id }}', '{{ category.name|escapejs }}', '{{ category.slug|escapejs }}')">
+                  <i class="bi bi-pencil" style="color: #6366f1;"></i>
                 </a>
+                
+                <!-- Delete category shortcut -->
                 <a href="javascript:void(0)"
-                   class="btn btn-sm btn-light border text-danger" title="Delete"
-                   onclick="showDeleteModal('{% url 'category_delete' category.id %}', 'Are you sure you want to delete the category \'{{ category.name }}\'? Products in this category will become uncategorized.')">
+                   class="action-btn-circle text-danger"
+                   title="Delete"
+                   onclick="showDeleteModal('{% url 'category_delete' category.id %}', 'Are you sure you want to delete category {{ category.name|escapejs }}? Items in this category will become unassigned.')">
                   <i class="bi bi-trash"></i>
                 </a>
               </div>
             </td>
           </tr>
           {% empty %}
-          <tr>
-            <td colspan="5" class="text-center py-5">
-              <i class="bi bi-tags" style="font-size:2.5rem; color:#d1d5db;"></i>
-              <p class="mt-3 text-muted">No categories yet. Add your first one →</p>
+          <tr id="emptyCategoriesRow">
+            <td colspan="7" class="p-0">
+              <div class="product-empty-state">
+                <i class="bi bi-tags empty-state-icon"></i>
+                <h3 class="empty-state-title">No Categories Found</h3>
+                <p class="empty-state-desc">You haven't defined any category collections yet. Create your first category collection sidebar widget on the right.</p>
+              </div>
             </td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
-  </div>
 
-  <!-- Right — Add Category Form -->
-  <div class="col-lg-4" style="position: sticky; top: 50px; align-self: start; max-height: calc(100vh - 40px); overflow-y: auto;">
-    <div class="form-card">
-      <h6 class="fw-700 mb-4" style="color:#1e1b4b;">
-        <i class="bi bi-plus-circle me-2" style="color:#7c3aed;"></i>
-        Add New Category
-      </h6>
-      <form method="post">
-        {% csrf_token %}
-        <input type="hidden" name="action" value="add">
-        <div class="mb-3">
-          <label class="form-label">Category Name <span class="text-danger">*</span></label>
-          <input type="text" name="name" class="form-control"
-                 placeholder="e.g. Electronics" required>
-        </div>
-        <div class="mb-4">
-          <label class="form-label">Slug</label>
-          <input type="text" name="slug" id="slugInput" class="form-control"
-                 placeholder="auto-generated">
-          <small class="text-muted">Leave blank to auto-generate from name</small>
-        </div>
-        <button type="submit" class="btn-primary-custom btn w-100">
-          <i class="bi bi-plus-lg me-1"></i> Add Category
-        </button>
-      </form>
+    <!-- Pagination Footer Mock -->
+    <div class="pagination-footer">
+      <span style="font-size:0.82rem; color:#64748b; font-weight:500;">Showing {{ categories.count }} categor{{ categories.count|pluralize:"y,ies" }}</span>
     </div>
   </div>
 
+  <!-- Right Sidebar Column: Sticky Config Cards -->
+  <div class="col-lg-4" style="position: sticky; top: 20px; align-self: start;">
+    <!-- Sidebar Card 1: Create Category Form -->
+    <div class="category-sidebar-card add-card">
+      <h6 class="fw-700 mb-4" id="categoryFormTitle" style="color:#0f172a;">
+        <i class="bi bi-plus-circle me-2" style="color:#7c3aed;"></i>
+        Create New Category
+      </h6>
+      {% if messages %}
+        {% for message in messages %}
+        <div class="message-alert {% if message.tags == 'success' %}success{% else %}error{% endif %}" style="margin-bottom: 16px; font-size: 0.85rem;">
+          {{ message }}
+        </div>
+        {% endfor %}
+      {% endif %}
+      <form method="post" action="{% url 'category_list' %}" id="categoryForm">
+        {% csrf_token %}
+        <input type="hidden" name="category_id" id="categoryIdField" value="">
+
+        <div class="mb-3">
+          <label class="form-label">Category Name <span class="text-danger">*</span></label>
+          <input type="text" name="name" id="id_category_name" class="form-control"
+                placeholder="e.g. Smart Electronics" required>
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label">Slug <span class="text-danger">*</span></label>
+          <input type="text" name="slug" id="slugInput" class="form-control"
+                placeholder="e.g. smart-electronics">
+          <small class="text-muted" style="font-size:0.75rem;">Leave empty to auto-generate path from name</small>
+        </div>
+
+        <button type="submit" class="btn btn-primary-custom w-100 py-2 d-flex align-items-center justify-content-center gap-2" id="categorySubmitBtn" style="border-radius:10px;">
+          <i class="bi bi-plus-lg"></i>
+          <span>Create Category</span>
+        </button>
+        <a href="javascript:void(0)" id="cancelEditBtn" class="btn btn-light border w-100 mt-2 py-2" style="border-radius:10px; font-size:0.85rem; display:none;" onclick="cancelCategoryEdit()">Cancel Edit</a>
+      </form>
+    </div>
+
+    <!-- Sidebar Card 2: Category Insights -->
+    <div class="category-sidebar-card insights-card">
+      <div class="d-flex align-items-center justify-content-between mb-4">
+        <h6 class="fw-700 m-0" style="color:#0f172a;">
+          <i class="bi bi-bar-chart me-2" style="color:#4f46e5;"></i>
+          Category Insights
+        </h6>
+        <a href="javascript:void(0)" class="text-decoration-none fw-700 text-indigo" style="font-size: 0.76rem;">View Report &rarr;</a>
+      </div>
+      <div class="d-flex flex-column gap-3">
+        <div class="d-flex align-items-center justify-content-between border-bottom pb-2">
+          <span style="font-size: 0.82rem; color: #475569; font-weight: 500;">Largest Category</span>
+          <strong id="insight-largest-cat" style="font-size: 0.82rem; color: #10b981;">—</strong>
+        </div>
+        <div class="d-flex align-items-center justify-content-between border-bottom pb-2">
+          <span style="font-size: 0.82rem; color: #475569; font-weight: 500;">Most Used Collection</span>
+          <strong id="insight-used-cat" style="font-size: 0.82rem; color: #7c3aed;">—</strong>
+        </div>
+        <div class="d-flex align-items-center justify-content-between border-bottom pb-2">
+          <span style="font-size: 0.82rem; color: #475569; font-weight: 500;">Recently Added</span>
+          <strong id="insight-recent-cat" style="font-size: 0.82rem; color: #d97706;">—</strong>
+        </div>
+        <div class="d-flex align-items-center justify-content-between">
+          <span style="font-size: 0.82rem; color: #475569; font-weight: 500;">Uncategorized Items</span>
+          <strong style="font-size: 0.82rem; color: #ef4444;">0 products</strong>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
+
 {% endblock %}
 
 {% block extra_js %}
 <script>
-  // Auto generate slug from name
-  const nameInput = document.querySelector('input[name="name"]');
-  const slugInput = document.getElementById('slugInput');
-  nameInput.addEventListener('input', function() {
-    if (!slugInput.dataset.manual) {
-      slugInput.value = this.value
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-+|-+$/g, '');
+document.addEventListener("DOMContentLoaded", function() {
+    const nameInput = document.getElementById("id_category_name");
+    const slugInput = document.getElementById("slugInput");
+    const searchInput = document.getElementById("categorySearchInput");
+    const filterChips = document.querySelectorAll(".filter-chip");
+    const sortDropdown = document.getElementById("categorySortDropdown");
+    
+    const tableBody = document.getElementById("categoriesTableBody");
+    const rows = Array.from(tableBody.querySelectorAll(".category-row-item"));
+
+    // 1. Slug auto-generation from name
+    if (nameInput && slugInput) {
+        nameInput.addEventListener("input", function() {
+            if (!slugInput.dataset.manual) {
+                slugInput.value = this.value
+                    .toLowerCase()
+                    .replace(/[^a-z0-9]+/g, "-")
+                    .replace(/^-+|-+$/g, "");
+            }
+        });
+        slugInput.addEventListener("input", function() {
+            this.dataset.manual = "true";
+        });
     }
-  });
-  slugInput.addEventListener('input', function() {
-    this.dataset.manual = 'true';
-  });
+
+    // 2. Compute KPI Metrics & Sidebar Insights dynamically
+    function calculateInsights() {
+        let totalCount = rows.length;
+        let activeCount = 0;
+        let emptyCount = 0;
+        let totalProducts = 0;
+        
+        let largestCategory = "—";
+        let maxProducts = -1;
+        let recentCategory = "—";
+        
+        rows.forEach((row, idx) => {
+            const count = parseInt(row.getAttribute("data-count")) || 0;
+            const name = row.querySelector(".category-name-cell strong").innerText.trim();
+            
+            if (count > 0) {
+                activeCount++;
+            } else {
+                emptyCount++;
+            }
+            totalProducts += count;
+
+            if (count > maxProducts) {
+                maxProducts = count;
+                largestCategory = `${name} (${count})`;
+            }
+
+            if (idx === 0) {
+                recentCategory = name;
+            }
+        });
+
+        // Set KPI Cards
+        document.getElementById("kpi-total-cats").innerText = totalCount;
+        document.getElementById("kpi-active-cats").innerText = activeCount;
+        document.getElementById("kpi-empty-cats").innerText = emptyCount;
+        document.getElementById("kpi-total-prods").innerText = totalProducts;
+
+        // Set Sidebar Insights
+        document.getElementById("insight-largest-cat").innerText = largestCategory;
+        document.getElementById("insight-used-cat").innerText = largestCategory;
+        document.getElementById("insight-recent-cat").innerText = recentCategory;
+    }
+
+    calculateInsights();
+
+    // 3. Search & Chip Filtering
+    let currentFilter = "all";
+
+    function filterCategories() {
+        const query = searchInput.value.toLowerCase().trim();
+        let visibleCount = 0;
+
+        rows.forEach(row => {
+            const name = row.getAttribute("data-name");
+            const slug = row.getAttribute("data-slug");
+            const count = parseInt(row.getAttribute("data-count")) || 0;
+
+            const matchesSearch = name.includes(query) || slug.includes(query);
+            
+            let matchesChip = true;
+            if (currentFilter === "active") {
+                matchesChip = count > 0;
+            } else if (currentFilter === "empty") {
+                matchesChip = count === 0;
+            }
+
+            if (matchesSearch && matchesChip) {
+                row.style.display = "";
+                visibleCount++;
+            } else {
+                row.style.display = "none";
+            }
+        });
+
+        // Handle empty row placeholder
+        let placeholderRow = document.getElementById("dynamicEmptyCategories");
+        if (visibleCount === 0 && rows.length > 0) {
+            if (!placeholderRow) {
+                placeholderRow = document.createElement("tr");
+                placeholderRow.id = "dynamicEmptyCategories";
+                placeholderRow.innerHTML = `
+                    <td colspan="7" class="p-0">
+                      <div class="product-empty-state">
+                        <i class="bi bi-tags empty-state-icon"></i>
+                        <h5 class="empty-state-title">No categories match your filters</h5>
+                        <p class="empty-state-desc">Try clearing your filters or adjustment search terms.</p>
+                      </div>
+                    </td>`;
+                tableBody.appendChild(placeholderRow);
+            }
+        } else {
+            if (placeholderRow) placeholderRow.remove();
+        }
+    }
+
+    // Bind Search Input
+    searchInput.addEventListener("input", filterCategories);
+
+    // Bind Chip Filters
+    filterChips.forEach(chip => {
+        chip.addEventListener("click", function() {
+            filterChips.forEach(c => c.classList.remove("active"));
+            this.classList.add("active");
+            currentFilter = this.getAttribute("data-filter");
+            filterCategories();
+        });
+    });
+
+    // 4. Column Sorting
+    function sortCategories() {
+        const sortVal = sortDropdown.value;
+
+        rows.sort((a, b) => {
+            if (sortVal === "name-asc") {
+                return a.getAttribute("data-name").localeCompare(b.getAttribute("data-name"));
+            } else if (sortVal === "name-desc") {
+                return b.getAttribute("data-name").localeCompare(a.getAttribute("data-name"));
+            } else if (sortVal === "count-desc") {
+                return (parseInt(b.getAttribute("data-count")) || 0) - (parseInt(a.getAttribute("data-count")) || 0);
+            } else if (sortVal === "count-asc") {
+                return (parseInt(a.getAttribute("data-count")) || 0) - (parseInt(b.getAttribute("data-count")) || 0);
+            }
+            return 0;
+        });
+
+        rows.forEach(row => tableBody.appendChild(row));
+    }
+
+sortDropdown.addEventListener("change", sortCategories);
+});
+
+function editCategory(id, name, slug) {
+    document.getElementById("categoryIdField").value = id;
+    document.getElementById("id_category_name").value = name;
+    document.getElementById("slugInput").value = slug;
+    document.getElementById("slugInput").dataset.manual = "true";
+
+    document.getElementById("categoryFormTitle").innerHTML = '<i class="bi bi-pencil-square me-2" style="color:#7c3aed;"></i> Edit Category';
+    document.getElementById("categorySubmitBtn").innerHTML = '<i class="bi bi-check-lg"></i> <span>Update Category</span>';
+    document.getElementById("cancelEditBtn").style.display = "block";
+
+    document.getElementById("categoryForm").scrollIntoView({behavior: "smooth", block: "start"});
+}
+
+function cancelCategoryEdit() {
+    document.getElementById("categoryIdField").value = "";
+    document.getElementById("id_category_name").value = "";
+    document.getElementById("slugInput").value = "";
+    document.getElementById("slugInput").dataset.manual = "";
+
+    document.getElementById("categoryFormTitle").innerHTML = '<i class="bi bi-plus-circle me-2" style="color:#7c3aed;"></i> Create New Category';
+    document.getElementById("categorySubmitBtn").innerHTML = '<i class="bi bi-plus-lg"></i> <span>Create Category</span>';
+    document.getElementById("cancelEditBtn").style.display = "none";
+}
 </script>
 {% endblock %}

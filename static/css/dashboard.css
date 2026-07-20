@@ -14,7 +14,8 @@
 
 :root {
     /* Color Palette */
-    --bg-main: #f8fafc;
+    --bg-main: #f1f5f9;
+    --surface: #ffffff;
     --sidebar-bg: #09081e;
     --sidebar-bg-to: #110e2f;
     --sidebar-hover: rgba(255, 255, 255, 0.06);
@@ -39,9 +40,9 @@
     --text-light: #94a3b8;
     
     /* Borders and Shadows */
-    --border-color: #f1f5f9;
-    --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.02), 0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 10px 15px -3px rgba(0, 0, 0, 0.03);
-    --sidebar-shadow: 4px 0 24px rgba(9, 8, 30, 0.15);
+    --border:  #4f46e5;        /* Soft indigo/blue themed border */
+    --border-color:  #4f46e5;  /* Soft indigo/blue themed border */
+    --card-shadow: 0 1px 3px rgba(0,0,0,0.02), 0 4px 6px -1px rgba(0,0,0,0.04), 0 10px 15px -3px rgba(0,0,0,0.03);
     
     /* Border Radius */
     --radius-sm: 8px;
@@ -363,7 +364,7 @@ body {
 
 /* ==========================================================================
    Main Content Area
-   ========================================================================== */
+   ========================================================================= */
 .main-content {
     flex-grow: 1;
     display: flex;
@@ -371,7 +372,6 @@ body {
     min-width: 0;
     padding: 24px 32px;
     gap: 24px;
-    /*margin-left: 280px;*/
 }
 
 /* Top Navigation Bar */
@@ -795,7 +795,6 @@ body {
     align-items: center;
     font-size: 10px;
     z-index: 10;
-    /* Manually positioned coordinates matching Jun 10 dot in mockup */
     left: 70%;
     top: 35%;
     transform: translate(-50%, -100%) translateY(-8px);
@@ -1429,4 +1428,388 @@ body {
     .banner-btn {
         justify-content: center;
     }
+}
+
+/* ==========================================================================
+   PREMIUM ENTERPRISE SAAS DESIGN OVERRIDES
+   ========================================================================== */
+
+/* 1. Global Mesh Gradient Background & Page Load Animations */
+body {
+    background-color: #f8fafc !important;
+    background-image: 
+        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.04) 0px, transparent 50%),
+        radial-gradient(at 50% 0%, rgba(139, 92, 246, 0.04) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(249, 115, 22, 0.03) 0px, transparent 50%) !important;
+    background-attachment: fixed !important;
+    font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif !important;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.page-body {
+    animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* 2. Base Dashboard Shell Layout */
+.topbar {
+    background: rgba(255, 255, 255, 0.8) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    border-bottom: 1px solid #c7d2fe !important;
+    padding: 16px 28px !important;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    box-shadow: 0 1px 4px rgba(9, 8, 30, 0.02) !important;
+}
+
+.topbar-title {
+    font-size: 1.15rem !important;
+    font-weight: 800 !important;
+    color: #0f172a !important;
+    letter-spacing: -0.3px !important;
+}
+
+.topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.topbar-avatar {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%) !important;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 0.85rem;
+    box-shadow: 0 4px 10px rgba(79, 70, 229, 0.2);
+}
+
+.page-body {
+    padding: 28px;
+    flex: 1;
+}
+
+/* 3. Cards Redesign with Layered Depth & Lift Interactions */
+.stat-card, .kpi-card, .marketplace-card, .operation-card, 
+.activity-timeline-card, .dashboard-card, .form-card, .data-table, .metric-card {
+    background: #ffffff !important;
+    border: 1px solid #c7d2fe !important; /* Premium soft indigo border line */
+    border-radius: 16px !important;
+    box-shadow: 0 1px 3px rgba(9, 8, 30, 0.01), 0 10px 20px -5px rgba(9, 8, 30, 0.03) !important;
+    transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1), 
+                box-shadow 0.22s cubic-bezier(0.4, 0, 0.2, 1), 
+                border-color 0.22s !important;
+}
+
+.stat-card:hover, .kpi-card:hover, .marketplace-card:hover, .operation-card:hover, 
+.activity-timeline-card:hover, .dashboard-card:hover, .form-card:hover, .metric-card:hover {
+    transform: translateY(-4px) !important;
+    border-color: #a5b4fc !important;
+    box-shadow: 0 12px 32px -4px rgba(79, 70, 229, 0.08), 
+                0 4px 12px -2px rgba(9, 8, 30, 0.03) !important;
+}
+
+.stat-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    box-shadow: inset 0 -2px 4px rgba(0,0,0,0.02);
+}
+
+.stat-num {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: -0.5px;
+}
+
+.stat-label {
+    color: #64748b;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+/* 4. Modern Forms, Inputs, & Validations */
+.form-card {
+    background: white;
+    border-radius: 16px;
+    border: 1px solid #c7d2fe;
+    padding: 28px;
+}
+
+.form-control, .form-select, .form-input {
+    background-color: #f8fafc !important;
+    border: 1.5px solid #c7d2fe !important;
+    border-radius: 10px !important;
+    padding: 10px 16px !important;
+    font-size: 0.88rem !important;
+    color: #1e293b !important;
+    font-weight: 500 !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.form-control:focus, .form-select:focus, .form-input:focus {
+    background-color: #ffffff !important;
+    border-color: #4f46e5 !important;
+    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.12) !important;
+    outline: none !important;
+}
+
+.form-label {
+    font-weight: 700 !important;
+    font-size: 0.76rem !important;
+    color: #475569 !important;
+    margin-bottom: 6px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.6px !important;
+}
+
+/* 5. Custom Sidebar Navigation Updates (Gradients & Animated indicators) */
+.sidebar {
+    background: linear-gradient(180deg, #09081e 0%, #110e2f 100%) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+.sidebar-menu .menu-item a {
+    border-radius: 12px !important;
+    transition: all 0.2s ease !important;
+    position: relative;
+    padding: 12px 16px !important;
+}
+
+.sidebar-menu .menu-item a:hover {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    color: #ffffff !important;
+}
+
+.sidebar-menu .menu-item.active a {
+    background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 18px rgba(79, 70, 229, 0.35) !important;
+    font-weight: 600 !important;
+}
+
+.profile-card {
+    background: rgba(255, 255, 255, 0.03) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 14px !important;
+}
+
+/* Glassmorphism for notifications dropdown widget */
+#notif-dropdown {
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    border: 1px solid #c7d2fe !important;
+    border-radius: 14px !important;
+    box-shadow: 0 10px 30px rgba(9, 8, 30, 0.12) !important;
+}
+
+/* 6. Clean Enterprise Tables with Opaque Headers & Hover Rows */
+.data-table, .listings-table-card {
+    overflow: hidden !important;
+}
+
+.data-table .table, .listings-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+}
+
+.data-table .table thead th, .listings-table th {
+    background-color: #f8fafc !important;
+    color: #1e293b !important;
+    font-weight: 700 !important;
+    font-size: 0.76rem !important;
+    letter-spacing: 0.5px !important;
+    text-transform: uppercase !important;
+    border-bottom: 2px solid #c7d2fe !important;
+    padding: 16px 20px !important;
+}
+
+.data-table .table tbody td, .listings-table td {
+    padding: 16px 20px !important;
+    vertical-align: middle !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+    font-size: 0.88rem !important;
+    color: #334155 !important;
+}
+
+.data-table .table tbody tr:hover, .listings-table tbody tr:hover {
+    background-color: #f8fafc !important;
+}
+
+.product-thumb {
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 1px solid #c7d2fe;
+}
+
+.product-thumb-placeholder {
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    background: #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #94a3b8;
+    font-size: 1.1rem;
+    border: 1px solid #c7d2fe;
+}
+
+/* 7. Premium Action Button Gradients */
+.btn-primary-custom, .btn-primary-connect {
+    background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%) !important;
+    border: none !important;
+    color: white !important;
+    border-radius: 10px !important;
+    font-weight: 600 !important;
+    box-shadow: 0 4px 14px rgba(79, 70, 229, 0.25) !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    padding: 10px 24px !important;
+}
+
+.btn-primary-custom:hover, .btn-primary-connect:hover {
+    background: linear-gradient(135deg, #3730a3 0%, #4f46e5 100%) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 6px 20px rgba(79, 70, 229, 0.35) !important;
+    color: white !important;
+}
+
+/* 8. Standardized Status Badges & Chips */
+.badge-active, .badge-status.success, .badge-health.healthy {
+    background-color: #ecfdf5 !important;
+    color: #059669 !important;
+    border: 1px solid #a7f3d0 !important;
+    font-weight: 700 !important;
+    border-radius: 9999px !important;
+    padding: 4px 12px !important;
+    font-size: 0.72rem !important;
+}
+
+.badge-inactive, .badge-status.danger, .badge-status.failed {
+    background-color: #fee2e2 !important;
+    color: #dc2626 !important;
+    border: 1px solid #fecaca !important;
+    font-weight: 700 !important;
+    border-radius: 9999px !important;
+    padding: 4px 12px !important;
+    font-size: 0.72rem !important;
+}
+
+.badge-pending, .badge-status.warning, .badge-health.attention {
+    background-color: #fffbeb !important;
+    color: #d97706 !important;
+    border: 1px solid #fde68a !important;
+    font-weight: 700 !important;
+    border-radius: 9999px !important;
+    padding: 4px 12px !important;
+    font-size: 0.72rem !important;
+}
+
+/* 9. Sync Card Components styling */
+.sync-channel-card {
+    background: #f8fafc !important;
+    border: 1px solid #c7d2fe !important;
+    border-radius: 12px !important;
+    padding: 14px !important;
+    transition: all 0.2s ease !important;
+}
+
+.sync-channel-card:hover {
+    background: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(9, 8, 30, 0.04) !important;
+}
+
+.sync-channel-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.sync-channel-logo {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.sync-status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.sync-status-dot.connected { background: #10b981; box-shadow: 0 0 0 3px rgba(16,185,129,0.15); }
+.sync-status-dot.error { background: #ef4444; box-shadow: 0 0 0 3px rgba(239,68,68,0.15); }
+.sync-status-dot.untested { background: #9ca3af; box-shadow: 0 0 0 3px rgba(156,163,175,0.15); }
+
+.sync-last-checked {
+    font-size: 0.7rem;
+    color: #94a3b8;
+    margin-top: 6px;
+}
+
+.btn-sync-action {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: #ffffff;
+    border: 1px solid #c7d2fe;
+    border-radius: 8px;
+    padding: 7px 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #374151;
+    text-decoration: none;
+    transition: all 0.15s ease;
+}
+
+.btn-sync-action:hover {
+    border-color: #4f46e5;
+    color: #4f46e5;
+    background: #f5f3ff;
+}
+
+.btn-sync-test-link {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    justify-content: center;
+    margin-top: 8px;
+    font-size: 0.72rem;
+    color: #64748b;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.btn-sync-test-link:hover {
+    color: #4f46e5;
 }

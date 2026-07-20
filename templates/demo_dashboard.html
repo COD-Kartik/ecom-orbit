@@ -42,6 +42,50 @@
         .main-content {
             margin-top: 40px;
         }
+
+        /* KPI cards design system with left borders and tints */
+        .metric-card {
+            border-left: 5px solid #cbd5e1 !important;
+            border-radius: 12px !important;
+            transition: all 0.2s ease;
+        }
+        .stat-total {
+            border-left-color: #4f46e5 !important;
+            background: linear-gradient(180deg, #ffffff 0%, #f5f3ff 100%) !important;
+        }
+        .stat-active {
+            border-left-color: #10b981 !important;
+            background: linear-gradient(180deg, #ffffff 0%, #f0fdf4 100%) !important;
+        }
+        .stat-warning {
+            border-left-color: #f59e0b !important;
+            background: linear-gradient(180deg, #ffffff 0%, #fffbeb 100%) !important;
+        }
+        .stat-value {
+            border-left-color: #7c3aed !important;
+            background: linear-gradient(180deg, #ffffff 0%, #faf5ff 100%) !important;
+        }
+        .stat-info {
+            border-left-color: #3b82f6 !important;
+            background: linear-gradient(180deg, #ffffff 0%, #eff6ff 100%) !important;
+        }
+
+        /* Icon badges customization */
+        .metric-icon-box {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            background: transparent !important;
+        }
+        .stat-total .metric-icon-box { color: #4f46e5; background: #eef2ff !important; }
+        .stat-active .metric-icon-box { color: #10b981; background: #e6fcf5 !important; }
+        .stat-warning .metric-icon-box { color: #f59e0b; background: #fff9db !important; }
+        .stat-value .metric-icon-box { color: #7c3aed; background: #f3f0ff !important; }
+        .stat-info .metric-icon-box { color: #3b82f6; background: #e7f5ff !important; }
     </style>
 </head>
 <body>
@@ -143,32 +187,32 @@
         </header>
 
         <section class="metrics-grid">
-            <div class="metric-card">
-                <div class="metric-icon-box sales"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" /></svg></div>
+            <div class="metric-card stat-total">
+                <div class="metric-icon-box"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" /></svg></div>
                 <div class="metric-info"><div class="metric-title">Total Sales</div><div class="metric-value">₹2,45,680</div>
                     <div class="metric-trend up"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25"></path></svg>18.6% <span class="trend-text">vs last 30 days</span></div>
                 </div>
             </div>
-            <div class="metric-card">
-                <div class="metric-icon-box orders"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" /></svg></div>
+            <div class="metric-card stat-active">
+                <div class="metric-icon-box"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" /></svg></div>
                 <div class="metric-info"><div class="metric-title">Total Orders</div><div class="metric-value">248</div>
                     <div class="metric-trend up"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25"></path></svg>12.4% <span class="trend-text">vs last 30 days</span></div>
                 </div>
             </div>
-            <div class="metric-card">
-                <div class="metric-icon-box customers"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.109A9.342 9.342 0 0012 20.25a9.34 9.34 0 00-3.011-.514v-.108c0-1.112-.285-2.16-.786-3.07M11.25 12.75A4.5 4.5 0 117 8.25m4.25 4.5a4.5 4.5 0 01-4.25-4.5m4.25 4.5A4.5 4.5 0 0012 17.25a4.5 4.5 0 003.582-1.776M11.25 12.75a4.5 4.5 0 01-3.667-1.897M12 17.25a4.5 4.5 0 01-3.667-1.897m7.167.397a4.5 4.5 0 003.582-1.776M15.502 12h.008v.008h-.008V12zM18 12h.008v.008H18V12z" /></svg></div>
+            <div class="metric-card stat-warning">
+                <div class="metric-icon-box"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.109A9.342 9.342 0 0012 20.25a9.34 9.34 0 00-3.011-.514v-.108c0-1.112-.285-2.16-.786-3.07M11.25 12.75A4.5 4.5 0 117 8.25m4.25 4.5a4.5 4.5 0 01-4.25-4.5m4.25 4.5A4.5 4.5 0 0012 17.25a4.5 4.5 0 003.582-1.776M11.25 12.75a4.5 4.5 0 01-3.667-1.897M12 17.25a4.5 4.5 0 01-3.667-1.897m7.167.397a4.5 4.5 0 003.582-1.776M15.502 12h.008v.008h-.008V12zM18 12h.008v.008H18V12z" /></svg></div>
                 <div class="metric-info"><div class="metric-title">Total Customers</div><div class="metric-value">1,245</div>
                     <div class="metric-trend up"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25"></path></svg>10.3% <span class="trend-text">vs last 30 days</span></div>
                 </div>
             </div>
-            <div class="metric-card">
-                <div class="metric-icon-box conversion"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" /></svg></div>
+            <div class="metric-card stat-value">
+                <div class="metric-icon-box"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" /></svg></div>
                 <div class="metric-info"><div class="metric-title">Conversion Rate</div><div class="metric-value">3.42%</div>
                     <div class="metric-trend up"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25"></path></svg>8.7% <span class="trend-text">vs last 30 days</span></div>
                 </div>
             </div>
-            <div class="metric-card">
-                <div class="metric-icon-box revenue"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a2.25 2.25 0 00-2.25-2.25H15a3 3 0 11-6 0H5.25A2.25 2.25 0 003 12m18 0v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6m18 0V9M3 12V9m18 0a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 9m18 0V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v3" /></svg></div>
+            <div class="metric-card stat-info">
+                <div class="metric-icon-box"><svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a2.25 2.25 0 00-2.25-2.25H15a3 3 0 11-6 0H5.25A2.25 2.25 0 003 12m18 0v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6m18 0V9M3 12V9m18 0a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 9m18 0V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v3" /></svg></div>
                 <div class="metric-info"><div class="metric-title">Total Revenue</div><div class="metric-value">₹2,45,680</div>
                     <div class="metric-trend up"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25"></path></svg>18.6% <span class="trend-text">vs last 30 days</span></div>
                 </div>
