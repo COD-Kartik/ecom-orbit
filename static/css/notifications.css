@@ -304,3 +304,22 @@
     color: var(--danger, #ef4444);
     background: var(--danger-light, #fef2f2);
 }
+
+.note-text {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    cursor: pointer;
+    font-size: 0.84rem;
+    line-height: 1.5;
+    word-break: break-word;
+}
+.note-text.expanded {
+    -webkit-line-clamp: unset;
+    overflow: visible;
+}
+.note-item.done .note-text {
+    text-decoration: line-through;
+    color: #94a3b8;
+}

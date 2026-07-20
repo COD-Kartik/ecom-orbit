@@ -38,6 +38,8 @@ urlpatterns = [
     path('dashboard/orders/<int:pk>/notes/', views.order_notes_update, name='order_notes_update'),
     path('dashboard/orders/bulk-update/', views.order_bulk_update, name='order_bulk_update'),
     path('dashboard/orders/print-invoices/', views.print_invoices, name='print_invoices'),    
+    path('dashboard/notes/<int:pk>/update/', views.note_update, name='note_update'),
+    
     path('api/', include(router.urls)),
 ]
     

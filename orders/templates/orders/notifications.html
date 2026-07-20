@@ -280,26 +280,39 @@
         <!-- Notes List -->
         <div class="notes-list">
             {% for note in notes %}
-            <div class="note-item {% if note.is_done %}done{% endif %}">
-                <div class="note-content-box">
-                    <!-- Toggle Completion Form -->
-                    <form action="{% url 'note_toggle_done' note.id %}" method="post" style="display: flex; align-items: center;">
+            <div class="note-item {% if note.is_done %}done{% endif %}" id="note-item-{{ note.id }}">
+                <div class="note-main-row" style="display:flex; align-items:flex-start; gap:10px;">
+                    <form action="{% url 'note_toggle_done' note.id %}" method="post" style="display:flex; align-items:center; margin-top:2px;">
                         {% csrf_token %}
-                        <input type="checkbox" {% if note.is_done %}checked{% endif %} onchange="this.form.submit()" style="cursor: pointer; width: 15px; height: 15px;">
+                        <input type="checkbox" {% if note.is_done %}checked{% endif %} onchange="this.form.submit()" style="cursor:pointer; width:15px; height:15px;">
                     </form>
-                    <span class="note-text">{{ note.content }}</span>
+                    <div style="flex:1; min-width:0;">
+                        <span class="note-text" id="note-text-{{ note.id }}" onclick="toggleNoteExpand({{ note.id }})">{{ note.content }}</span>
+
+                        <div class="note-actions" id="note-actions-{{ note.id }}" style="display:none; gap:12px; margin-top:8px; font-size:0.74rem; font-weight:700;">
+                            <a href="javascript:void(0)" onclick="startEditNote({{ note.id }})" style="color:#4f46e5; text-decoration:none;">Edit</a>
+                            <form action="{% url 'note_toggle_done' note.id %}" method="post" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" style="background:none; border:none; padding:0; color:#10b981; font-weight:700; font-size:0.74rem; cursor:pointer;">
+                                    {% if note.is_done %}Mark as Not Done{% else %}Mark as Done{% endif %}
+                                </button>
+                            </form>
+                            <a href="javascript:void(0)" onclick="showDeleteModal('{% url 'note_delete' note.id %}', 'Are you sure you want to delete this note?')" style="color:#ef4444; text-decoration:none;">Delete</a>
+                        </div>
+
+                        <!-- Inline edit form, hidden by default -->
+                        <form action="{% url 'note_update' note.id %}" method="post" id="note-edit-form-{{ note.id }}" style="display:none; margin-top:8px;">
+                            {% csrf_token %}
+                            <textarea name="content" id="note-edit-textarea-{{ note.id }}" style="width:100%; min-height:80px; font-size:0.84rem; padding:8px; border-radius:8px; border:1.5px solid var(--border-color); resize:vertical;">{{ note.content }}</textarea>
+                            <div style="display:flex; gap:8px; margin-top:6px;">
+                                <button type="submit" style="font-size:0.76rem; font-weight:700; padding:5px 12px; border-radius:6px; border:none; background:#4f46e5; color:#fff; cursor:pointer;">Save</button>
+                                <button type="button" onclick="cancelEditNote({{ note.id }})" style="font-size:0.76rem; font-weight:700; padding:5px 12px; border-radius:6px; border:1.5px solid var(--border-color); background:#fff; cursor:pointer;">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
-                
-                <!-- Delete Note Form -->
-                <form action="{% url 'note_delete' note.id %}" method="post" class="note-delete-form">
-                    {% csrf_token %}
-                    <button type="submit" title="Delete note">
-                        <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                    </button>
-                </form>
             </div>
             {% empty %}
-            <!-- Notes Empty State -->
             <div style="padding: 24px 12px; text-align: center; color: var(--text-muted, #64748b); font-size: 0.82rem;">
                 No notes yet — add a reminder above.
             </div>
@@ -422,6 +435,27 @@ function dismissAllNotifications() {
             document.getElementById('kpi-new-orders-val').innerText = '0';
         }
     });
+}
+
+function toggleNoteExpand(noteId) {
+    const textEl = document.getElementById(`note-text-${noteId}`);
+    const actionsEl = document.getElementById(`note-actions-${noteId}`);
+    const isExpanding = !textEl.classList.contains('expanded');
+
+    textEl.classList.toggle('expanded', isExpanding);
+    actionsEl.style.display = isExpanding ? 'flex' : 'none';
+}
+
+function startEditNote(noteId) {
+    document.getElementById(`note-text-${noteId}`).style.display = 'none';
+    document.getElementById(`note-actions-${noteId}`).style.display = 'none';
+    document.getElementById(`note-edit-form-${noteId}`).style.display = 'block';
+}
+
+function cancelEditNote(noteId) {
+    document.getElementById(`note-text-${noteId}`).style.display = '-webkit-box';
+    document.getElementById(`note-actions-${noteId}`).style.display = 'flex';
+    document.getElementById(`note-edit-form-${noteId}`).style.display = 'none';
 }
 
 function getCookie(name) {

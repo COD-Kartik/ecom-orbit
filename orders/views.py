@@ -1031,9 +1031,19 @@ def note_toggle_done(request, pk):
 @login_required
 def note_delete(request, pk):
     business = get_user_business(request.user)
-    if business and request.method == 'POST':
-        note = get_object_or_404(Note, pk=pk, business=business)
-        note.delete()
-        messages.success(request, 'Note deleted successfully.')
+    note = get_object_or_404(Note, pk=pk, business=business)
+    note.delete()
+    messages.success(request, 'Note deleted successfully.')
     return redirect('notifications_view')
 
+@login_required
+def note_update(request, pk):
+    business = get_user_business(request.user)
+    if business and request.method == 'POST':
+        note = get_object_or_404(Note, pk=pk, business=business)
+        content = request.POST.get('content', '').strip()
+        if content:
+            note.content = content
+            note.save()
+            messages.success(request, 'Note updated.')
+    return redirect('notifications_view')
