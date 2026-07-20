@@ -6,144 +6,407 @@
 {% block nav_customers %}active{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/customers.css' %}">
+<link rel="stylesheet" href="{% static 'css/customers.css' %}?v=1.1">
+<style>
+    /* Inline overrides for header layout and search integration */
+    .top-bar-custom {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+    .top-bar-title-box {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+    .top-bar-title {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--text-dark, #0f172a);
+        letter-spacing: -0.5px;
+    }
+    .top-bar-subtitle {
+        font-size: 0.88rem;
+        color: var(--text-muted, #64748b);
+    }
+    .top-bar-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .global-search-mock {
+        position: relative;
+        display: flex;
+        align-items: center;
+        background: #ffffff;
+        border: 1.5px solid var(--border-color, #e2e8f0);
+        border-radius: 10px;
+        padding: 6px 12px;
+        font-size: 0.82rem;
+        color: var(--text-muted, #64748b);
+        width: 220px;
+    }
+    .ctrl-k-hint {
+        position: absolute;
+        right: 8px;
+        background: var(--bg-main, #f8fafc);
+        border: 1px solid var(--border-color, #e2e8f0);
+        border-radius: 4px;
+        padding: 2px 5px;
+        font-size: 0.68rem;
+        font-family: monospace;
+        font-weight: 700;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
 
-<!-- 1. TOP STAT CARDS -->
-<section class="metrics-row">
-    <div class="metric-card">
-        <div class="metric-header">
-            <div class="metric-icon total">
-                <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.109A9.342 9.342 0 0012 20.25a9.34 9.34 0 00-3.011-.514v-.108c0-1.112-.285-2.16-.786-3.07M11.25 12.75A4.5 4.5 0 117 8.25m4.25 4.5a4.5 4.5 0 01-4.25-4.5m4.25 4.5A4.5 4.5 0 0012 17.25a4.5 4.5 0 003.582-1.776M11.25 12.75a4.5 4.5 0 01-3.667-1.897M12 17.25a4.5 4.5 0 01-3.667-1.897m7.167.397a4.5 4.5 0 003.582-1.776M15.502 12h.008v.008h-.008V12z" /></svg>
+<!-- PLAIN STYLE HEADER -->
+<div class="top-bar-custom">
+    <div class="top-bar-title-box">
+        <h1 class="top-bar-title">Customer Directory</h1>
+        <p class="top-bar-subtitle">Manage and analyze your customer base in one place.</p>
+    </div>
+    <div class="top-bar-actions">
+        <div class="global-search-mock">
+            <i class="bi bi-search" style="margin-right: 8px; font-size: 0.85rem;"></i>
+            <span>Search anything...</span>
+            <span class="ctrl-k-hint">Ctrl+K</span>
+        </div>
+        <a href="{% url 'export_customers_csv' %}" class="btn btn-outline-primary" style="font-size: 0.82rem; font-weight: 700; padding: 8px 16px; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; border: 1.5px solid var(--primary); color: var(--primary);">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
+            Export CSV
+        </a>
+    </div>
+</div>
+
+<!-- 4 KPI CARDS (.kpi-metric-card system) -->
+<div class="kpi-grid-customers">
+    <!-- Total Customers -->
+    <div class="kpi-metric-card stat-total">
+        <div class="card-inner">
+            <div class="metric-data">
+                <span class="metric-label">Total Customers</span>
+                <h3 class="metric-value">{{ total_customers }}</h3>
+                <span class="metric-trend text-muted">
+                    Active customer database
+                </span>
+            </div>
+            <div class="metric-icon">
+                <i class="bi bi-people"></i>
             </div>
         </div>
-        <div class="metric-body">
-            <span class="metric-title-text">Total Customers</span>
-            <span class="metric-value-text">{{ total_customers }}</span>
-        </div>
-    </div>
-
-    <div class="metric-card">
-        <div class="metric-header">
-            <div class="metric-icon new">
-                <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-            </div>
-        </div>
-        <div class="metric-body">
-            <span class="metric-title-text">New Customers</span>
-            <span class="metric-value-text">{{ new_count }}</span>
-        </div>
-    </div>
-
-    <div class="metric-card">
-        <div class="metric-header">
-            <div class="metric-icon repeat">
-                <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12c0-1.232-.046-2.453-.138-3.662a4.006 4.006 0 00-3.7-3.7 48.656 48.656 0 00-7.324 0 4.006 4.006 0 00-3.7 3.7C4.547 9.547 4.5 10.768 4.5 12s.047 2.453.138 3.662a4.006 4.006 0 003.7 3.7 48.656 48.656 0 007.324 0 4.006 4.006 0 003.7-3.7c.092-1.209.138-2.43.138-3.662z" /><path stroke-linecap="round" stroke-linejoin="round" d="M9 10.5l3 3 6-6" /></svg>
-            </div>
-        </div>
-        <div class="metric-body">
-            <span class="metric-title-text">Repeat Customer Rate</span>
-            <span class="metric-value-text">{{ repeat_rate }}%</span>
-        </div>
-    </div>
-
-    <div class="metric-card">
-        <div class="metric-header">
-            <div class="metric-icon clv">
-                <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 10.136 12 10.513 12 9.5c0-.987.904-1.724 2.12-1.48M6.75 19.5a12.75 12.75 0 0110.5 0v-15a12.75 12.75 0 01-10.5 0v15z" /></svg>
-            </div>
-        </div>
-        <div class="metric-body">
-            <span class="metric-title-text">Avg. Customer LTV</span>
-            <span class="metric-value-text">₹{{ avg_ltv }}</span>
-        </div>
-    </div>
-</section>
-
-{% if total_customers > 0 %}
-<div class="customers-card">
-    <div class="table-filter-bar">
-        <form method="get" style="display:flex; gap:10px; flex-wrap:wrap; width:100%;">
-            <div class="search-box-wrapper">
-                <svg class="search-icon-svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                <input type="text" name="q" value="{{ search_query }}" placeholder="Search by name, email, or order ID..." class="search-input">
-            </div>
-            <select name="sort" class="dropdown-filter" onchange="this.form.submit()">
-                <option value="date-desc" {% if sort_by == 'date-desc' %}selected{% endif %}>Sort by: Latest Activity</option>
-                <option value="spent-desc" {% if sort_by == 'spent-desc' %}selected{% endif %}>Sort by: Total Spent (High to Low)</option>
-                <option value="spent-asc" {% if sort_by == 'spent-asc' %}selected{% endif %}>Sort by: Total Spent (Low to High)</option>
-                <option value="orders-desc" {% if sort_by == 'orders-desc' %}selected{% endif %}>Sort by: Total Orders</option>
-            </select>
-            <button type="submit" class="dropdown-filter" style="cursor:pointer;">Filter</button>
-        </form>
-    </div>
-
-    {% if has_results %}
-    <div class="table-wrapper">
-        <table class="customers-table">
-            <thead>
-                <tr>
-                    <th>Customer</th>
-                    <th>Total Orders</th>
-                    <th>Total Spent</th>
-                    <th>Last Order Date</th>
-                    <th>Status</th>
-                    <th style="text-align: right;">Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for c in customers %}
-                <tr class="customer-row"
-                    data-name="{{ c.name }}"
-                    data-email="{{ c.email }}"
-                    data-phone="{{ c.phone }}"
-                    data-orders="{{ c.total_orders }}"
-                    data-spent="₹{{ c.total_spent }}"
-                    data-lastdate="{{ c.last_order_date }}"
-                    data-status="{{ c.status }}"
-                    data-history="{{ c.order_history_json }}">
-                    <td>
-                        <div class="customer-identity">
-                            <div class="avatar-initials {% cycle 'color-1' 'color-2' 'color-3' 'color-4' 'color-5' 'color-6' 'color-7' 'color-8' %}">{{ c.name|slice:":2"|upper }}</div>
-                            <div class="customer-meta-text">
-                                <span class="customer-name">{{ c.name }}</span>
-                                <span class="customer-contact">{{ c.email }} &middot; {{ c.phone }}</span>
-                            </div>
-                        </div>
-                    </td>
-                    <td style="font-weight: 600;">{{ c.total_orders }}</td>
-                    <td style="font-weight: 700; color: var(--text-dark);">₹{{ c.total_spent }}</td>
-                    <td style="color: var(--text-muted); font-size: 0.82rem;">{{ c.last_order_date }}</td>
-                    <td><span class="badge-status {{ c.status }}">{{ c.status|title }}</span></td>
-                    <td style="text-align: right;">
-                        <button class="action-row-btn" type="button" onclick="openCustomerDrawer(this.closest('tr'))"><i class="bi bi-eye"></i></button>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    {% else %}
-    <div style="text-align:center; padding:60px 20px; color:var(--text-muted);">
-        <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="margin-bottom:12px; opacity:0.5;">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+        <svg viewBox="0 0 100 20" class="metric-sparkline" style="position: absolute; bottom: 0; left: 0; width: 100%; height: 35px; opacity: 0.15; pointer-events: none; stroke: #4f46e5; stroke-width: 1.5; fill: none;">
+            <path d="M0 15 Q 10 5, 20 12 T 40 8 T 60 15 T 80 5 T 100 12" />
         </svg>
-        <p style="font-size:0.9rem; margin:0;">No customers match "<strong>{{ search_query }}</strong>"</p>
-        <p style="font-size:0.8rem; margin-top:6px;"><a href="{% url 'customer_list' %}" style="color:var(--primary);">Clear search</a></p>
     </div>
-    {% endif %}
-</div>
-{% else %}
-<div class="empty-state-card">
-    <div class="empty-icon-box">
-        <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
+
+    <!-- New Customers (Time-Based) -->
+    <div class="kpi-metric-card stat-active">
+        <div class="card-inner">
+            <div class="metric-data">
+                <span class="metric-label">New Customers</span>
+                <h3 class="metric-value">{{ new_customers_30d }}</h3>
+                <span class="metric-trend {% if new_trend_up %}text-success{% else %}text-danger{% endif %}">
+                    <i class="bi {% if new_trend_up %}bi-arrow-up-short{% else %}bi-arrow-down-short{% endif %}"></i> {{ new_trend_str }}
+                </span>
+            </div>
+            <div class="metric-icon">
+                <i class="bi bi-person-plus"></i>
+            </div>
+        </div>
+        <svg viewBox="0 0 100 20" class="metric-sparkline" style="position: absolute; bottom: 0; left: 0; width: 100%; height: 35px; opacity: 0.15; pointer-events: none; stroke: #10b981; stroke-width: 1.5; fill: none;">
+            <path d="M0 10 Q 15 18, 30 5 T 60 12 T 80 8 T 100 15" />
+        </svg>
     </div>
-    <h4 class="empty-title">No customers yet</h4>
-    <p class="empty-desc">Once customers start purchasing from your store channels, their contact and order records will appear here.</p>
+
+    <!-- Repeat Customer Rate -->
+    <div class="kpi-metric-card stat-warning">
+        <div class="card-inner">
+            <div class="metric-data">
+                <span class="metric-label">Repeat Rate</span>
+                <h3 class="metric-value">{{ repeat_rate }}%</h3>
+                <span class="metric-trend text-muted">
+                    Loyalty rate
+                </span>
+            </div>
+            <div class="metric-icon">
+                <i class="bi bi-arrow-repeat"></i>
+            </div>
+        </div>
+        <svg viewBox="0 0 100 20" class="metric-sparkline" style="position: absolute; bottom: 0; left: 0; width: 100%; height: 35px; opacity: 0.15; pointer-events: none; stroke: #f59e0b; stroke-width: 1.5; fill: none;">
+            <path d="M0 5 Q 20 15, 40 8 T 70 18 T 100 8" />
+        </svg>
+    </div>
+
+    <!-- Avg. Customer LTV -->
+    <div class="kpi-metric-card stat-value">
+        <div class="card-inner">
+            <div class="metric-data">
+                <span class="metric-label">Avg. Customer LTV</span>
+                <h3 class="metric-value">₹{{ avg_ltv }}</h3>
+                <span class="metric-trend text-muted">
+                    Lifetime value
+                </span>
+            </div>
+            <div class="metric-icon">
+                <i class="bi bi-wallet2"></i>
+            </div>
+        </div>
+        <svg viewBox="0 0 100 20" class="metric-sparkline" style="position: absolute; bottom: 0; left: 0; width: 100%; height: 35px; opacity: 0.15; pointer-events: none; stroke: #7c3aed; stroke-width: 1.5; fill: none;">
+            <path d="M0 12 Q 10 18, 30 12 T 60 5 T 90 15 T 100 10" />
+        </svg>
+    </div>
 </div>
-{% endif %}
+
+<!-- SPLIT LAYOUT -->
+<div class="customers-split-grid">
+
+    <!-- LEFT COLUMN: DIRECTORY TABLE -->
+    <div class="customers-card" style="margin-bottom: 20px;">
+        <div class="table-filter-bar" style="padding: 16px 20px;">
+            <form method="get" style="display: flex; gap: 12px; flex-wrap: wrap; width: 100%; align-items: center;">
+                <div class="search-box-wrapper" style="max-width: 280px; flex-grow: 1;">
+                    <i class="bi bi-search" style="position: absolute; left: 12px; color: var(--text-muted); font-size: 0.85rem;"></i>
+                    <input type="text" name="q" value="{{ search_query }}" placeholder="Search by name, email..." class="search-input" style="padding-left: 36px; font-size: 0.82rem; border-radius: 8px;">
+                </div>
+                
+                <select name="sort" class="dropdown-filter" onchange="this.form.submit()" style="font-size: 0.82rem; border-radius: 8px; padding: 8px 12px;">
+                    <option value="date-desc" {% if sort_by == 'date-desc' %}selected{% endif %}>Latest Activity</option>
+                    <option value="spent-desc" {% if sort_by == 'spent-desc' %}selected{% endif %}>Total Spent (High to Low)</option>
+                    <option value="spent-asc" {% if sort_by == 'spent-asc' %}selected{% endif %}>Total Spent (Low to High)</option>
+                    <option value="orders-desc" {% if sort_by == 'orders-desc' %}selected{% endif %}>Total Orders</option>
+                </select>
+
+                <button type="submit" class="btn btn-outline-secondary" style="font-size: 0.82rem; font-weight: 700; padding: 8px 14px; border-radius: 8px; border: 1.5px solid var(--border-color);">
+                    Filter
+                </button>
+                
+                {% if search_query %}
+                <a href="{% url 'customer_list' %}" style="font-size: 0.8rem; color: var(--primary); font-weight: 600; text-decoration: none; margin-left: 4px;">
+                    Clear filters
+                </a>
+                {% endif %}
+            </form>
+        </div>
+
+        {% if has_customers %}
+            {% if has_results %}
+            <div class="table-wrapper">
+                <table class="customers-table">
+                    <thead>
+                        <tr>
+                            <th>Customer</th>
+                            <th>Total Orders</th>
+                            <th>Total Spent</th>
+                            <th>Last Order Date</th>
+                            <th>Status</th>
+                            <th style="text-align: right;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for c in page_obj %}
+                        <tr class="customer-row"
+                            data-name="{{ c.name }}"
+                            data-email="{{ c.email }}"
+                            data-phone="{{ c.phone }}"
+                            data-orders="{{ c.total_orders }}"
+                            data-spent="₹{{ c.total_spent }}"
+                            data-lastdate="{{ c.last_order_date }}"
+                            data-status="{{ c.status }}"
+                            data-history="{{ c.order_history_json }}">
+                            <td>
+                                <div class="customer-identity">
+                                    <div class="avatar-initials {% cycle 'color-1' 'color-2' 'color-3' 'color-4' 'color-5' 'color-6' 'color-7' 'color-8' %}">
+                                        {{ c.name|slice:":2"|upper }}
+                                    </div>
+                                    <div class="customer-meta-text">
+                                        <span class="customer-name" style="font-size: 0.85rem;">{{ c.name }}</span>
+                                        <span class="customer-contact" style="font-size: 0.72rem;">{{ c.email }} &middot; {{ c.phone }}</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td style="font-weight: 600; font-size: 0.85rem;">{{ c.total_orders }}</td>
+                            <td>
+                                <div style="font-weight: 700; color: var(--text-dark); font-size: 0.85rem;">₹{{ c.total_spent }}</div>
+                                <!-- Spending relative progress bar -->
+                                <div style="width: 100%; max-width: 100px; height: 6px; background-color: var(--border-color, #e2e8f0); border-radius: 3px; overflow: hidden; margin-top: 4px;">
+                                    <div style="width: {% widthratio c.total_spent max_spent 100 %}%; height: 100%; background-color: var(--primary, #4f46e5); border-radius: 3px;"></div>
+                                </div>
+                            </td>
+                            <td style="color: var(--text-muted); font-size: 0.8rem;">{{ c.last_order_date }}</td>
+                            <td><span class="badge-status {{ c.status }}" style="font-size: 0.68rem; padding: 2px 8px; border-radius: 6px;">{{ c.status|title }}</span></td>
+                            <td style="text-align: right;">
+                                <button class="action-row-btn" type="button" onclick="openCustomerDrawer(this.closest('tr'))">
+                                    <i class="bi bi-eye" style="font-size: 0.85rem;"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- REAL DJANGO PAGINATOR CONTROLS -->
+            {% if page_obj.has_other_pages %}
+            <div class="pagination-container" style="display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-top: 1px solid var(--border-color, #e2e8f0);">
+                <span class="pagination-info" style="font-size: 0.78rem; color: var(--text-muted, #64748b);">
+                    Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ page_obj.paginator.count }} customers
+                </span>
+                <div class="pagination-buttons" style="display: flex; gap: 6px;">
+                    {% if page_obj.has_previous %}
+                        <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}" class="btn-secondary-sm" style="padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 0.76rem; border: 1.5px solid var(--border-color);">
+                            Previous
+                        </a>
+                    {% else %}
+                        <span class="btn-secondary-sm" style="padding: 6px 12px; border-radius: 6px; opacity: 0.5; cursor: not-allowed; color: var(--text-light); font-size: 0.76rem; border: 1.5px solid var(--border-color);">
+                            Previous
+                        </span>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                            <span class="btn-secondary-sm" style="padding: 6px 12px; border-radius: 6px; background-color: var(--primary); color: #ffffff; border-color: var(--primary); font-size: 0.76rem; font-weight: 700;">
+                                {{ num }}
+                            </span>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                            <a href="?page={{ num }}{% if search_query %}&q={{ search_query }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}" class="btn-secondary-sm" style="padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 0.76rem; border: 1.5px solid var(--border-color);">
+                                {{ num }}
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}" class="btn-secondary-sm" style="padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 0.76rem; border: 1.5px solid var(--border-color);">
+                            Next
+                        </a>
+                    {% else %}
+                        <span class="btn-secondary-sm" style="padding: 6px 12px; border-radius: 6px; opacity: 0.5; cursor: not-allowed; color: var(--text-light); font-size: 0.76rem; border: 1.5px solid var(--border-color);">
+                            Next
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+            {% else %}
+            <div class="pagination-container" style="display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-top: 1px solid var(--border-color, #e2e8f0);">
+                <span class="pagination-info" style="font-size: 0.78rem; color: var(--text-muted, #64748b);">
+                    Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ page_obj.paginator.count }} customers
+                </span>
+            </div>
+            {% endif %}
+
+            {% else %}
+            <!-- Results Empty State -->
+            <div style="text-align: center; padding: 60px 24px; color: var(--text-muted);">
+                <i class="bi bi-search" style="font-size: 2rem; color: #94a3b8; display: block; margin-bottom: 12px;"></i>
+                <p style="font-size: 0.9rem; font-weight: 700; margin: 0 0 6px;">No search results found</p>
+                <p style="font-size: 0.8rem; margin: 0 0 16px;">No customers match "<strong>{{ search_query }}</strong>"</p>
+                <a href="{% url 'customer_list' %}" class="btn btn-outline-primary" style="font-size: 0.8rem; font-weight: 700; padding: 6px 16px; border-radius: 8px; text-decoration: none;">Clear Search Query</a>
+            </div>
+            {% endif %}
+        {% else %}
+            <!-- Honest Database Empty State -->
+            <div class="empty-state-card" style="border: none; padding: 60px 24px;">
+                <div class="empty-icon-box" style="width: 56px; height: 56px; background-color: #f8fafc; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+                    <i class="bi bi-people" style="font-size: 1.8rem; color: #94a3b8;"></i>
+                </div>
+                <h4 class="empty-title" style="font-size: 1rem; font-weight: 800; color: var(--text-dark); margin: 0 0 6px;">No customers yet</h4>
+                <p class="empty-desc" style="color: var(--text-muted); font-size: 0.82rem; max-width: 340px; margin: 0 auto 16px;">Once customers start purchasing from your store channels, their records will appear here.</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- RIGHT COLUMN: SIDEBAR -->
+    <div class="split-column">
+        <!-- Customer Insights Card -->
+        <div class="sidebar-card">
+            <header class="sidebar-card-header">
+                <h3 class="sidebar-card-title">Customer Insights</h3>
+                <i class="bi bi-bar-chart" style="color: var(--primary); font-size: 0.95rem;"></i>
+            </header>
+            
+            <div class="insight-item">
+                <span class="insight-label">Top Spender</span>
+                <span class="insight-value" style="text-align: right;">
+                    {% if top_spender %}{{ top_spender.name }} <br><small style="color: var(--success); font-weight: 700;">₹{{ top_spender.total_spent }}</small>{% else %}None{% endif %}
+                </span>
+            </div>
+            
+            <div class="insight-item">
+                <span class="insight-label">Most Orders</span>
+                <span class="insight-value" style="text-align: right;">
+                    {% if most_orders %}{{ most_orders.name }} <br><small style="color: var(--primary); font-weight: 700;">{{ most_orders.total_orders }} orders</small>{% else %}None{% endif %}
+                </span>
+            </div>
+
+            <div class="insight-item">
+                <span class="insight-label">New This Month</span>
+                <span class="insight-value">{{ new_customers_30d }}</span>
+            </div>
+
+            <div class="insight-item">
+                <span class="insight-label">Repeat Customers</span>
+                <span class="insight-value">{{ repeat_count }} ({{ repeat_rate }}%)</span>
+            </div>
+
+            <a href="{% url 'analytics_view' %}" style="display: block; text-align: center; font-size: 0.78rem; font-weight: 700; color: var(--primary); text-decoration: none; margin-top: 14px;">
+                View Full Report &rarr;
+            </a>
+        </div>
+
+        <!-- Customer Growth Chart Card -->
+        <div class="sidebar-card">
+            <header class="sidebar-card-header">
+                <h3 class="sidebar-card-title">Customer Growth</h3>
+                <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">Last 30 Days</span>
+            </header>
+            <div style="position: relative; height: 180px; width: 100%;">
+                <canvas id="growthChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Quick Actions Card -->
+        <div class="sidebar-card">
+            <header class="sidebar-card-header">
+                <h3 class="sidebar-card-title">Quick Actions</h3>
+            </header>
+            
+            <!-- Add Customer -> links to manual order creation -->
+            <a href="{% url 'order_add' %}" class="action-link-btn">
+                <div>
+                    <span style="display: block;">Add Customer</span>
+                    <small style="font-weight: 500; font-size: 0.68rem; color: var(--text-muted); display: block; margin-top: 2px;">Register client by adding manual order</small>
+                </div>
+                <i class="bi bi-person-plus" style="font-size: 1.1rem; color: var(--primary);"></i>
+            </a>
+
+            <!-- Email Customers -> marked Coming Soon -->
+            <div style="position: relative;">
+                <button type="button" class="action-link-btn" style="width: 100%; cursor: not-allowed; opacity: 0.7;" disabled title="Bulk emailing coming soon">
+                    <div>
+                        <span style="display: block;">Email Customers</span>
+                        <small style="font-weight: 500; font-size: 0.68rem; color: var(--text-muted); display: block; margin-top: 2px;">Coming Soon (Connection required)</small>
+                    </div>
+                    <i class="bi bi-envelope" style="font-size: 1.1rem; color: var(--text-muted);"></i>
+                </button>
+            </div>
+
+            <!-- Export Customers CSV -->
+            <a href="{% url 'export_customers_csv' %}" class="action-link-btn">
+                <div>
+                    <span style="display: block;">Export Customers</span>
+                    <small style="font-weight: 500; font-size: 0.68rem; color: var(--text-muted); display: block; margin-top: 2px;">Download entire directory as CSV</small>
+                </div>
+                <i class="bi bi-download" style="font-size: 1.1rem; color: var(--primary);"></i>
+            </a>
+        </div>
+    </div>
+
+</div>
 
 <!-- Drawer Backdrop -->
 <div class="drawer-backdrop" id="backdrop" onclick="closeCustomerDrawer()"></div>
@@ -186,74 +449,126 @@
     </div>
 </div>
 
+{% endblock %}
+
+{% block extra_js %}
+<!-- Include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-function openCustomerDrawer(row) {
-    const name = row.dataset.name;
-    const email = row.dataset.email;
-    const phone = row.dataset.phone;
-    const orders = row.dataset.orders;
-    const spent = row.dataset.spent;
-    const lastdate = row.dataset.lastdate;
-    const status = row.dataset.status;
-    const history = JSON.parse(row.dataset.history || '[]');
+    // Initialize customer growth daily line chart
+    const growthData = JSON.parse('{{ growth_chart_json|safe }}');
+    const ctx = document.getElementById('growthChart').getContext('2d');
+    
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: growthData.labels,
+            datasets: [{
+                label: 'New Customers',
+                data: growthData.values,
+                borderColor: '#4f46e5',
+                backgroundColor: 'rgba(79, 70, 229, 0.04)',
+                borderWidth: 2,
+                pointBackgroundColor: '#4f46e5',
+                pointRadius: 0,
+                pointHoverRadius: 4,
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                x: {
+                    grid: { display: false },
+                    ticks: {
+                        font: { size: 9 },
+                        maxTicksLimit: 5
+                    }
+                },
+                y: {
+                    grid: { color: '#f1f5f9' },
+                    ticks: {
+                        font: { size: 9 },
+                        stepSize: 1,
+                        precision: 0
+                    }
+                }
+            }
+        }
+    });
 
-    document.getElementById('drawer-cust-name').innerText = name;
-    document.getElementById('drawer-cust-fullname').innerText = name;
-    document.getElementById('drawer-cust-email').innerText = email;
-    document.getElementById('drawer-cust-phone').innerText = phone;
-    document.getElementById('drawer-cust-orders').innerText = orders;
-    document.getElementById('drawer-cust-spent').innerText = spent;
-    document.getElementById('drawer-cust-lastdate').innerText = lastdate;
-    document.getElementById('drawer-cust-tier').innerText = status.charAt(0).toUpperCase() + status.slice(1);
+    // Drawer triggers
+    function openCustomerDrawer(row) {
+        const name = row.dataset.name;
+        const email = row.dataset.email;
+        const phone = row.dataset.phone;
+        const orders = row.dataset.orders;
+        const spent = row.dataset.spent;
+        const lastdate = row.dataset.lastdate;
+        const status = row.dataset.status;
+        const history = JSON.parse(row.dataset.history || '[]');
 
-    const badge = document.getElementById('drawer-cust-badge');
-    badge.innerText = status.charAt(0).toUpperCase() + status.slice(1);
-    badge.className = 'badge-status drawer-subtitle-badge ' + status;
+        document.getElementById('drawer-cust-name').innerText = name;
+        document.getElementById('drawer-cust-fullname').innerText = name;
+        document.getElementById('drawer-cust-email').innerText = email;
+        document.getElementById('drawer-cust-phone').innerText = phone;
+        document.getElementById('drawer-cust-orders').innerText = orders;
+        document.getElementById('drawer-cust-spent').innerText = spent;
+        document.getElementById('drawer-cust-lastdate').innerText = lastdate;
+        document.getElementById('drawer-cust-tier').innerText = status.charAt(0).toUpperCase() + status.slice(1);
 
-    const avatar = document.getElementById('drawer-cust-avatar');
-    const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
-    avatar.innerText = initials;
-    avatar.className = 'drawer-avatar ' + status;
+        const badge = document.getElementById('drawer-cust-badge');
+        badge.innerText = status.charAt(0).toUpperCase() + status.slice(1);
+        badge.className = 'badge-status drawer-subtitle-badge ' + status;
 
-    const ordersList = document.getElementById('drawer-orders-list');
-    ordersList.innerHTML = '';
-    if (history.length === 0) {
-        ordersList.innerHTML = '<p style="color:var(--text-muted); font-size:0.85rem;">No order history found.</p>';
-    } else {
-        history.forEach(function (o) {
-            ordersList.innerHTML += `
-                <div class="past-order-row">
-                    <div class="order-left-details">
-                        <span class="order-row-id">#ORD-${o.id}</span>
-                        <span class="order-row-date">${o.date}</span>
-                        <span class="order-row-channel">${o.channel}</span>
+        const avatar = document.getElementById('drawer-cust-avatar');
+        const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+        avatar.innerText = initials;
+        avatar.className = 'drawer-avatar ' + status;
+
+        const ordersList = document.getElementById('drawer-orders-list');
+        ordersList.innerHTML = '';
+        if (history.length === 0) {
+            ordersList.innerHTML = '<p style="color:var(--text-muted); font-size:0.85rem;">No order history found.</p>';
+        } else {
+            history.forEach(function (o) {
+                ordersList.innerHTML += `
+                    <div class="past-order-row" style="margin-bottom: 10px;">
+                        <div class="order-left-details">
+                            <span class="order-row-id">#ORD-${o.id}</span>
+                            <span class="order-row-date">${o.date}</span>
+                            <span class="order-row-channel">${o.channel}</span>
+                        </div>
+                        <div class="order-right-details">
+                            <span class="order-row-amount">₹${o.amount}</span>
+                            <span class="order-mini-badge ${o.status}">${o.status_display}</span>
+                        </div>
                     </div>
-                    <div class="order-right-details">
-                        <span class="order-row-amount">₹${o.amount}</span>
-                        <span class="order-mini-badge ${o.status}">${o.status_display}</span>
-                    </div>
-                </div>
-            `;
-        });
+                `;
+            });
+        }
+
+        document.getElementById('backdrop').classList.add('active');
+        document.getElementById('customer-drawer').classList.add('active');
     }
 
-    document.getElementById('backdrop').classList.add('active');
-    document.getElementById('customer-drawer').classList.add('active');
-}
-
-document.addEventListener('DOMContentLoaded', function () {
-    document.querySelectorAll('.customer-row').forEach(function (row) {
-        row.addEventListener('click', function (e) {
-            if (e.target.closest('.action-row-btn')) return; // avoid double-trigger from the eye button
-            openCustomerDrawer(row);
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.customer-row').forEach(function (row) {
+            row.addEventListener('click', function (e) {
+                if (e.target.closest('.action-row-btn')) return;
+                openCustomerDrawer(row);
+            });
         });
     });
-});
 
-function closeCustomerDrawer() {
-    document.getElementById('backdrop').classList.remove('active');
-    document.getElementById('customer-drawer').classList.remove('active');
-}
+    function closeCustomerDrawer() {
+        document.getElementById('backdrop').classList.remove('active');
+        document.getElementById('customer-drawer').classList.remove('active');
+    }
 </script>
-
 {% endblock %}

@@ -83,4 +83,14 @@ class Discount(models.Model):
         if today > self.expiry_date:
             return 'expired'
         return 'active'
+
+
+class Note(models.Model):
+    business = models.ForeignKey('accounts.BusinessProfile', on_delete=models.CASCADE, related_name='notes')
+    content = models.TextField()
+    is_done = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.content[:50]
     

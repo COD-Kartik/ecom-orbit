@@ -146,3 +146,101 @@
     .discounts-table th, .discounts-table td { padding: 8px 10px; font-size: 0.74rem; }
     .code-pill { font-size: 0.72rem; padding: 2px 6px; }
 }
+
+/* KPI Metric Cards System (Self-Contained Override) */
+.kpi-grid-discounts {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-bottom: 24px;
+}
+@media (max-width: 1200px) {
+    .kpi-grid-discounts { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 576px) {
+    .kpi-grid-discounts { grid-template-columns: 1fr; }
+}
+
+.kpi-metric-card {
+    background: #ffffff;
+    border-radius: 16px;
+    border: 1px solid #c7d2fe;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 3px rgba(9, 8, 30, 0.01), 0 10px 20px -5px rgba(9, 8, 30, 0.03);
+}
+.kpi-metric-card:hover {
+    transform: translateY(-4px);
+    border-color: #a5b4fc;
+    box-shadow: 0 12px 32px -4px rgba(79, 70, 229, 0.1), 0 4px 12px -2px rgba(9, 8, 30, 0.04);
+}
+.card-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    z-index: 3;
+}
+.metric-data {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.metric-label {
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.metric-value {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+}
+.metric-trend {
+    font-size: 0.74rem;
+    font-weight: 600;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.metric-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.35rem;
+    box-shadow: inset 0 -2px 4px rgba(0,0,0,0.02);
+}
+/* Card Accent Variations with soft gradients and left border highlights */
+.stat-total {
+    background: linear-gradient(135deg, #ffffff 0%, #f5f7ff 100%) !important;
+    border-left: 5px solid #4f46e5 !important;
+}
+.stat-total .metric-icon { background-color: #eef2ff; color: #4f46e5; }
+
+.stat-active {
+    background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%) !important;
+    border-left: 5px solid #10b981 !important;
+}
+.stat-active .metric-icon { background-color: #ecfdf5; color: #10b981; }
+
+.stat-warning {
+    background: linear-gradient(135deg, #ffffff 0%, #fffbeb 100%) !important;
+    border-left: 5px solid #f59e0b !important;
+}
+.stat-warning .metric-icon { background-color: #fffbeb; color: #f59e0b; }
+
+.stat-value {
+    background: linear-gradient(135deg, #ffffff 0%, #faf5ff 100%) !important;
+    border-left: 5px solid #7c3aed !important;
+}
+.stat-value .metric-icon { background-color: #f5f3ff; color: #7c3aed; }

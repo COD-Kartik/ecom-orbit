@@ -4,79 +4,332 @@
 {% block title %}Notifications{% endblock %}
 {% block page_title %}Notification Feed{% endblock %}
 {% block nav_notifications %}active{% endblock %}
+
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/notifications.css' %}">
+<link rel="stylesheet" href="{% static 'css/notifications.css' %}?v=1.2">
+<style>
+    /* Responsive layout padding adjustments */
+    .notif-group-header {
+        max-width: 100% !important;
+        margin-left: 0 !important;
+    }
+    .notifications-feed {
+        max-width: 100% !important;
+    }
+    .empty-state-card {
+        max-width: 100% !important;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
 
-<div class="filter-bar">
-    <a href="?filter=all" class="filter-pill {% if current_filter == 'all' %}active{% endif %}">All Notifications</a>
-    <a href="?filter=low-stock" class="filter-pill {% if current_filter == 'low-stock' %}active{% endif %}">Low Stock</a>
-    <a href="?filter=new-order" class="filter-pill {% if current_filter == 'new-order' %}active{% endif %}">New Orders</a>
-</div>
-
-{% if notifications %}
-<div class="notifications-feed">
-    {% for n in notifications %}
-    <div class="notification-row {{ n.type }}" id="notif-row-{{ n.type }}-{% if n.type == 'new-order' %}{{ n.order_id }}{% else %}{{ n.product_id }}{% endif %}">
-        <div class="notif-icon-box {{ n.type }}">
-            {% if n.type == 'new-order' %}
-            <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z" /></svg>
-            {% else %}
-            <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" /></svg>
-            {% endif %}
-        </div>
-
-        <div class="notif-body">
-            {% if n.type == 'new-order' %}
-            <span class="notif-title">New Order Received <span class="channel-badge">{{ n.channel_name }}</span></span>
-            <span class="notif-desc">Order <strong>#ORD-{{ n.order_id }}</strong> placed by <strong>{{ n.customer_name }}</strong> for a total value of <strong>₹{{ n.amount }}</strong>.</span>
-            {% else %}
-            <span class="notif-title">Low Stock Alert</span>
-            <span class="notif-desc">Product <strong>{{ n.product_title }}</strong> is running low. Only <strong>{{ n.stock }} units left</strong> in stock.</span>
-            {% endif %}
-        </div>
-
-        <div class="notif-meta">
-            <span class="notif-time">{{ n.time_label }}</span>
-            <div style="display:flex; gap:8px;">
-                {% if n.type == 'new-order' %}
-                <a href="{% url 'order_detail' n.order_id %}" class="btn-action">
-                    <span>View Order</span>
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"></path></svg>
-                </a>
-                <button type="button" class="btn-action" onclick="discardNotification('new-order', {{ n.order_id }})" title="Discard">
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
-                </button>
-                {% else %}
-                <a href="{% url 'product_edit' n.product_id %}" class="btn-action">
-                    <span>View Product</span>
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"></path></svg>
-                </a>
-                <button type="button" class="btn-action" onclick="discardNotification('low-stock', {{ n.product_id }})" title="Discard">
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
-                </button>
-                {% endif %}
+<!-- 3 KPI STAT CARDS (Reusing .kpi-metric-card system - Full Width) -->
+<div class="kpi-grid-notifications" style="max-width: 100%; margin-bottom: 24px;">
+    <!-- Total Alerts -->
+    <div class="kpi-metric-card stat-total">
+        <div class="card-inner">
+            <div class="metric-data">
+                <span class="metric-label">Total Alerts</span>
+                <h3 class="metric-value" id="kpi-total-val">{{ total_alerts }}</h3>
+                <span class="metric-trend text-muted">Active notifications</span>
+            </div>
+            <div class="metric-icon">
+                <i class="bi bi-bell"></i>
             </div>
         </div>
-    </div>
-    {% endfor %}
-</div>
-
-{% else %}
-<div class="empty-state-card">
-    <div class="empty-icon-wrapper">
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" />
+        <svg viewBox="0 0 100 20" class="metric-sparkline" style="position: absolute; bottom: 0; left: 0; width: 100%; height: 35px; opacity: 0.15; pointer-events: none; stroke: #4f46e5; stroke-width: 1.5; fill: none;">
+            <path d="M0 15 Q 10 5, 20 12 T 40 8 T 60 15 T 80 5 T 100 12" />
         </svg>
     </div>
-    <h4 class="empty-title">You're all caught up!</h4>
-    <p class="empty-desc">There are no new alerts at the moment. All inventory thresholds and channels are synced.</p>
+
+    <!-- Low Stock Alerts -->
+    <div class="kpi-metric-card stat-low-stock">
+        <div class="card-inner">
+            <div class="metric-data">
+                <span class="metric-label">Low Stock</span>
+                <h3 class="metric-value" id="kpi-low-stock-val">{{ low_stock_alerts }}</h3>
+                <span class="metric-trend text-danger">Needs urgent action</span>
+            </div>
+            <div class="metric-icon">
+                <i class="bi bi-exclamation-triangle"></i>
+            </div>
+        </div>
+        <svg viewBox="0 0 100 20" class="metric-sparkline" style="position: absolute; bottom: 0; left: 0; width: 100%; height: 35px; opacity: 0.15; pointer-events: none; stroke: #ef4444; stroke-width: 1.5; fill: none;">
+            <path d="M0 10 Q 15 18, 30 5 T 60 12 T 80 8 T 100 15" />
+        </svg>
+    </div>
+
+    <!-- New Orders Alerts -->
+    <div class="kpi-metric-card stat-new-orders">
+        <div class="card-inner">
+            <div class="metric-data">
+                <span class="metric-label">New Orders</span>
+                <h3 class="metric-value" id="kpi-new-orders-val">{{ new_orders_alerts }}</h3>
+                <span class="metric-trend text-primary">Routine updates</span>
+            </div>
+            <div class="metric-icon">
+                <i class="bi bi-cart"></i>
+            </div>
+        </div>
+        <svg viewBox="0 0 100 20" class="metric-sparkline" style="position: absolute; bottom: 0; left: 0; width: 100%; height: 35px; opacity: 0.15; pointer-events: none; stroke: #3b82f6; stroke-width: 1.5; fill: none;">
+            <path d="M0 5 Q 20 15, 40 8 T 70 18 T 100 8" />
+        </svg>
+    </div>
 </div>
-{% endif %}
+
+<!-- FILTER BAR & DISMISS ALL BUTTON (Full Width) -->
+<div class="filter-bar" style="max-width: 100%; margin: 0 auto 24px; display: flex; justify-content: space-between; align-items: center; width: 100%;">
+    <div style="display: flex; gap: 8px;">
+        <a href="?filter=all" class="filter-pill {% if current_filter == 'all' %}active{% endif %}">All Notifications</a>
+        <a href="?filter=low-stock" class="filter-pill {% if current_filter == 'low-stock' %}active{% endif %}">Low Stock</a>
+        <a href="?filter=new-order" class="filter-pill {% if current_filter == 'new-order' %}active{% endif %}">New Orders</a>
+    </div>
+    {% if notifications %}
+    <button type="button" class="btn btn-outline-danger" onclick="dismissAllNotifications()" style="font-size: 0.8rem; font-weight: 700; padding: 8px 16px; border-radius: 9999px; border: 1.5px solid var(--danger, #ef4444); background: none; color: var(--danger, #ef4444); cursor: pointer; transition: all 0.2s;">
+        Dismiss All
+    </button>
+    {% endif %}
+</div>
+
+<!-- TWO-COLUMN SPLIT GRID -->
+<div class="notifications-split-grid">
+    
+    <!-- LEFT COLUMN: EXISTING NOTIFICATION FEED -->
+    <div style="width: 100%;">
+        {% if notifications %}
+        <div class="notifications-feed-container">
+            
+            <!-- TODAY GROUP -->
+            {% if grouped_notifications.today %}
+                <div class="notif-group-header">Today</div>
+                <div class="notifications-feed" style="margin-bottom: 24px;">
+                    {% for n in grouped_notifications.today %}
+                    <div class="notification-row {{ n.type }}" id="notif-row-{{ n.type }}-{% if n.type == 'new-order' %}{{ n.order_id }}{% else %}{{ n.product_id }}{% endif %}" data-type="{{ n.type }}" data-ref-id="{% if n.type == 'new-order' %}{{ n.order_id }}{% else %}{{ n.product_id }}{% endif %}">
+                        <div class="notif-icon-box {{ n.type }}">
+                            {% if n.type == 'new-order' %}
+                            <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z" /></svg>
+                            {% else %}
+                            <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" /></svg>
+                            {% endif %}
+                        </div>
+                        <div class="notif-body">
+                            {% if n.type == 'new-order' %}
+                            <span class="notif-title">New Order Received <span class="channel-badge">{{ n.channel_name }}</span></span>
+                            <span class="notif-desc">Order <strong>#ORD-{{ n.order_id }}</strong> placed by <strong>{{ n.customer_name }}</strong> for a total value of <strong>₹{{ n.amount }}</strong>.</span>
+                            {% else %}
+                            <span class="notif-title">Low Stock Alert</span>
+                            <span class="notif-desc">Product <strong>{{ n.product_title }}</strong> is running low. Only <strong>{{ n.stock }} units left</strong> in stock.</span>
+                            {% endif %}
+                        </div>
+                        <div class="notif-meta">
+                            <span class="notif-time">{{ n.time_label }}</span>
+                            <div style="display:flex; gap:8px;">
+                                {% if n.type == 'new-order' %}
+                                <a href="{% url 'order_detail' n.order_id %}" class="btn-action">
+                                    <span>View Order</span>
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"></path></svg>
+                                </a>
+                                <button type="button" class="btn-action" onclick="discardNotification('new-order', {{ n.order_id }})" title="Discard">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                </button>
+                                {% else %}
+                                <a href="{% url 'product_edit' n.product_id %}" class="btn-action">
+                                    <span>View Product</span>
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"></path></svg>
+                                </a>
+                                <button type="button" class="btn-action" onclick="discardNotification('low-stock', {{ n.product_id }})" title="Discard">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <!-- YESTERDAY GROUP -->
+            {% if grouped_notifications.yesterday %}
+                <div class="notif-group-header">Yesterday</div>
+                <div class="notifications-feed" style="margin-bottom: 24px;">
+                    {% for n in grouped_notifications.yesterday %}
+                    <div class="notification-row {{ n.type }}" id="notif-row-{{ n.type }}-{% if n.type == 'new-order' %}{{ n.order_id }}{% else %}{{ n.product_id }}{% endif %}" data-type="{{ n.type }}" data-ref-id="{% if n.type == 'new-order' %}{{ n.order_id }}{% else %}{{ n.product_id }}{% endif %}">
+                        <div class="notif-icon-box {{ n.type }}">
+                            {% if n.type == 'new-order' %}
+                            <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z" /></svg>
+                            {% else %}
+                            <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" /></svg>
+                            {% endif %}
+                        </div>
+                        <div class="notif-body">
+                            {% if n.type == 'new-order' %}
+                            <span class="notif-title">New Order Received <span class="channel-badge">{{ n.channel_name }}</span></span>
+                            <span class="notif-desc">Order <strong>#ORD-{{ n.order_id }}</strong> placed by <strong>{{ n.customer_name }}</strong> for a total value of <strong>₹{{ n.amount }}</strong>.</span>
+                            {% else %}
+                            <span class="notif-title">Low Stock Alert</span>
+                            <span class="notif-desc">Product <strong>{{ n.product_title }}</strong> is running low. Only <strong>{{ n.stock }} units left</strong> in stock.</span>
+                            {% endif %}
+                        </div>
+                        <div class="notif-meta">
+                            <span class="notif-time">{{ n.time_label }}</span>
+                            <div style="display:flex; gap:8px;">
+                                {% if n.type == 'new-order' %}
+                                <a href="{% url 'order_detail' n.order_id %}" class="btn-action">
+                                    <span>View Order</span>
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"></path></svg>
+                                </a>
+                                <button type="button" class="btn-action" onclick="discardNotification('new-order', {{ n.order_id }})" title="Discard">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                </button>
+                                {% else %}
+                                <a href="{% url 'product_edit' n.product_id %}" class="btn-action">
+                                    <span>View Product</span>
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"></path></svg>
+                                </a>
+                                <button type="button" class="btn-action" onclick="discardNotification('low-stock', {{ n.product_id }})" title="Discard">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <!-- EARLIER GROUP -->
+            {% if grouped_notifications.earlier %}
+                <div class="notif-group-header">Earlier</div>
+                <div class="notifications-feed" style="margin-bottom: 24px;">
+                    {% for n in grouped_notifications.earlier %}
+                    <div class="notification-row {{ n.type }}" id="notif-row-{{ n.type }}-{% if n.type == 'new-order' %}{{ n.order_id }}{% else %}{{ n.product_id }}{% endif %}" data-type="{{ n.type }}" data-ref-id="{% if n.type == 'new-order' %}{{ n.order_id }}{% else %}{{ n.product_id }}{% endif %}">
+                        <div class="notif-icon-box {{ n.type }}">
+                            {% if n.type == 'new-order' %}
+                            <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z" /></svg>
+                            {% else %}
+                            <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" /></svg>
+                            {% endif %}
+                        </div>
+                        <div class="notif-body">
+                            {% if n.type == 'new-order' %}
+                            <span class="notif-title">New Order Received <span class="channel-badge">{{ n.channel_name }}</span></span>
+                            <span class="notif-desc">Order <strong>#ORD-{{ n.order_id }}</strong> placed by <strong>{{ n.customer_name }}</strong> for a total value of <strong>₹{{ n.amount }}</strong>.</span>
+                            {% else %}
+                            <span class="notif-title">Low Stock Alert</span>
+                            <span class="notif-desc">Product <strong>{{ n.product_title }}</strong> is running low. Only <strong>{{ n.stock }} units left</strong> in stock.</span>
+                            {% endif %}
+                        </div>
+                        <div class="notif-meta">
+                            <span class="notif-time">{{ n.time_label }}</span>
+                            <div style="display:flex; gap:8px;">
+                                {% if n.type == 'new-order' %}
+                                <a href="{% url 'order_detail' n.order_id %}" class="btn-action">
+                                    <span>View Order</span>
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"></path></svg>
+                                </a>
+                                <button type="button" class="btn-action" onclick="discardNotification('new-order', {{ n.order_id }})" title="Discard">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                </button>
+                                {% else %}
+                                <a href="{% url 'product_edit' n.product_id %}" class="btn-action">
+                                    <span>View Product</span>
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"></path></svg>
+                                </a>
+                                <button type="button" class="btn-action" onclick="discardNotification('low-stock', {{ n.product_id }})" title="Discard">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+        </div>
+        {% else %}
+        <div class="empty-state-card">
+            <div class="empty-icon-wrapper">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" />
+                </svg>
+            </div>
+            <h4 class="empty-title">You're all caught up!</h4>
+            <p class="empty-desc">There are no new alerts at the moment. All inventory thresholds and channels are synced.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- RIGHT COLUMN: ANNOUNCEMENTS & NOTES SIDEBAR -->
+    <div class="notes-sidebar-wrapper">
+        <div class="notes-card">
+            <div class="notes-card-header">
+                <h3 class="notes-card-title">Announcements & Notes</h3>
+            </div>
+
+            <!-- Create Note Form -->
+            <form action="{% url 'note_create' %}" method="post" style="display: flex; flex-direction: column; gap: 10px;">
+                {% csrf_token %}
+                <textarea name="content" class="filter-input" placeholder="Type a reminder or note..." style="width: 100%; height: 140px; resize: none; font-size: 0.84rem; padding: 10px; border-radius: 8px; border: 1.5px solid var(--border-color);" required></textarea>
+                <button type="submit" class="btn btn-primary" style="font-size: 0.82rem; font-weight: 700; width: 100%; padding: 8px; border-radius: 8px; border: none; cursor: pointer; transition: all 0.2s;">
+                    Add Note
+                </button>
+            </form>
+
+        <!-- Notes List -->
+        <div class="notes-list">
+            {% for note in notes %}
+            <div class="note-item {% if note.is_done %}done{% endif %}">
+                <div class="note-content-box">
+                    <!-- Toggle Completion Form -->
+                    <form action="{% url 'note_toggle_done' note.id %}" method="post" style="display: flex; align-items: center;">
+                        {% csrf_token %}
+                        <input type="checkbox" {% if note.is_done %}checked{% endif %} onchange="this.form.submit()" style="cursor: pointer; width: 15px; height: 15px;">
+                    </form>
+                    <span class="note-text">{{ note.content }}</span>
+                </div>
+                
+                <!-- Delete Note Form -->
+                <form action="{% url 'note_delete' note.id %}" method="post" class="note-delete-form">
+                    {% csrf_token %}
+                    <button type="submit" title="Delete note">
+                        <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                </form>
+            </div>
+            {% empty %}
+            <!-- Notes Empty State -->
+            <div style="padding: 24px 12px; text-align: center; color: var(--text-muted, #64748b); font-size: 0.82rem;">
+                No notes yet — add a reminder above.
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+</div>
 
 <script>
+function updateKPIStats(type) {
+    const totalKPI = document.getElementById('kpi-total-val');
+    const lowStockKPI = document.getElementById('kpi-low-stock-val');
+    const newOrdersKPI = document.getElementById('kpi-new-orders-val');
+    
+    if (totalKPI) {
+        let currentTotal = parseInt(totalKPI.innerText) || 0;
+        totalKPI.innerText = Math.max(0, currentTotal - 1);
+    }
+    
+    if (type === 'low-stock' && lowStockKPI) {
+        let currentLow = parseInt(lowStockKPI.innerText) || 0;
+        lowStockKPI.innerText = Math.max(0, currentLow - 1);
+    } else if (type === 'new-order' && newOrdersKPI) {
+        let currentOrders = parseInt(newOrdersKPI.innerText) || 0;
+        newOrdersKPI.innerText = Math.max(0, currentOrders - 1);
+    }
+}
+
 function discardNotification(notifType, referenceId) {
     fetch('{% url "dismiss_notification" %}', {
         method: 'POST',
@@ -87,7 +340,87 @@ function discardNotification(notifType, referenceId) {
         body: `notif_type=${notifType}&reference_id=${referenceId}`,
     }).then(() => {
         const row = document.getElementById(`notif-row-${notifType}-${referenceId}`);
-        if (row) row.remove();
+        if (row) {
+            row.style.transition = 'all 0.3s ease';
+            row.style.opacity = '0';
+            row.style.transform = 'translateX(20px)';
+            setTimeout(() => {
+                const parentFeed = row.parentElement;
+                row.remove();
+                
+                // If group feed is empty, remove the group header and the feed block
+                if (parentFeed && parentFeed.querySelectorAll('.notification-row').length === 0) {
+                    const header = parentFeed.previousElementSibling;
+                    if (header && header.classList.contains('notif-group-header')) {
+                        header.remove();
+                    }
+                    parentFeed.remove();
+                }
+                
+                // Show empty state if all feeds are gone
+                const container = document.querySelector('.notifications-feed-container');
+                if (container && container.querySelectorAll('.notification-row').length === 0) {
+                    location.reload();
+                }
+            }, 300);
+            updateKPIStats(notifType);
+        }
+    });
+}
+
+function dismissAllNotifications() {
+    const rows = document.querySelectorAll('.notification-row');
+    const items = [];
+    rows.forEach(row => {
+        items.push({
+            type: row.dataset.type,
+            id: parseInt(row.dataset.refId)
+        });
+    });
+
+    if (items.length === 0) return;
+
+    fetch('{% url "bulk_dismiss_notifications" %}', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ items: items })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            rows.forEach(row => {
+                row.style.transition = 'all 0.3s ease';
+                row.style.opacity = '0';
+                row.style.transform = 'translateX(20px)';
+                setTimeout(() => {
+                    row.remove();
+                }, 300);
+            });
+            
+            setTimeout(() => {
+                document.querySelectorAll('.notifications-feed').forEach(feed => {
+                    if (feed.querySelectorAll('.notification-row').length === 0) {
+                        const header = feed.previousElementSibling;
+                        if (header && header.classList.contains('notif-group-header')) {
+                            header.remove();
+                        }
+                        feed.remove();
+                    }
+                });
+                
+                const container = document.querySelector('.notifications-feed-container');
+                if (container && container.querySelectorAll('.notification-row').length === 0) {
+                    location.reload();
+                }
+            }, 350);
+
+            document.getElementById('kpi-total-val').innerText = '0';
+            document.getElementById('kpi-low-stock-val').innerText = '0';
+            document.getElementById('kpi-new-orders-val').innerText = '0';
+        }
     });
 }
 

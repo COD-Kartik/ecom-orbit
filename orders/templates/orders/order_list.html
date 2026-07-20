@@ -2,277 +2,468 @@
 {% load static %}
 
 {% block title %}Orders{% endblock %}
-{% block page_title %}Orders{% endblock %}
+
+{% block page_title %}
+<span style="font-size: 0.85rem; font-weight: 600; color: #64748b;">Home &nbsp;&gt;&nbsp; Orders</span>
+{% endblock %}
+
 {% block nav_orders %}active{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/orders.css' %}">
+<link rel="stylesheet" href="{% static 'css/orders.css' %}?v=5">
 {% endblock %}
 
 {% block content %}
 
-<style>
-  .orders-grid th { font-size: 0.85rem !important; padding: 16px 18px !important; }
-  .orders-grid td { font-size: 0.98rem !important; padding: 18px !important; }
-  .orders-grid .status-dropdown { font-size: 0.88rem !important; padding: 7px 14px !important; }
-  .orders-grid .order-input { font-size: 0.95rem !important; padding: 10px 14px !important; }
-  .orders-grid .card-title-text { font-size: 1.15rem !important; }
-  .orders-grid .action-btn-orders { width: 38px !important; height: 38px !important; }
-  .orders-grid .action-btn-orders i { font-size: 1.1rem; }
-</style>
+<!-- Hero Banner Section -->
+<div class="product-hero-banner mb-4">
+  <div class="hero-left">
+    <h1 class="hero-title">Orders</h1>
+    <p class="hero-subtitle">Track, fulfill, and manage every order across your storefront and connected marketplaces.</p>
+  </div>
+  <div class="hero-right">
+    <svg viewBox="0 0 200 200" class="hero-illustration" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="pkg-grad-1" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#3b82f6" />
+          <stop offset="100%" stop-color="#1d4ed8" />
+        </linearGradient>
+        <linearGradient id="pkg-grad-2" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#a78bfa" />
+          <stop offset="100%" stop-color="#6d28d9" />
+        </linearGradient>
+        <filter id="pkg-shadow" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#09081e" flood-opacity="0.12"/>
+        </filter>
+      </defs>
+      <!-- Shipping Package -->
+      <g filter="url(#pkg-shadow)" transform="translate(45, 50)">
+        <path d="M10 30 L55 10 L100 30 L100 75 L55 95 L10 75 Z" fill="url(#pkg-grad-1)" stroke="#ffffff" stroke-width="1.5"/>
+        <path d="M10 30 L55 48 L100 30" stroke="#ffffff" stroke-width="1" fill="none"/>
+        <path d="M55 48 L55 95" stroke="#ffffff" stroke-width="1"/>
+        <!-- Checkmark Badge on package -->
+        <circle cx="55" cy="48" r="16" fill="url(#pkg-grad-2)" stroke="#ffffff" stroke-width="2"/>
+        <path d="M49 48 L53 52 L62 43" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </g>
+      <!-- Floating Sparkles -->
+      <path d="M165 40 L168 45 L173 46 L168 47 L165 52 L162 47 L157 46 L162 45 Z" fill="#fbbf24"/>
+      <path d="M40 135 L42 138 L47 139 L42 140 L40 145 L38 140 L33 139 L38 138 Z" fill="#3b82f6"/>
+    </svg>
+  </div>
+</div>
 
-<div class="orders-page-container">
-
-  <!-- Stats Cards Row (5 cards) -->
-  <section class="metrics-grid">
-    <div class="metric-card">
-      <div class="metric-icon-box total">
+<!-- Stats Row (Non-overlapping, 5 Cards) -->
+<div class="metrics-grid">
+  <!-- Card 1: Total Orders -->
+  <div class="kpi-metric-card stat-total">
+    <div class="card-inner">
+      <div class="metric-data">
+        <span class="metric-label">Total Orders</span>
+        <h3 class="metric-value">{{ total_orders }}</h3>
+        <span class="metric-trend"><i class="bi bi-clock-history"></i> All time</span>
+      </div>
+      <div class="metric-icon">
         <i class="bi bi-cart3"></i>
       </div>
-      <div class="metric-info">
-        <div class="metric-title">Total Orders</div>
-        <div class="metric-value">{{ total_orders }}</div>
-      </div>
     </div>
+  </div>
 
-    <div class="metric-card">
-      <div class="metric-icon-box pending">
+  <!-- Card 2: Pending -->
+  <div class="kpi-metric-card stat-warning">
+    <div class="card-inner">
+      <div class="metric-data">
+        <span class="metric-label">Pending</span>
+        <h3 class="metric-value">{{ pending_count }}</h3>
+        <span class="metric-trend"><i class="bi bi-clock-history"></i> All time</span>
+      </div>
+      <div class="metric-icon">
         <i class="bi bi-clock"></i>
       </div>
-      <div class="metric-info">
-        <div class="metric-title">Pending</div>
-        <div class="metric-value">{{ pending_count }}</div>
-      </div>
     </div>
+  </div>
 
-    <div class="metric-card">
-      <div class="metric-icon-box processing">
+  <!-- Card 3: Processing -->
+  <div class="kpi-metric-card stat-value">
+    <div class="card-inner">
+      <div class="metric-data">
+        <span class="metric-label">Processing</span>
+        <h3 class="metric-value">{{ processing_count }}</h3>
+        <span class="metric-trend"><i class="bi bi-clock-history"></i> All time</span>
+      </div>
+      <div class="metric-icon">
         <i class="bi bi-box-seam"></i>
       </div>
-      <div class="metric-info">
-        <div class="metric-title">Processing</div>
-        <div class="metric-value">{{ processing_count }}</div>
-      </div>
     </div>
+  </div>
 
-    <div class="metric-card">
-      <div class="metric-icon-box shipped">
+  <!-- Card 4: Shipped -->
+  <div class="kpi-metric-card stat-info">
+    <div class="card-inner">
+      <div class="metric-data">
+        <span class="metric-label">Shipped</span>
+        <h3 class="metric-value">{{ shipped_count }}</h3>
+        <span class="metric-trend"><i class="bi bi-clock-history"></i> All time</span>
+      </div>
+      <div class="metric-icon">
         <i class="bi bi-truck"></i>
       </div>
-      <div class="metric-info">
-        <div class="metric-title">Shipped</div>
-        <div class="metric-value">{{ shipped_count }}</div>
-      </div>
     </div>
+  </div>
 
-    <div class="metric-card">
-      <div class="metric-icon-box delivered">
+  <!-- Card 5: Delivered -->
+  <div class="kpi-metric-card stat-active">
+    <div class="card-inner">
+      <div class="metric-data">
+        <span class="metric-label">Delivered</span>
+        <h3 class="metric-value">{{ delivered_count }}</h3>
+        <span class="metric-trend"><i class="bi bi-clock-history"></i> All time</span>
+      </div>
+      <div class="metric-icon">
         <i class="bi bi-check-circle"></i>
       </div>
-      <div class="metric-info">
-        <div class="metric-title">Delivered</div>
-        <div class="metric-value">{{ delivered_count }}</div>
+    </div>
+  </div>
+</div>
+
+<!-- Sticky Filters Toolbar -->
+<div class="sticky-toolbar">
+  <form method="get" class="row g-3 align-items-center">
+    <!-- Search Query -->
+    <div class="col-12 col-md-4">
+      <div class="position-relative">
+        <input type="text" id="search-orders" class="form-control ps-5" placeholder="Search customer or order #...">
+        <i class="bi bi-search position-absolute top-50 translate-middle-y start-3 text-muted"></i>
       </div>
     </div>
-  </section>
 
-<!-- Main Layout Grid -->
-  <div class="orders-grid">
+    <!-- Status Dropdown -->
+    <div class="col-6 col-md-2">
+      <select name="status" class="form-select order-input">
+        <option value="">All Statuses</option>
+        <option value="pending" {% if current_status == 'pending' %}selected{% endif %}>Pending</option>
+        <option value="processing" {% if current_status == 'processing' %}selected{% endif %}>Processing</option>
+        <option value="shipped" {% if current_status == 'shipped' %}selected{% endif %}>Shipped</option>
+        <option value="delivered" {% if current_status == 'delivered' %}selected{% endif %}>Delivered</option>
+        <option value="cancelled" {% if current_status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+      </select>
+    </div>
 
-    <!-- Left Column: Orders List Table -->
-    <div class="dashboard-card" style="padding: 0; overflow: hidden;">
-      <!-- Search & Filter Bar -->
-      <div class="card-header-bar" style="padding: 20px 24px;">
+    <!-- Date Filters -->
+    <div class="col-6 col-md-4 d-flex align-items-center gap-2">
+      <input type="date" name="date_from" value="{{ date_from }}" class="order-input" title="From date">
+      <span class="text-muted">to</span>
+      <input type="date" name="date_to" value="{{ date_to }}" class="order-input" title="To date">
+    </div>
+
+    <!-- Filter Actions -->
+    <div class="col-12 col-md-2 d-flex gap-2">
+      <button type="submit" class="btn btn-primary-custom flex-grow-1">Filter</button>
+      {% if search_query or current_status or date_from or date_to %}
+      <a href="{% url 'order_list' %}" class="btn btn-light border" style="text-decoration:none;">Clear</a>
+      {% endif %}
+    </div>
+  </form>
+</div>
+
+<div class="row g-4 align-items-start">
+  <!-- LEFT SIDE: Orders Table Card (col-lg-9) -->
+  <div class="col-lg-9">
+    <div class="dashboard-card" style="padding: 0;">
+      <div class="card-header-bar">
         <span class="card-title-text">Orders List</span>
-        
-        <form method="get" style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-          <div style="position: relative; display: flex; align-items: center;">
-            <input type="text" name="q" value="{{ search_query }}" placeholder="Search customer or order #..." class="order-input" style="padding: 8px 12px; width: 200px; font-size: 0.85rem;">
+      </div>
+
+      <!-- Bulk Actions Bar -->
+      <div id="bulk-action-bar" style="display:none; align-items:center; gap:12px; padding:12px 24px; background:#eef2ff; border-bottom:1px solid #cbd5e1;">
+        <span id="bulk-selected-count" style="font-size:0.85rem; font-weight:700; color:#4f46e5;">0 selected</span>
+        <select id="bulk-status-select" class="order-input" style="width:auto; padding:6px 12px; font-size:0.82rem;">
+          <option value="pending">Set to Pending</option>
+          <option value="processing">Set to Processing</option>
+          <option value="shipped">Set to Shipped</option>
+          <option value="delivered">Set to Delivered</option>
+          <option value="cancelled">Set to Cancelled</option>
+        </select>
+        <button type="button" onclick="window.submitBulkUpdate()" class="btn-primary-custom btn" style="padding:6px 16px; font-size:0.82rem;">Apply</button>
+        <button type="button" onclick="window.clearBulkSelection()" class="btn btn-sm btn-light border">Clear Selection</button>
+      </div>
+
+      <!-- Table Container & Form -->
+      <form id="bulk-orders-form" method="post" action="{% url 'order_bulk_update' %}">
+        {% csrf_token %}
+        <div class="orders-table-container" id="ordersDataTable">
+          <table class="orders-table">
+            <thead>
+              <tr>
+                <th style="width:30px;"><input type="checkbox" id="select-all-orders" onchange="window.toggleAllOrders(this)" style="cursor:pointer;"></th>
+                <th>Order ID</th>
+                <th>Date</th>
+                <th>Customer</th>
+                <th>Channel</th>
+                <th>Fulfillment Status</th>
+                <th>Amount</th>
+                <th class="text-end">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for order in orders %}
+              <tr>
+                <td>
+                  <input type="checkbox" name="order_ids" value="{{ order.id }}" class="order-checkbox" onchange="window.updateBulkBar()" style="cursor:pointer;">
+                </td>
+                <td>
+                  <a href="{% url 'order_detail' order.id %}" style="font-weight: 700; color: #4f46e5; text-decoration: none;">#ORD-{{ order.id }}</a>
+                </td>
+                <td style="font-size: 0.8rem;">
+                  {{ order.created_at|date:"Y-m-d H:i" }}
+                </td>
+                <td>
+                  <div style="font-weight: 600; color: #0f172a;">{{ order.customer_name }}</div>
+                  <div style="font-size: 0.72rem; color: #64748b;">{{ order.customer_email|default:"No email" }}</div>
+                </td>
+                <td>
+                  <span style="font-size: 0.75rem; padding: 4px 8px; border-radius: 6px; font-weight: 500; background: #f8fafc; border: 1px solid #cbd5e1; color: #475569; display: inline-flex; align-items: center; gap: 6px;">
+                    <!-- Platform Brand Dot -->
+                    {% if order.channel %}
+                    <span class="chip-dot" style="background-color: {% if order.channel.platform_type == 'facebook' %}#1877F2{% elif order.channel.platform_type == 'instagram' %}#E1306C{% elif order.channel.platform_type == 'twitter' %}#1DA1F2{% elif order.channel.platform_type == 'linkedin' %}#0A66C2{% elif order.channel.platform_type == 'pinterest' %}#E60023{% elif order.channel.platform_type == 'youtube' %}#FF0000{% elif order.channel.platform_type == 'flipkart' %}#2874F0{% elif order.channel.platform_type == 'whatsapp' %}#25D366{% else %}#64748b{% endif %}; width:6px; height:6px;"></span>
+                    {{ order.channel.name }}
+                    {% else %}
+                    <span class="chip-dot" style="background-color: #64748b; width:6px; height:6px;"></span>
+                    Manual
+                    {% endif %}
+                  </span>
+                </td>
+                <td>
+                  <div class="d-inline-block">
+                    <!-- Dropdown status update form -->
+                    <select name="status" class="status-dropdown badge-status badge-{{ order.status }}" data-original-value="{{ order.status }}" onchange="window.handleOrderRowStatusChange(this, {{ order.id }})">
+                      <option value="pending" {% if order.status == 'pending' %}selected{% endif %}>Pending</option>
+                      <option value="processing" {% if order.status == 'processing' %}selected{% endif %}>Processing</option>
+                      <option value="shipped" {% if order.status == 'shipped' %}selected{% endif %}>Shipped</option>
+                      <option value="delivered" {% if order.status == 'delivered' %}selected{% endif %}>Delivered</option>
+                      {% if order.status != 'delivered' %}
+                      <option value="cancelled" {% if order.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                      {% endif %}
+                    </select>
+                  </div>
+                </td>
+                <td style="font-weight: 700; color: #0f172a;">
+                  ₹{{ order.total_amount }}
+                </td>
+                <td class="text-end">
+                  <a href="{% url 'order_detail' order.id %}" class="btn btn-pagination" title="View Details">
+                    <i class="bi bi-eye"></i>
+                  </a>
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="8" class="text-center py-5" style="color: #64748b;">
+                  No orders found matching the current filters.
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </form>
+
+      <!-- Real Django Pagination -->
+      {% if page_obj.paginator.num_pages > 1 %}
+      <div class="pagination-container">
+        <span style="font-size:0.82rem; color:#64748b;">
+          Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }} &middot; {{ page_obj.paginator.count }} total orders
+        </span>
+        <div class="d-flex gap-2">
+          {% if page_obj.has_previous %}
+          <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}" class="btn-pagination" title="Previous page"><i class="bi bi-chevron-left"></i></a>
+          {% endif %}
+          {% if page_obj.has_next %}
+          <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}" class="btn-pagination" title="Next page"><i class="bi bi-chevron-right"></i></a>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- RIGHT SIDEBAR (col-lg-3) -->
+  <div class="col-lg-3">
+    <div class="d-flex flex-column gap-3">
+      <!-- Sidebar Card 1: Add Manual Order Form -->
+      <div class="sidebar-card">
+        <h3 class="sidebar-card-title">
+          <i class="bi bi-plus-circle" style="color: #4f46e5;"></i> Add Manual Order
+        </h3>
+        <p class="sidebar-card-desc mb-3">Create a new manual order (e.g. WhatsApp, phone, retail).</p>
+
+        <form method="post" action="{% url 'order_add' %}">
+          {% csrf_token %}
+          <div class="orders-form-group">
+            <label>Customer Name *</label>
+            <input type="text" name="customer_name" class="order-input" placeholder="e.g. Rohan Sharma" required>
           </div>
           
-          <select name="status" class="status-dropdown" style="padding: 8px 12px; font-size: 0.85rem;">
-            <option value="">All Statuses</option>
-            <option value="pending" {% if current_status == 'pending' %}selected{% endif %}>Pending</option>
-            <option value="processing" {% if current_status == 'processing' %}selected{% endif %}>Processing</option>
-            <option value="shipped" {% if current_status == 'shipped' %}selected{% endif %}>Shipped</option>
-            <option value="delivered" {% if current_status == 'delivered' %}selected{% endif %}>Delivered</option>
-            <option value="cancelled" {% if current_status == 'cancelled' %}selected{% endif %}>Cancelled</option>
-          </select>
+          <div class="orders-form-group">
+            <label>Email Address</label>
+            <input type="email" name="customer_email" class="order-input" placeholder="e.g. rohan@gmail.com">
+          </div>
+          
+          <div class="orders-form-group">
+            <label>Phone Number</label>
+            <input type="text" name="customer_phone" class="order-input" placeholder="e.g. +91 9876543210">
+          </div>
+          
+          <div class="orders-form-group">
+            <label>Shipping Address *</label>
+            <textarea name="shipping_address" class="order-input" rows="3" placeholder="Enter delivery details..." required></textarea>
+          </div>
 
-          <input type="date" name="date_from" value="{{ date_from }}" class="order-input" style="padding: 7px 10px; width: 150px; font-size: 0.82rem;" title="From date">
-          <span style="color: var(--text-muted); font-size: 0.82rem;">to</span>
-          <input type="date" name="date_to" value="{{ date_to }}" class="order-input" style="padding: 7px 10px; width: 150px; font-size: 0.82rem;" title="To date">
+          <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 12px; margin-bottom: 24px;">
+            <div class="orders-form-group" style="margin-bottom: 0;">
+              <label>Product *</label>
+              <select name="product_id[]" class="order-input" required>
+                <option value="">Select product</option>
+                {% for product in products %}
+                <option value="{{ product.id }}">{{ product.title }} (₹{{ product.price }})</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="orders-form-group" style="margin-bottom: 0;">
+              <label>Quantity *</label>
+              <input type="number" name="quantity[]" class="order-input" value="1" min="1" required>
+            </div>
+          </div>
 
-          <button type="submit" class="btn btn-sm btn-light border">Filter</button>
-          {% if search_query or current_status or date_from or date_to %}
-          <a href="{% url 'order_list' %}" class="btn btn-sm btn-light border" style="text-decoration:none;">Clear</a>
-          {% endif %}
+          <button type="submit" class="btn btn-primary-custom w-100" style="padding: 12px; border-radius: 6px;">
+            Create Order
+          </button>
         </form>
       </div>
 
-      <div id="bulk-action-bar" style="display:none; align-items:center; gap:12px; padding:12px 24px; background:var(--primary-light, #eef2ff); border-bottom:1px solid var(--border-color);">
-          <span id="bulk-selected-count" style="font-size:0.85rem; font-weight:700; color:var(--primary);">0 selected</span>
-          <select id="bulk-status-select" class="order-input" style="width:auto; padding:6px 12px; font-size:0.82rem;">
-              <option value="pending">Set to Pending</option>
-              <option value="processing">Set to Processing</option>
-              <option value="shipped">Set to Shipped</option>
-              <option value="delivered">Set to Delivered</option>
-              <option value="cancelled">Set to Cancelled</option>
-          </select>
-          <button type="button" onclick="submitBulkUpdate()" class="btn-primary-custom btn" style="padding:6px 16px; font-size:0.82rem;">Apply</button>
-          <button type="button" onclick="clearBulkSelection()" class="btn btn-sm btn-light border">Clear Selection</button>
-      </div>
-
-    
-      <!-- Table Container -->
-      <div class="orders-table-container" style="overflow-x: auto; padding: 0 12px 12px;">
-        <table class="orders-table" style="width: 100%; border-collapse: collapse; min-width: 800px;">
-         <thead>
-            <tr style="text-align: left; border-bottom: 1px solid var(--border-color);">
-              <th style="padding: 14px 8px; width:30px;"><input type="checkbox" id="select-all-orders" onchange="toggleAllOrders(this)" style="cursor:pointer;"></th>
-              <th style="padding: 14px 16px; font-size: 0.72rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Order ID</th>
-              <th style="padding: 14px 16px; font-size: 0.72rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Date</th>
-              <th style="padding: 14px 16px; font-size: 0.72rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Customer</th>
-              <th style="padding: 14px 16px; font-size: 0.72rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Channel</th>
-              <th style="padding: 14px 16px; font-size: 0.72rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Fulfillment Status</th>
-              <th style="padding: 14px 16px; font-size: 0.72rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Amount</th>
-              <th style="padding: 14px 16px; font-size: 0.72rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; text-align: right;">Action</th>
-            </tr>
-          </thead>
-          <form id="bulk-orders-form" method="post" action="{% url 'order_bulk_update' %}">
-{% csrf_token %}
-<tbody>
-            {% for order in orders %}
-            <tr style="border-bottom: 1px solid var(--border-color); font-size: 0.88rem; color: var(--text-medium);">
-              <td style="padding: 14px 8px;">
-                <input type="checkbox" name="order_ids" value="{{ order.id }}" class="order-checkbox" onchange="updateBulkBar()" style="cursor:pointer;">
-              </td>
-              <td style="padding: 14px 16px;">
-                <a href="{% url 'order_detail' order.id %}" style="font-weight: 700; color: var(--primary); text-decoration: none;">#ORD-{{ order.id }}</a>
-              </td>
-              <td style="padding: 14px 16px; color: var(--text-light); font-size: 0.8rem;">
-                {{ order.created_at|date:"Y-m-d H:i" }}
-              </td>
-              <td style="padding: 14px 16px;">
-                <div style="font-weight: 600; color: var(--text-dark);">{{ order.customer_name }}</div>
-                <div style="font-size: 0.72rem; color: var(--text-muted);">{{ order.customer_email|default:"No email" }}</div>
-              </td>
-              <td style="padding: 14px 16px;">
-                <span style="font-size: 0.75rem; padding: 4px 8px; border-radius: 6px; font-weight: 500; background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-medium);">
-                  {{ order.channel.name|default:"Manual" }}
-                </span>
-              </td>
-              <td style="padding: 14px 16px;">
-                <form method="post" action="{% url 'order_status_update' order.id %}" style="display: inline-block; margin: 0;">
-                  {% csrf_token %}
-                  <select name="status" class="status-dropdown badge-status badge-{{ order.status }}" data-original-value="{{ order.status }}" onchange="handleStatusChange(this)" style="border: 1px solid rgba(0, 0, 0, 0.05); border-radius: 6px; cursor: pointer; outline: none; font-size: 0.75rem; font-weight: 600; padding: 4px 10px;">
-                    <option value="pending" {% if order.status == 'pending' %}selected{% endif %}>Pending</option>
-                    <option value="processing" {% if order.status == 'processing' %}selected{% endif %}>Processing</option>
-                    <option value="shipped" {% if order.status == 'shipped' %}selected{% endif %}>Shipped</option>
-                    <option value="delivered" {% if order.status == 'delivered' %}selected{% endif %}>Delivered</option>
-                    {% if order.status != 'delivered' %}
-                    <option value="cancelled" {% if order.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
-                    {% endif %}
-                </select>
-                </form>
-              </td>
-              <td style="padding: 14px 16px; font-weight: 700; color: var(--text-dark);">
-                ₹{{ order.total_amount }}
-              </td>
-              <td style="padding: 14px 16px; text-align: right;">
-                <a href="{% url 'order_detail' order.id %}" class="action-btn-orders" style="display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border-color); background: var(--bg-main); color: var(--text-medium); transition: all var(--transition-fast); text-decoration: none;" title="View Details">
-                  <i class="bi bi-eye"></i>
-                </a>
-              </td>
-            </tr>
-            {% empty %}
-            <tr>
-              <td colspan="8" style="text-align: center; padding: 48px; color: var(--text-muted); font-size: 0.9rem;">
-                No orders yet.
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-</form>
-        </table>
-
-        {% if page_obj.paginator.num_pages > 1 %}
-        <div style="display:flex; align-items:center; justify-content:space-between; padding:16px 24px; border-top:1px solid var(--border-color);">
-            <span style="font-size:0.82rem; color:var(--text-muted);">
-                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }} &middot; {{ page_obj.paginator.count }} total orders
-            </span>
-            <div style="display:flex; gap:6px;">
-                {% if page_obj.has_previous %}
-                <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}" class="btn btn-sm btn-light border" style="text-decoration:none;">Previous</a>
-                {% endif %}
-                {% if page_obj.has_next %}
-                <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}" class="btn btn-sm btn-light border" style="text-decoration:none;">Next</a>
-                {% endif %}
+      <!-- Sidebar Card 2: Marketplace Operations -->
+      {% if flipkart_channels %}
+      <div class="sidebar-card">
+        <h3 class="sidebar-card-title">
+          <i class="bi bi-shop" style="color: #4f46e5;"></i> Marketplace Operations
+        </h3>
+        <p class="sidebar-card-desc mb-3">Sync orders and pull marketplace data.</p>
+        
+        {% for ch in flipkart_channels %}
+        <div class="sync-channel-card">
+          <div class="sync-channel-header">
+            <div class="sync-channel-logo" style="background:#2874f0;">
+              <!-- Flipkart SVG -->
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="#ffffff" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2L3 7v10l9 5 9-5V7l-9-5zm0 2.311L18.5 8 12 11.689 5.5 8 12 4.311zM5 9.732l6 3.427v6.809l-6-3.334V9.732zm8 10.236v-6.809l6-3.427v6.902l-6 3.334z"/>
+              </svg>
             </div>
+            <div class="flex-grow-1">
+              <div style="font-size:0.86rem; font-weight:700; color:#0f172a;">{{ ch.name }}</div>
+              <div style="font-size:0.7rem; color:#64748b;">Flipkart</div>
+            </div>
+            {% if ch.connection_status == 'connected' %}
+            <span class="sync-status-dot connected" title="Connected"></span>
+            {% elif ch.connection_status == 'error' %}
+            <span class="sync-status-dot error" title="{{ ch.last_sync_error }}"></span>
+            {% else %}
+            <span class="sync-status-dot untested" title="Not tested"></span>
+            {% endif %}
+          </div>
+          {% if ch.last_sync_attempt %}
+          <div class="sync-last-checked">Last checked {{ ch.last_sync_attempt|timesince }} ago</div>
+          {% endif %}
+          <a href="{% url 'sync_flipkart_orders' ch.id %}" class="btn-sync-action mt-2 w-100">
+            <i class="bi bi-box-arrow-in-down"></i> Import Orders
+          </a>
         </div>
-        {% endif %}
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <!-- Sidebar Card 3: Channel Distribution -->
+      {% if channel_distribution %}
+      <div class="sidebar-card">
+        <h3 class="sidebar-card-title">
+          <i class="bi bi-bar-chart-fill" style="color: #4f46e5;"></i> Channel Distribution
+        </h3>
+        <div class="d-flex flex-column gap-2">
+          {% for c in channel_distribution %}
+          <div class="d-flex justify-content-between align-items-center py-2 border-bottom border-light" style="font-size:0.85rem;">
+            <span style="color:#475569; font-weight:600;">{{ c.name }}</span>
+            <span style="color:#0f172a; font-weight:700;">{{ c.count }} order{{ c.count|pluralize }}</span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Sidebar Card 4: Recent Activity Timeline -->
+      {% if recent_sync_logs %}
+      <div class="sidebar-card">
+        <h3 class="sidebar-card-title">
+          <i class="bi bi-clock-history" style="color: #4f46e5;"></i> Recent Activity
+        </h3>
+        <div class="timeline-container">
+          {% for log in recent_sync_logs %}
+          {% if log.action == 'order_import' %}
+          <div class="timeline-item">
+            <div class="timeline-dot {% if log.status == 'success' %}success{% elif log.status == 'partial' %}warning{% else %}danger{% endif %}"></div>
+            <div class="timeline-content">
+              <strong>{{ log.get_action_display }}</strong> on {{ log.channel.name }}
+              <div style="font-size: 0.74rem; color: #64748b; margin-top: 1px;">
+                {{ log.success_count }} synced, {{ log.failed_count }} failed
+              </div>
+            </div>
+            <div class="timeline-time">{{ log.created_at|timesince }} ago</div>
+          </div>
+          {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Sidebar Card 5: Quick Actions -->
+      <div class="sidebar-card">
+        <h4 class="sidebar-card-title">
+          <i class="bi bi-lightning-charge text-primary"></i> Quick Actions
+        </h4>
+        <div class="d-grid gap-2">
+  
+          
+          <!-- Export Orders CSV (Real URL link) -->
+          <a href="{% url 'reports_view' %}" class="btn btn-light border text-start p-2 d-flex align-items-center gap-2 w-100" style="text-decoration: none;">
+            <i class="bi bi-file-earmark-spreadsheet text-success fs-5"></i>
+            <div>
+              <div style="font-size: 0.82rem; font-weight: 600; color: #0f172a;">Export Orders</div>
+              <span style="font-size: 0.7rem; color: #64748b; font-weight: normal;">View in Data Exports</span>
+            </div>
+          </a>
+
+          <!-- Print Invoices -->
+          <a href="{% url 'reports_view' %}" class="btn btn-light border text-start p-2 d-flex align-items-center gap-2 w-100" style="text-decoration: none;">
+            <i class="bi bi-printer text-primary fs-5"></i>
+            <div>
+              <div style="font-size: 0.82rem; font-weight: 600; color: #0f172a;">Print Invoices</div>
+              <span style="font-size: 0.7rem; color: #64748b; font-weight: normal;">View in Data Exports</span>
+            </div>
+          </a>
+        </div>
       </div>
     </div>
-
-    <!-- Right Column: Add Manual Order Form Panel -->
-    <!-- Right Column: Add Manual Order Form Panel -->
-    <div class="dashboard-card" style="position: sticky; top: 50px; align-self: start; max-height: calc(100vh - 40px); overflow-y: auto;">
-      <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-dark); margin-bottom: 6px; display: flex; align-items: center; gap: 8px;">
-        <i class="bi bi-plus-circle" style="color: var(--primary);"></i> Add Manual Order
-      </h3>
-      <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 24px;">Create a new manual order (e.g. WhatsApp, phone, retail).</p>
-
-      <form method="post" action="{% url 'order_add' %}">
-        {% csrf_token %}
-        
-        <div class="orders-form-group">
-          <label>Customer Name *</label>
-          <input type="text" name="customer_name" class="order-input" placeholder="e.g. Rohan Sharma" required>
-        </div>
-        
-        <div class="orders-form-group">
-          <label>Email Address</label>
-          <input type="email" name="customer_email" class="order-input" placeholder="e.g. rohan@gmail.com">
-        </div>
-        
-        <div class="orders-form-group">
-          <label>Phone Number</label>
-          <input type="text" name="customer_phone" class="order-input" placeholder="e.g. +91 9876543210">
-        </div>
-        
-        <div class="orders-form-group">
-          <label>Shipping Address *</label>
-          <textarea name="shipping_address" class="order-input" rows="3" placeholder="Enter delivery details..." required></textarea>
-        </div>
-
-        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 12px; margin-bottom: 24px;">
-          <div class="orders-form-group" style="margin-bottom: 0;">
-            <label>Product *</label>
-            <select name="product_id[]" class="order-input" required>
-              <option value="">Select product</option>
-              {% for product in products %}
-              <option value="{{ product.id }}">{{ product.title }} (₹{{ product.price }})</option>
-              {% endfor %}
-            </select>
-          </div>
-          <div class="orders-form-group" style="margin-bottom: 0;">
-            <label>Quantity *</label>
-            <input type="number" name="quantity[]" class="order-input" value="1" min="1" required>
-          </div>
-        </div>
-
-        <button type="submit" class="btn" style="background: var(--primary); border: 1.5px solid var(--primary); color: white; padding: 12px; border-radius: var(--radius-sm); font-size: 0.88rem; font-weight: 700; width: 100%; cursor: pointer; transition: all var(--transition-fast);">
-          Create Order
-        </button>
-      </form>
-    </div>
-
   </div>
-
 </div>
 
+<!-- Dynamic inline form to submit status updates on row change -->
+<form id="row-status-form" method="post" action="" style="display:none;">
+  {% csrf_token %}
+  <input type="hidden" name="status" id="row-status-input" value="">
+</form>
+
+{% endblock %}
+
+{% block extra_js %}
 <script>
-function updateBulkBar() {
+window.updateBulkBar = function() {
     const checked = document.querySelectorAll('.order-checkbox:checked');
     const bar = document.getElementById('bulk-action-bar');
     const countLabel = document.getElementById('bulk-selected-count');
@@ -282,20 +473,20 @@ function updateBulkBar() {
     } else {
         bar.style.display = 'none';
     }
-}
+};
 
-function toggleAllOrders(checkbox) {
+window.toggleAllOrders = function(checkbox) {
     document.querySelectorAll('.order-checkbox').forEach(cb => cb.checked = checkbox.checked);
-    updateBulkBar();
-}
+    window.updateBulkBar();
+};
 
-function clearBulkSelection() {
+window.clearBulkSelection = function() {
     document.querySelectorAll('.order-checkbox').forEach(cb => cb.checked = false);
     document.getElementById('select-all-orders').checked = false;
-    updateBulkBar();
-}
+    window.updateBulkBar();
+};
 
-function submitBulkUpdate() {
+window.submitBulkUpdate = function() {
     const status = document.getElementById('bulk-status-select').value;
     const form = document.getElementById('bulk-orders-form');
     let hiddenStatus = form.querySelector('input[name="bulk_status"]');
@@ -307,7 +498,33 @@ function submitBulkUpdate() {
     }
     hiddenStatus.value = status;
     form.submit();
-}
-</script>
+};
 
+window.focusBulkAction = function() {
+    const selectAll = document.getElementById('select-all-orders');
+    if (selectAll) {
+        selectAll.scrollIntoView({ behavior: 'smooth' });
+        selectAll.focus();
+    }
+};
+
+window.handleOrderRowStatusChange = function(selectEl, orderId) {
+    // Generate order status update action URL
+    const actionUrl = "/dashboard/orders/" + orderId + "/status/";
+    
+    // Update the row-status-form action and status value
+    const form = document.getElementById('row-status-form');
+    const statusInput = document.getElementById('row-status-input');
+    
+    form.action = actionUrl;
+    statusInput.value = selectEl.value;
+    
+    // Delegate to the global handleStatusChange defined in base.html
+    window.handleStatusChange(selectEl);
+    
+    // If handleStatusChange decides to submit (non-cancelled statuses), it submits the form
+    // that selectEl belongs to. Let's make sure that row form matches the action URL.
+    selectEl.closest('form').action = actionUrl;
+};
+</script>
 {% endblock %}

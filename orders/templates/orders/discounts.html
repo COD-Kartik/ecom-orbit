@@ -7,63 +7,181 @@
 {% block nav_marketing %}active{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/discounts.css' %}">
+<link rel="stylesheet" href="{% static 'css/discounts.css' %}?v=1.1">
+<style>
+    /* Cache-busting and additional styling for the filtering toolbar */
+    .filter-bar {
+        background: #ffffff;
+        border-radius: 12px;
+        border: 1px solid var(--border-color, #e2e8f0);
+        padding: 16px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+        box-shadow: var(--card-shadow, 0 1px 3px rgba(0,0,0,0.02));
+    }
+    .filter-bar-controls {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        flex-grow: 1;
+    }
+    .filter-input {
+        padding: 8px 12px;
+        font-size: 0.82rem;
+        border: 1.5px solid var(--border-color, #e2e8f0);
+        border-radius: 8px;
+        outline: none;
+        background-color: var(--bg-main, #f8fafc);
+        color: var(--text-dark, #0f172a);
+        transition: all 0.15s ease;
+    }
+    .filter-input:focus {
+        border-color: var(--primary, #4f46e5);
+        background-color: #ffffff;
+    }
+    .filter-select {
+        padding: 8px 12px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        border: 1.5px solid var(--border-color, #e2e8f0);
+        border-radius: 8px;
+        outline: none;
+        background-color: #ffffff;
+        color: var(--text-medium, #4b5563);
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+    .filter-select:hover {
+        border-color: var(--primary, #4f46e5);
+    }
+</style>
 {% endblock %}
 
 {% block content %}
 
+<!-- 4 KPI CARDS (Reusing .kpi-metric-card system) -->
+<div class="kpi-grid-discounts">
+    <!-- Active Codes -->
+    <div class="kpi-metric-card stat-total">
+        <div class="card-inner">
+            <div class="metric-data">
+                <span class="metric-label">Active Codes</span>
+                <h3 class="metric-value">{{ active_codes_count }}</h3>
+                <span class="metric-trend text-success">
+                    <i class="bi bi-check-circle-fill"></i> Live promotions
+                </span>
+            </div>
+            <div class="metric-icon">
+                <i class="bi bi-tag"></i>
+            </div>
+        </div>
+        <svg viewBox="0 0 100 20" class="metric-sparkline" style="position: absolute; bottom: 0; left: 0; width: 100%; height: 35px; opacity: 0.15; pointer-events: none; stroke: #4f46e5; stroke-width: 1.5; fill: none;">
+            <path d="M0 15 Q 10 5, 20 12 T 40 8 T 60 15 T 80 5 T 100 12" />
+        </svg>
+    </div>
 
-<!-- Stat Cards -->
-<div class="metrics-grid-discounts">
-    <div class="metric-card-sm">
-        <div class="metric-details">
-            <span class="metric-title-sm">Active Codes</span>
-            <span class="metric-value-sm">{{ active_codes_count }}</span>
+    <!-- Total Redemptions -->
+    <div class="kpi-metric-card stat-active">
+        <div class="card-inner">
+            <div class="metric-data">
+                <span class="metric-label">Total Redemptions</span>
+                <h3 class="metric-value">{{ total_redemptions }}</h3>
+                <span class="metric-trend text-success">
+                    <i class="bi bi-arrow-up-short"></i> Times applied
+                </span>
+            </div>
+            <div class="metric-icon">
+                <i class="bi bi-cart-check"></i>
+            </div>
         </div>
-        <div class="metric-icon-box-sm active-codes">
-            <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-        </div>
+        <svg viewBox="0 0 100 20" class="metric-sparkline" style="position: absolute; bottom: 0; left: 0; width: 100%; height: 35px; opacity: 0.15; pointer-events: none; stroke: #10b981; stroke-width: 1.5; fill: none;">
+            <path d="M0 10 Q 15 18, 30 5 T 60 12 T 80 8 T 100 15" />
+        </svg>
     </div>
-    <div class="metric-card-sm">
-        <div class="metric-details">
-            <span class="metric-title-sm">Total Redemptions</span>
-            <span class="metric-value-sm">{{ total_redemptions }}</span>
+
+    <!-- Discount Given -->
+    <div class="kpi-metric-card stat-warning">
+        <div class="card-inner">
+            <div class="metric-data">
+                <span class="metric-label">Discount Given</span>
+                <h3 class="metric-value" style="font-size: 1.15rem; font-weight: 800; color: #7f1d1d; margin: 4px 0 0;">{{ total_discount_given }}</h3>
+                <span class="metric-trend text-muted">
+                    <i class="bi bi-exclamation-triangle"></i> Not yet tracked
+                </span>
+            </div>
+            <div class="metric-icon">
+                <i class="bi bi-currency-rupee"></i>
+            </div>
         </div>
-        <div class="metric-icon-box-sm redemptions">
-            <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z" /></svg>
-        </div>
+        <svg viewBox="0 0 100 20" class="metric-sparkline" style="position: absolute; bottom: 0; left: 0; width: 100%; height: 35px; opacity: 0.15; pointer-events: none; stroke: #f59e0b; stroke-width: 1.5; fill: none;">
+            <path d="M0 5 Q 20 15, 40 8 T 70 18 T 100 8" />
+        </svg>
     </div>
-    <div class="metric-card-sm">
-        <div class="metric-details">
-            <span class="metric-title-sm">Discount Given</span>
-            <span class="metric-value-sm">₹{{ total_discount_given }}</span>
+
+    <!-- Expiring Soon -->
+    <div class="kpi-metric-card stat-value">
+        <div class="card-inner">
+            <div class="metric-data">
+                <span class="metric-label">Expiring Soon</span>
+                <h3 class="metric-value">{{ expiring_soon_count }}</h3>
+                <span class="metric-trend {% if expiring_soon_count > 0 %}text-warning{% endif %}">
+                    <i class="bi bi-hourglass-split"></i> Within 7 days
+                </span>
+            </div>
+            <div class="metric-icon">
+                <i class="bi bi-clock"></i>
+            </div>
         </div>
-        <div class="metric-icon-box-sm discount-given">
-            <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a6.002 6.002 0 0111.458 0M2.25 18.75a6.002 6.002 0 014.5-9.75M18.75 18.75a6.002 6.002 0 00-11.458 0M18.75 18.75A5.998 5.998 0 0012 9.75c-2.203 0-4.1.18-5.25.5m5.25-.5V3.75m0 0h-.008v.008H12V3.75z" /></svg>
-        </div>
-    </div>
-    <div class="metric-card-sm">
-        <div class="metric-details">
-            <span class="metric-title-sm">Expiring Soon</span>
-            <span class="metric-value-sm">{{ expiring_soon_count }}</span>
-        </div>
-        <div class="metric-icon-box-sm expiring">
-            <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-        </div>
+        <svg viewBox="0 0 100 20" class="metric-sparkline" style="position: absolute; bottom: 0; left: 0; width: 100%; height: 35px; opacity: 0.15; pointer-events: none; stroke: #7c3aed; stroke-width: 1.5; fill: none;">
+            <path d="M0 12 Q 10 18, 30 12 T 60 5 T 90 15 T 100 10" />
+        </svg>
     </div>
 </div>
 
+<!-- SPLIT LAYOUT -->
 <div class="discounts-split-grid">
 
-    <!-- Left: Table -->
+    <!-- LEFT COLUMN: DIRECTORY -->
     <div class="split-column">
-        <div class="discount-card">
-            <header class="discount-card-header">
-                <h3 class="discount-card-title">Discount Codes Directory</h3>
-                <button type="button" class="btn-secondary-sm" onclick="resetForm()">
-                    <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" /></svg>
-                    <span>Reset Form</span>
+        <!-- Filtering Toolbar -->
+        <div class="filter-bar">
+            <div class="filter-bar-controls">
+                <input type="text" id="search-input" class="filter-input" placeholder="Search code..." oninput="applyFilters()" style="width: 180px;">
+                
+                <select id="type-filter" class="filter-select" onchange="applyFilters()">
+                    <option value="all">All Types</option>
+                    <option value="percentage">Percentage</option>
+                    <option value="fixed">Fixed Amount</option>
+                </select>
+
+                <select id="status-filter" class="filter-select" onchange="applyFilters()">
+                    <option value="all">All Status</option>
+                    <option value="active">Active</option>
+                    <option value="expired">Expired</option>
+                    <option value="scheduled">Scheduled</option>
+                    <option value="inactive">Inactive</option>
+                </select>
+
+                <button type="button" class="btn btn-outline-secondary" onclick="resetFilters()" style="padding: 8px 14px; font-size: 0.82rem; font-weight: 700; border-radius: 8px; border: 1.5px solid #e2e8f0;">
+                    Reset Filters
                 </button>
+            </div>
+
+            <a href="{% url 'export_discounts_csv' %}" class="btn btn-outline-primary" style="padding: 8px 14px; font-size: 0.82rem; font-weight: 700; border-radius: 8px; border: 1.5px solid var(--primary); text-decoration: none; color: var(--primary); display: inline-flex; align-items: center; gap: 6px;">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
+                Export CSV
+            </a>
+        </div>
+
+        <!-- Table Card -->
+        <div class="discount-card">
+            <header class="discount-card-header" style="margin-bottom: 20px;">
+                <h3 class="discount-card-title">Discount Codes Directory</h3>
             </header>
 
             <div class="table-responsive">
@@ -79,7 +197,7 @@
                             <th>Actions</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="discounts-table-body">
                         {% for d in discounts %}
                         <tr data-id="{{ d.id }}"
                             data-code="{{ d.code }}"
@@ -90,9 +208,9 @@
                             data-start-date="{{ d.start_date|date:'Y-m-d' }}"
                             data-expiry-date="{{ d.expiry_date|date:'Y-m-d' }}"
                             data-active="{% if d.is_active %}true{% else %}false{% endif %}"
+                            data-status="{{ d.status }}"
                             data-product-ids="{{ d.applicable_products.all|id_list }}"
-                            data-category-ids="{{ d.applicable_categories.all|id_list }}"
-                            data-channel-ids="{{ d.applicable_channels.all|id_list }}">
+                            data-category-ids="{{ d.applicable_categories.all|id_list }}">
                             <td><span class="code-pill">{{ d.code }}</span></td>
                             <td><span class="type-badge">{% if d.discount_type == 'percentage' %}Percentage{% else %}Fixed Amt{% endif %}</span></td>
                             <td style="font-weight: 700; color: var(--text-dark);">
@@ -109,19 +227,39 @@
                             </td>
                         </tr>
                         {% empty %}
-                        <tr><td colspan="7" style="text-align:center; padding:30px; color:var(--text-muted);">No discount codes yet. Create your first one using the form.</td></tr>
+                        <!-- Honest Empty State -->
+                        <tr>
+                            <td colspan="7" style="padding: 60px 24px; text-align: center;">
+                                <div style="width: 56px; height: 56px; background-color: #f8fafc; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+                                    <i class="bi bi-tag" style="font-size: 1.8rem; color: #94a3b8;"></i>
+                                </div>
+                                <h3 style="font-size: 1rem; font-weight: 800; color: var(--text-dark); margin: 0 0 6px;">No discount codes yet!</h3>
+                                <p style="color: var(--text-muted); font-size: 0.82rem; max-width: 320px; margin: 0 auto 16px;">Create your first code using the form to run store promotions and drive orders.</p>
+                                <button type="button" class="btn btn-primary" onclick="focusForm()" style="font-size: 0.8rem; font-weight: 700; padding: 8px 16px; border-radius: 8px;">Create Discount Code</button>
+                            </td>
+                        </tr>
                         {% endfor %}
+                        
+                        <!-- Client-Side No Results Row -->
+                        <tr id="no-results-row" style="display: none;">
+                            <td colspan="7" style="padding: 40px 24px; text-align: center; color: var(--text-muted);">
+                                No discount codes match the selected filters.
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
 
-    <!-- Right: Form -->
-    <div class="split-column">
+    <!-- RIGHT COLUMN: FORM -->
+    <div class="split-column" id="discount-form-card">
         <div class="discount-card">
-            <header class="discount-card-header">
+            <header class="discount-card-header" style="display: flex; justify-content: space-between; align-items: center;">
                 <h3 class="discount-card-title" id="form-title-label">Create Discount Code</h3>
+                <button type="button" id="cancel-edit-btn" class="btn btn-sm btn-outline-danger" onclick="resetForm()" style="display: none; padding: 4px 8px; font-size: 0.72rem; font-weight: 700; border-radius: 6px;">
+                    Cancel Edit
+                </button>
             </header>
 
             <form id="discount-form" method="post" action="{% url 'discount_create' %}">
@@ -130,9 +268,9 @@
                 <div class="form-group-sm">
                     <label class="form-label-sm" for="form-code-input">Discount Code</label>
                     <div class="input-inline-btn">
-                        <input type="text" name="code" id="form-code-input" class="form-input-sm" style="font-family: monospace; font-weight: 700; text-transform: uppercase;" placeholder="e.g. FESTIVE20" required>
+                        <input type="text" name="code" id="form-code-input" class="form-input-sm" style="font-family: monospace; font-weight: 700; text-transform: uppercase;" placeholder="e.g. ORBIT50" required>
                         <button type="button" class="btn-secondary-sm" onclick="generateRandomCode()">
-                            <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12c0-1.232-.046-2.453-.138-3.662a4.006 4.006 0 00-3.7-3.7 48.656 48.656 0 00-7.324 0 4.006 4.006 0 00-3.7 3.7C4.693 9.486 4.5 10.745 4.5 12c0 1.256.195 2.514.538 3.738a4.006 4.006 0 003.7 3.7 48.508 48.508 0 007.324 0 4.006 4.006 0 003.7-3.7C19.455 14.482 19.5 13.232 19.5 12z" /><path stroke-linecap="round" stroke-linejoin="round" d="M9 10.5l3 3 3-3" /></svg>
+                            <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.5 12c0-1.232-.046-2.453-.138-3.662a4.006 4.006 0 00-3.7-3.7 48.656 48.656 0 00-7.324 0 4.006 4.006 0 00-3.7 3.7C4.693 9.486 4.5 10.745 4.5 12c0 1.256.195 2.514.538 3.738a4.006 4.006 0 003.7 3.7 48.508 48.508 0 007.324 0 4.006 4.006 0 003.7-3.7C19.455 14.482 19.5 13.232 19.5 12z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10.5l3 3 3-3" /></svg>
                             <span>Generate</span>
                         </button>
                     </div>
@@ -170,38 +308,38 @@
                     <input type="date" name="expiry_date" id="form-expiry-date" class="form-input-sm" required>
                 </div>
 
+                <!-- SELECTIVE APPLIES TO CHECKBOX REVEALS -->
                 <div class="form-group-sm">
-                    <label class="form-label-sm">Applies To (leave all unchecked for storewide)</label>
-                    <div style="border:1.5px solid var(--border-color); border-radius:var(--radius-sm); padding:10px; max-height:140px; overflow-y:auto; background:var(--bg-main);">
-                        <div style="font-size:0.7rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:6px;">Products</div>
-                        {% for p in products %}
-                        <label style="display:flex; align-items:center; gap:6px; font-size:0.82rem; margin-bottom:4px; cursor:pointer;">
-                            <input type="checkbox" name="applicable_products" value="{{ p.id }}" class="discount-scope-check" data-scope-id="product-{{ p.id }}">
-                            {{ p.title }}
-                        </label>
-                        {% empty %}
-                        <span style="font-size:0.78rem; color:var(--text-light);">No products yet</span>
-                        {% endfor %}
+                    <label class="form-label-sm">Applies To</label>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" name="apply_all" id="apply-all" checked onchange="toggleAppliesTo('all')">
+                        <label class="form-check-label" for="apply-all" style="font-size: 0.85rem; cursor: pointer;">Storewide (All Products)</label>
+                    </div>
+                    
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" name="apply_products" id="apply-products" onchange="toggleAppliesTo('products')">
+                        <label class="form-check-label" for="apply-products" style="font-size: 0.85rem; cursor: pointer;">Specific Products</label>
+                    </div>
+                    <div id="products-select-container" style="display: none; margin-bottom: 12px;">
+                        <select name="applicable_products" id="applicable-products" class="form-control" multiple style="height: 120px; font-size: 0.82rem; padding: 6px;">
+                            {% for p in products %}
+                            <option value="{{ p.id }}">{{ p.title }}</option>
+                            {% endfor %}
+                        </select>
+                        <small style="color: var(--text-muted); font-size: 0.72rem; display: block; margin-top: 4px;">Hold Ctrl (Win) / Cmd (Mac) to select multiple.</small>
+                    </div>
 
-                        <div style="font-size:0.7rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin:10px 0 6px;">Categories</div>
-                        {% for c in categories %}
-                        <label style="display:flex; align-items:center; gap:6px; font-size:0.82rem; margin-bottom:4px; cursor:pointer;">
-                            <input type="checkbox" name="applicable_categories" value="{{ c.id }}" class="discount-scope-check" data-scope-id="category-{{ c.id }}">
-                            {{ c.name }}
-                        </label>
-                        {% empty %}
-                        <span style="font-size:0.78rem; color:var(--text-light);">No categories yet</span>
-                        {% endfor %}
-
-                        <div style="font-size:0.7rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin:10px 0 6px;">Channels</div>
-                        {% for ch in channels %}
-                        <label style="display:flex; align-items:center; gap:6px; font-size:0.82rem; margin-bottom:4px; cursor:pointer;">
-                            <input type="checkbox" name="applicable_channels" value="{{ ch.id }}" class="discount-scope-check" data-scope-id="channel-{{ ch.id }}">
-                            {{ ch.name }}
-                        </label>
-                        {% empty %}
-                        <span style="font-size:0.78rem; color:var(--text-light);">No channels yet</span>
-                        {% endfor %}
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" name="apply_categories" id="apply-categories" onchange="toggleAppliesTo('categories')">
+                        <label class="form-check-label" for="apply-categories" style="font-size: 0.85rem; cursor: pointer;">Specific Categories</label>
+                    </div>
+                    <div id="categories-select-container" style="display: none; margin-bottom: 12px;">
+                        <select name="applicable_categories" id="applicable-categories" class="form-control" multiple style="height: 100px; font-size: 0.82rem; padding: 6px;">
+                            {% for cat in categories %}
+                            <option value="{{ cat.id }}">{{ cat.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <small style="color: var(--text-muted); font-size: 0.72rem; display: block; margin-top: 4px;">Hold Ctrl (Win) / Cmd (Mac) to select multiple.</small>
                     </div>
                 </div>
 
@@ -225,10 +363,14 @@
 
 </div>
 
+{% endblock %}
+
+{% block extra_js %}
 <script>
     const discountForm = document.getElementById('discount-form');
     const createUrl = "{% url 'discount_create' %}";
 
+    // Random uppercase letter/number code generator
     function generateRandomCode() {
         const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         let code = 'ORBIT-';
@@ -238,6 +380,7 @@
         document.getElementById('form-code-input').value = code;
     }
 
+    // Dropdown change logic
     function handleTypeChange(val) {
         const label = document.getElementById('value-label');
         const input = document.getElementById('form-value-input');
@@ -252,69 +395,180 @@
         }
     }
 
+    // Toggle label text
     function toggleActiveText(isChecked) {
         document.getElementById('toggle-status-label').innerText = isChecked ? 'Active' : 'Inactive';
         document.getElementById('is-active-hidden').value = isChecked ? 'true' : 'false';
     }
 
+    // Selective applies-to reveals
+    function toggleAppliesTo(source) {
+        const applyAll = document.getElementById('apply-all');
+        const applyProducts = document.getElementById('apply-products');
+        const applyCategories = document.getElementById('apply-categories');
+        
+        const productsContainer = document.getElementById('products-select-container');
+        const categoriesContainer = document.getElementById('categories-select-container');
+        
+        if (source === 'all') {
+            if (applyAll.checked) {
+                applyProducts.checked = false;
+                applyCategories.checked = false;
+            }
+        } else {
+            if (applyProducts.checked || applyCategories.checked) {
+                applyAll.checked = false;
+            }
+        }
+        
+        if (!applyAll.checked && !applyProducts.checked && !applyCategories.checked) {
+            applyAll.checked = true;
+        }
+        
+        productsContainer.style.display = applyProducts.checked ? 'block' : 'none';
+        categoriesContainer.style.display = applyCategories.checked ? 'block' : 'none';
+    }
+
+    // Focus and scroll to form
+    function focusForm() {
+        document.getElementById('form-code-input').focus();
+        document.getElementById('discount-form-card').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Client-side filtering controls
+    function applyFilters() {
+        const q = document.getElementById('search-input').value.toLowerCase().trim();
+        const type = document.getElementById('type-filter').value;
+        const status = document.getElementById('status-filter').value;
+        
+        const rows = document.querySelectorAll('#discounts-table-body tr');
+        let visibleCount = 0;
+        
+        rows.forEach(row => {
+            if (row.id === 'no-results-row') return;
+            
+            const code = row.dataset.code.toLowerCase();
+            const rowType = row.dataset.type;
+            const rowStatus = row.dataset.status;
+            
+            const matchesQ = !q || code.includes(q);
+            const matchesType = type === 'all' || rowType === type;
+            const matchesStatus = status === 'all' || rowStatus === status;
+            
+            if (matchesQ && matchesType && matchesStatus) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+        
+        const noResultsRow = document.getElementById('no-results-row');
+        if (noResultsRow) {
+            noResultsRow.style.display = visibleCount === 0 ? '' : 'none';
+        }
+    }
+
+    function resetFilters() {
+        document.getElementById('search-input').value = '';
+        document.getElementById('type-filter').value = 'all';
+        document.getElementById('status-filter').value = 'all';
+        applyFilters();
+    }
+
+    // Edit flow pre-filling
     function editRow(button) {
-    const row = button.closest('tr');
-    const id = row.dataset.id;
+        const row = button.closest('tr');
+        const id = row.dataset.id;
+        const code = row.dataset.code;
+        const type = row.dataset.type;
+        const value = row.dataset.value;
+        const minOrder = row.dataset.minOrder;
+        const usageLimit = row.dataset.usageLimit;
+        const startDate = row.dataset.startDate;
+        const expiryDate = row.dataset.expiryDate;
+        const isActive = row.dataset.active === 'true';
 
-    document.getElementById('form-code-input').value = row.dataset.code;
-    document.getElementById('form-type-select').value = row.dataset.type;
-    handleTypeChange(row.dataset.type);
-    document.getElementById('form-value-input').value = row.dataset.value;
-    document.getElementById('form-min-order').value = row.dataset.minOrder || '';
-    document.getElementById('form-usage-limit').value = row.dataset.usageLimit || '';
-    document.getElementById('form-start-date').value = row.dataset.startDate;
-    document.getElementById('form-expiry-date').value = row.dataset.expiryDate;
-    const isActive = row.dataset.active === 'true';
-    document.getElementById('form-active-toggle').checked = isActive;
-    toggleActiveText(isActive);
+        // Update form action and header labels
+        discountForm.action = createUrl.replace('/create/', '/' + id + '/update/');
+        document.getElementById('form-title-label').innerText = 'Edit Discount Code';
+        document.getElementById('cancel-edit-btn').style.display = 'inline-block';
+        
+        // Fill details
+        document.getElementById('form-code-input').value = code;
+        document.getElementById('form-type-select').value = type;
+        handleTypeChange(type);
+        document.getElementById('form-value-input').value = value;
+        document.getElementById('form-min-order').value = minOrder || '';
+        document.getElementById('form-usage-limit').value = usageLimit || '';
+        document.getElementById('form-start-date').value = startDate;
+        document.getElementById('form-expiry-date').value = expiryDate;
+        
+        document.getElementById('form-active-toggle').checked = isActive;
+        toggleActiveText(isActive);
 
-    discountForm.action = createUrl.replace('/create/', '/' + id + '/update/');
+        // Pre-fill applies-to checkboxes & multi-select states
+        const productIds = (row.dataset.productIds || '').split(',').filter(Boolean);
+        const categoryIds = (row.dataset.categoryIds || '').split(',').filter(Boolean);
 
-    // Reset all scope checkboxes first, then check the ones saved for this discount
-    document.querySelectorAll('.discount-scope-check').forEach(cb => cb.checked = false);
+        const productsSelect = document.getElementById('applicable-products');
+        for (let option of productsSelect.options) {
+            option.selected = productIds.includes(option.value);
+        }
 
-    const productIds = (row.dataset.productIds || '').split(',').filter(Boolean);
-    const categoryIds = (row.dataset.categoryIds || '').split(',').filter(Boolean);
-    const channelIds = (row.dataset.channelIds || '').split(',').filter(Boolean);
+        const categoriesSelect = document.getElementById('applicable-categories');
+        for (let option of categoriesSelect.options) {
+            option.selected = categoryIds.includes(option.value);
+        }
 
-    productIds.forEach(pid => {
-        const cb = document.querySelector(`[data-scope-id="product-${pid}"]`);
-        if (cb) cb.checked = true;
-    });
-    categoryIds.forEach(cid => {
-        const cb = document.querySelector(`[data-scope-id="category-${cid}"]`);
-        if (cb) cb.checked = true;
-    });
-    channelIds.forEach(chid => {
-        const cb = document.querySelector(`[data-scope-id="channel-${chid}"]`);
-        if (cb) cb.checked = true;
-    });
+        const applyAll = document.getElementById('apply-all');
+        const applyProducts = document.getElementById('apply-products');
+        const applyCategories = document.getElementById('apply-categories');
 
-    document.getElementById('form-submit-btn').innerHTML = `
-        <span>Update Discount Code</span>
-        <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M4.5 12.75l6 6 9-13.5" /></svg>
-    `;
-    document.getElementById('form-title-label').innerText = 'Edit Discount Code';
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-}
+        if (productIds.length > 0) {
+            applyAll.checked = false;
+            applyProducts.checked = true;
+            applyCategories.checked = false;
+        } else if (categoryIds.length > 0) {
+            applyAll.checked = false;
+            applyProducts.checked = false;
+            applyCategories.checked = true;
+        } else {
+            applyAll.checked = true;
+            applyProducts.checked = false;
+            applyCategories.checked = false;
+        }
 
+        toggleAppliesTo('all');
+
+        // Transform button label
+        document.getElementById('form-submit-btn').innerHTML = `
+            <span>Update Discount Code</span>
+            <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M4.5 12.75l6 6 9-13.5" /></svg>
+        `;
+
+        document.getElementById('discount-form-card').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Cancel edit or reset form
     function resetForm() {
         discountForm.reset();
         discountForm.action = createUrl;
         handleTypeChange('percentage');
         toggleActiveText(true);
+        
+        document.getElementById('form-title-label').innerText = 'Create Discount Code';
+        document.getElementById('cancel-edit-btn').style.display = 'none';
+        
+        document.getElementById('apply-all').checked = true;
+        document.getElementById('apply-products').checked = false;
+        document.getElementById('apply-categories').checked = false;
+        toggleAppliesTo('all');
+
         document.getElementById('form-submit-btn').innerHTML = `
             <span>Create Discount Code</span>
             <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
         `;
-        document.getElementById('form-title-label').innerText = 'Create Discount Code';
-        document.querySelectorAll('.discount-scope-check').forEach(cb => cb.checked = false);
     }
 </script>
-
 {% endblock %}

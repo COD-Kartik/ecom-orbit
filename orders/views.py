@@ -12,11 +12,13 @@ from django.utils import timezone
 from products.models import Product
 from datetime import datetime
 from django.contrib import messages
-from .models import Discount
+from .models import Discount, Note
 from django.core.paginator import Paginator
 from django.db.models import Q
 from products.models import Product, Category
-from channels_integration.models import Channel
+from django.db.models import Count
+from channels_integration.models import Channel, SyncLog
+from django.db.models.functions import ExtractWeekDay
 
 
 def get_user_business(user):
@@ -48,7 +50,6 @@ def order_list(request):
     date_from = request.GET.get('date_from')
     date_to = request.GET.get('date_to')
 
-    # Stat cards should always reflect the full unfiltered set for this business
     stats_base = Order.objects.filter(business=business) if business else Order.objects.none()
 
     if status_filter:
@@ -70,6 +71,23 @@ def order_list(request):
 
     products = Product.objects.filter(business=business) if business else Product.objects.none()
 
+    # Channel Distribution — real order counts grouped by channel
+    channel_distribution = (
+        stats_base.values('channel__name')
+        .annotate(order_count=Count('id'))
+        .order_by('-order_count')
+    )
+    channel_distribution_data = [
+        {'name': c['channel__name'] or 'Manual', 'count': c['order_count']}
+        for c in channel_distribution
+    ]
+
+    # Real Flipkart channels for Marketplace Operations widget
+    flipkart_channels = Channel.objects.filter(business=business, platform_type='flipkart') if business else Channel.objects.none()
+
+    # Recent sync/import activity — real log, not fabricated
+    recent_sync_logs = SyncLog.objects.filter(channel__business=business).select_related('channel')[:8] if business else SyncLog.objects.none()
+
     return render(request, 'orders/order_list.html', {
         'orders': page_obj,
         'page_obj': page_obj,
@@ -85,8 +103,10 @@ def order_list(request):
         'date_from': date_from or '',
         'date_to': date_to or '',
         'business': business,
+        'channel_distribution': channel_distribution_data,
+        'flipkart_channels': flipkart_channels,
+        'recent_sync_logs': recent_sync_logs,
     })
-
 @login_required
 def order_detail(request, pk):
     business = get_user_business(request.user)
@@ -205,10 +225,48 @@ def order_delete(request, pk):
     get_object_or_404(Order, pk=pk, business=business).delete()
     return redirect('order_list')
 
+def parse_date_filters(request):
+    from datetime import timedelta
+    date_range = request.GET.get('date_range', '30')
+    date_from_str = request.GET.get('date_from', '')
+    date_to_str = request.GET.get('date_to', '')
+    
+    start_date = None
+    end_date = None
+    today = timezone.now().date()
+    
+    if date_range == '7':
+        start_date = today - timedelta(days=6)
+        end_date = today
+    elif date_range == '30':
+        start_date = today - timedelta(days=29)
+        end_date = today
+    elif date_range == '90':
+        start_date = today - timedelta(days=89)
+        end_date = today
+    elif date_range == 'custom':
+        if date_from_str:
+            try:
+                start_date = datetime.strptime(date_from_str, '%Y-%m-%d').date()
+            except ValueError:
+                pass
+        if date_to_str:
+            try:
+                end_date = datetime.strptime(date_to_str, '%Y-%m-%d').date()
+            except ValueError:
+                pass
+    return start_date, end_date, date_range, date_from_str, date_to_str
+
 @login_required
 def export_orders_csv(request):
     business = get_user_business(request.user)
     orders = Order.objects.filter(business=business).order_by('-created_at') if business else Order.objects.none()
+
+    start_date, end_date, date_range, date_from_str, date_to_str = parse_date_filters(request)
+    if start_date:
+        orders = orders.filter(created_at__date__gte=start_date)
+    if end_date:
+        orders = orders.filter(created_at__date__lte=end_date)
 
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="orders_export.csv"'
@@ -251,6 +309,7 @@ def customer_list(request):
                 'total_orders': 0,
                 'total_spent': 0,
                 'last_order_date': None,
+                'first_order_date': None,
                 'order_ids': [],
                 'orders': [],
             }
@@ -266,6 +325,9 @@ def customer_list(request):
                 entry['email'] = order.customer_email
             if order.customer_phone:
                 entry['phone'] = order.customer_phone
+
+        if entry['first_order_date'] is None or order.created_at < entry['first_order_date']:
+            entry['first_order_date'] = order.created_at
 
         entry['orders'].append({
             'id': order.id,
@@ -304,10 +366,65 @@ def customer_list(request):
     new_count = sum(1 for c in all_customers if c['status'] == 'new')
     returning_count = sum(1 for c in all_customers if c['status'] == 'returning')
     vip_count = sum(1 for c in all_customers if c['status'] == 'vip')
-    repeat_rate = round((returning_count + vip_count) / total_customers * 100, 1) if total_customers > 0 else 0
+    repeat_count = returning_count + vip_count
+    
+    repeat_rate = round(repeat_count / total_customers * 100, 1) if total_customers > 0 else 0
     avg_ltv = round(sum(c['total_spent'] for c in all_customers) / total_customers, 2) if total_customers > 0 else 0
 
-    # Now apply search filter (name, email, or order ID) to build the displayed list
+    # 1. Genuinely time-based "New Customers": first-ever order date in last 30 days
+    today = timezone.now().date()
+    last_30_days_start = today - timezone.timedelta(days=29)
+    new_customers_30d = sum(
+        1 for key, entry in grouped.items()
+        if entry['first_order_date'] and entry['first_order_date'].date() >= last_30_days_start
+    )
+
+    # Compare against prior 30-day period (days -59 to -30)
+    prior_30_start = today - timezone.timedelta(days=59)
+    prior_30_end = today - timezone.timedelta(days=30)
+    new_customers_prior = sum(
+        1 for key, entry in grouped.items()
+        if entry['first_order_date'] and prior_30_start <= entry['first_order_date'].date() <= prior_30_end
+    )
+
+    if new_customers_prior > 0:
+        pct = ((new_customers_30d - new_customers_prior) / new_customers_prior) * 100
+        new_trend_str = f"{'+' if pct >= 0 else ''}{pct:.1f}% vs prior 30d"
+        new_trend_up = pct >= 0
+    else:
+        new_trend_str = "No prior data"
+        new_trend_up = True
+
+    # 2. Daily time series for Customer Growth chart (last 30 days)
+    growth_data = {}
+    for i in range(30):
+        day = today - timezone.timedelta(days=29 - i)
+        growth_data[day] = 0
+
+    for key, entry in grouped.items():
+        if entry['first_order_date']:
+            fdate = entry['first_order_date'].date()
+            if fdate in growth_data:
+                growth_data[fdate] += 1
+
+    growth_labels = [d.strftime('%b %d') for d in sorted(growth_data.keys())]
+    growth_values = [growth_data[d] for d in sorted(growth_data.keys())]
+
+    growth_chart_json = json.dumps({
+        'labels': growth_labels,
+        'values': growth_values
+    })
+
+    # 3. Top Spender and Most Orders
+    top_spender = None
+    most_orders = None
+    if all_customers:
+        top_spender = max(all_customers, key=lambda x: x['total_spent'])
+        most_orders = max(all_customers, key=lambda x: x['total_orders'])
+
+    max_spent = float(top_spender['total_spent']) if top_spender and top_spender['total_spent'] > 0 else 1.0
+
+    # Apply search filter (name, email, or order ID) to build the displayed list
     customers = []
     for c in all_customers:
         if search_query:
@@ -327,17 +444,30 @@ def customer_list(request):
     else:  # date-desc, the default — latest activity first
         customers.sort(key=lambda x: x['last_order_date_obj'] or timezone.datetime.min.replace(tzinfo=timezone.utc), reverse=True)
 
+    # Real Django pagination (10 per page)
+    paginator = Paginator(customers, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     return render(request, 'orders/customer_list.html', {
-        'customers': customers,
+        'page_obj': page_obj,
         'total_customers': total_customers,
-        'new_count': new_count,
+        'new_customers_30d': new_customers_30d,
+        'new_trend_str': new_trend_str,
+        'new_trend_up': new_trend_up,
         'repeat_rate': repeat_rate,
+        'repeat_count': repeat_count,
+        'vip_count': vip_count,
         'avg_ltv': avg_ltv,
         'search_query': request.GET.get('q', ''),
         'sort_by': sort_by,
         'has_customers': total_customers > 0,
         'has_results': len(customers) > 0,
         'business': business,
+        'top_spender': top_spender,
+        'most_orders': most_orders,
+        'max_spent': max_spent,
+        'growth_chart_json': growth_chart_json,
     })
 
 
@@ -400,10 +530,40 @@ def notifications_view(request):
     if current_filter != 'all':
         notifications = [n for n in notifications if n['type'] == current_filter]
 
+    # Calculate metrics respecting current filter
+    total_alerts = len(notifications)
+    low_stock_alerts = sum(1 for n in notifications if n['type'] == 'low-stock')
+    new_orders_alerts = sum(1 for n in notifications if n['type'] == 'new-order')
+
+    # Group notifications by date
+    today_date = timezone.now().date()
+    yesterday_date = today_date - timezone.timedelta(days=1)
+
+    grouped_notifications = {
+        'today': [],
+        'yesterday': [],
+        'earlier': []
+    }
+    for n in notifications:
+        notif_date = n['timestamp'].date()
+        if notif_date == today_date:
+            grouped_notifications['today'].append(n)
+        elif notif_date == yesterday_date:
+            grouped_notifications['yesterday'].append(n)
+        else:
+            grouped_notifications['earlier'].append(n)
+
+    notes = Note.objects.filter(business=business).order_by('-created_at') if business else Note.objects.none()
+
     return render(request, 'orders/notifications.html', {
         'notifications': notifications,
+        'grouped_notifications': grouped_notifications,
+        'total_alerts': total_alerts,
+        'low_stock_alerts': low_stock_alerts,
+        'new_orders_alerts': new_orders_alerts,
         'current_filter': current_filter,
         'business': business,
+        'notes': notes,
     })
 
 
@@ -436,6 +596,12 @@ def export_customers_csv(request):
     business = get_user_business(request.user)
     orders_qs = Order.objects.filter(business=business).exclude(customer_email__isnull=True).exclude(customer_email='') if business else Order.objects.none()
 
+    start_date, end_date, date_range, date_from_str, date_to_str = parse_date_filters(request)
+    if start_date:
+        orders_qs = orders_qs.filter(created_at__date__gte=start_date)
+    if end_date:
+        orders_qs = orders_qs.filter(created_at__date__lte=end_date)
+
     grouped = (
         orders_qs.values('customer_email', 'customer_name', 'customer_phone')
         .annotate(total_orders=Count('id'), total_spent=Sum('total_amount'), last_order_date=Max('created_at'))
@@ -463,27 +629,217 @@ def export_customers_csv(request):
 @login_required
 def reports_view(request):
     business = get_user_business(request.user)
-    if business:
-        total_orders = Order.objects.filter(business=business).count()
-        total_products = Product.objects.filter(business=business).count()
-        total_customers = (
-            Order.objects.filter(business=business)
-            .exclude(customer_email__isnull=True)
-            .exclude(customer_email='')
-            .values('customer_email')
-            .distinct()
-            .count()
-        )
-    else:
-        total_orders = total_products = total_customers = 0
+    
+    start_date, end_date, date_range, date_from_str, date_to_str = parse_date_filters(request)
+    
+    orders_qs = Order.objects.filter(business=business) if business else Order.objects.none()
+    products_qs = Product.objects.filter(business=business) if business else Product.objects.none()
+    
+    # Filter orders by range for dynamic counts
+    orders_filtered = orders_qs
+    if start_date:
+        orders_filtered = orders_filtered.filter(created_at__date__gte=start_date)
+    if end_date:
+        orders_filtered = orders_filtered.filter(created_at__date__lte=end_date)
+
+    # Recompute preview counts
+    sales_count = orders_filtered.count()
+    inventory_count = products_qs.count()
+    customers_count = orders_filtered.exclude(customer_email__isnull=True).exclude(customer_email='').values('customer_email').distinct().count()
+    invoices_count = orders_filtered.count()
+    
+    # Channel Revenue count
+    channel_count = orders_filtered.values('channel_id').distinct().count()
+    
+    # Fulfillment status count
+    fulfillment_count = orders_filtered.values('status').distinct().count()
+    
+    # Sales by Weekday count
+    weekday_count = orders_filtered.annotate(weekday=ExtractWeekDay('created_at')).values('weekday').distinct().count()
+    
+    # Top Products count
+    top_products_count = OrderItem.objects.filter(order__in=orders_filtered).values('product_id').distinct().count()
+    
+    # High-level snapshot metrics
+    total_orders = orders_qs.count()
+    total_products = products_qs.count()
+    total_customers = orders_qs.exclude(customer_email__isnull=True).exclude(customer_email='').values('customer_email').distinct().count()
 
     return render(request, 'orders/reports.html', {
         'total_orders': total_orders,
         'total_products': total_products,
         'total_customers': total_customers,
-        'business': business,   # ← add this
+        
+        # Row counts
+        'sales_count': sales_count,
+        'inventory_count': inventory_count,
+        'customers_count': customers_count,
+        'invoices_count': invoices_count,
+        'channel_count': channel_count,
+        'fulfillment_count': fulfillment_count,
+        'weekday_count': weekday_count,
+        'top_products_count': top_products_count,
+        
+        # Filter state
+        'date_range': date_range,
+        'date_from': date_from_str,
+        'date_to': date_to_str,
+        'business': business,
     })
 
+@login_required
+def export_channel_revenue_csv(request):
+    business = get_user_business(request.user)
+    orders = Order.objects.filter(business=business) if business else Order.objects.none()
+
+    start_date, end_date, date_range, date_from_str, date_to_str = parse_date_filters(request)
+    if start_date:
+        orders = orders.filter(created_at__date__gte=start_date)
+    if end_date:
+        orders = orders.filter(created_at__date__lte=end_date)
+
+    channels_qs = Channel.objects.filter(business=business) if business else Channel.objects.none()
+    channels_dict = {c.id: c for c in channels_qs}
+
+    channel_revs = orders.values('channel_id').annotate(revenue=Sum('total_amount'), count=Count('id')).order_by('-revenue')
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="channel_revenue_report.csv"'
+    writer = csv.writer(response)
+    writer.writerow(['Channel', 'Revenue', 'Order Count'])
+
+    for item in channel_revs:
+        ch_id = item['channel_id']
+        rev = float(item['revenue'] or 0.0)
+        count = item['count']
+        if ch_id is None:
+            name = "Manual"
+        else:
+            ch = channels_dict.get(ch_id)
+            name = ch.name if ch else f"Channel #{ch_id}"
+        writer.writerow([name, round(rev, 2), count])
+    return response
+
+@login_required
+def export_fulfillment_status_csv(request):
+    business = get_user_business(request.user)
+    orders = Order.objects.filter(business=business) if business else Order.objects.none()
+
+    start_date, end_date, date_range, date_from_str, date_to_str = parse_date_filters(request)
+    if start_date:
+        orders = orders.filter(created_at__date__gte=start_date)
+    if end_date:
+        orders = orders.filter(created_at__date__lte=end_date)
+
+    total_orders = orders.count()
+    status_choices = ['delivered', 'shipped', 'processing', 'pending', 'cancelled']
+    status_counts = {s: orders.filter(status=s).count() for s in status_choices}
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="fulfillment_status_report.csv"'
+    writer = csv.writer(response)
+    writer.writerow(['Status', 'Order Count', 'Percentage'])
+
+    for s in status_choices:
+        count = status_counts[s]
+        pct = round((count / total_orders * 100), 1) if total_orders > 0 else 0.0
+        writer.writerow([s.capitalize(), count, f"{pct}%"])
+    return response
+
+@login_required
+def export_sales_by_weekday_csv(request):
+    business = get_user_business(request.user)
+    orders = Order.objects.filter(business=business) if business else Order.objects.none()
+
+    start_date, end_date, date_range, date_from_str, date_to_str = parse_date_filters(request)
+    if start_date:
+        orders = orders.filter(created_at__date__gte=start_date)
+    if end_date:
+        orders = orders.filter(created_at__date__lte=end_date)
+
+    day_names = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+    day_revenue = [0.0] * 7
+    day_orders = [0] * 7
+
+    try:
+        weekday_data = (
+            orders
+            .annotate(weekday=ExtractWeekDay('created_at'))
+            .values('weekday')
+            .annotate(revenue=Sum('total_amount'), count=Count('id'))
+        )
+        django_weekday_map = {
+            2: 0, # Mon
+            3: 1, # Tue
+            4: 2, # Wed
+            5: 3, # Thu
+            6: 4, # Fri
+            7: 5, # Sat
+            1: 6, # Sun
+        }
+        for item in weekday_data:
+            wd = item['weekday']
+            if wd is not None:
+                wd_int = int(wd)
+                if wd_int in django_weekday_map:
+                    idx = django_weekday_map[wd_int]
+                    day_revenue[idx] = float(item['revenue'] or 0.0)
+                    day_orders[idx] = item['count']
+    except Exception:
+        for o in orders:
+            w = o.created_at.weekday()
+            day_revenue[w] += float(o.total_amount)
+            day_orders[w] += 1
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="sales_by_weekday_report.csv"'
+    writer = csv.writer(response)
+    writer.writerow(['Day of Week', 'Revenue', 'Order Count'])
+
+    for idx, day_name in enumerate(day_names):
+        writer.writerow([day_name, round(day_revenue[idx], 2), day_orders[idx]])
+    return response
+
+@login_required
+def export_top_products_csv(request):
+    business = get_user_business(request.user)
+    orders = Order.objects.filter(business=business) if business else Order.objects.none()
+
+    start_date, end_date, date_range, date_from_str, date_to_str = parse_date_filters(request)
+    if start_date:
+        orders = orders.filter(created_at__date__gte=start_date)
+    if end_date:
+        orders = orders.filter(created_at__date__lte=end_date)
+
+    from collections import defaultdict
+    product_sales = defaultdict(lambda: {'sold': 0, 'revenue': 0.0, 'product': None})
+    for item in OrderItem.objects.filter(order__in=orders).select_related('product'):
+        if item.product:
+            key = item.product.id
+            product_sales[key]['sold'] += item.quantity
+            product_sales[key]['revenue'] += float(item.quantity * item.unit_price)
+            product_sales[key]['product'] = item.product
+
+    top_products_data = sorted(product_sales.values(), key=lambda x: x['revenue'], reverse=True)
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="top_products_report.csv"'
+    writer = csv.writer(response)
+    writer.writerow(['Product', 'Units Sold', 'Revenue'])
+
+    for p in top_products_data:
+        writer.writerow([p['product'].title, p['sold'], round(p['revenue'], 2)])
+    return response
+
+
+@login_required
+def print_invoices(request):
+    business = get_user_business(request.user)
+    orders = Order.objects.filter(business=business).order_by('-created_at') if business else Order.objects.none()
+    return render(request, 'orders/print_invoices.html', {
+        'orders': orders,
+        'business': business,
+    })
 
 
 @login_required
@@ -494,7 +850,7 @@ def discounts_view(request):
     today = timezone.now().date()
     active_codes_count = sum(1 for d in discounts if d.status == 'active')
     total_redemptions = sum(d.times_used for d in discounts)
-    total_discount_given = 0
+    total_discount_given = "Not yet tracked"
     expiring_soon_count = sum(
         1 for d in discounts
         if d.status == 'active' and (d.expiry_date - today).days <= 7
@@ -587,6 +943,30 @@ def discount_delete(request, pk):
     discount.delete()
     return redirect('discounts_view')
 
+@login_required
+def export_discounts_csv(request):
+    business = get_user_business(request.user)
+    discounts = Discount.objects.filter(business=business).order_by('-created_at') if business else Discount.objects.none()
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="discounts_export.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(['Code', 'Type', 'Value', 'Usage', 'Status', 'Expiry Date'])
+
+    for d in discounts:
+        usage_str = f"{d.times_used} / {d.usage_limit}" if d.usage_limit else f"{d.times_used} / Unlimited"
+        writer.writerow([
+            d.code,
+            d.get_discount_type_display(),
+            d.value,
+            usage_str,
+            d.status.capitalize(),
+            d.expiry_date.strftime('%Y-%m-%d')
+        ])
+
+    return response
+
 from django.http import JsonResponse
 from accounts.models import DismissedNotification
 
@@ -604,3 +984,56 @@ def dismiss_notification(request):
                 reference_id=reference_id,
             )
     return JsonResponse({'success': True})
+
+@login_required
+def bulk_dismiss_notifications(request):
+    business = get_user_business(request.user)
+    if business and request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            items = data.get('items', [])
+            for item in items:
+                notif_type = item.get('type')
+                ref_id = item.get('id')
+                if notif_type and ref_id:
+                    DismissedNotification.objects.get_or_create(
+                        business=business,
+                        notif_type=notif_type,
+                        reference_id=ref_id,
+                    )
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    return JsonResponse({'success': False, 'error': 'Invalid request'})
+
+@login_required
+def note_create(request):
+    business = get_user_business(request.user)
+    if business and request.method == 'POST':
+        content = request.POST.get('content', '').strip()
+        if content:
+            Note.objects.create(
+                business=business,
+                content=content
+            )
+            messages.success(request, 'Note added successfully.')
+    return redirect('notifications_view')
+
+@login_required
+def note_toggle_done(request, pk):
+    business = get_user_business(request.user)
+    if business and request.method == 'POST':
+        note = get_object_or_404(Note, pk=pk, business=business)
+        note.is_done = not note.is_done
+        note.save()
+    return redirect('notifications_view')
+
+@login_required
+def note_delete(request, pk):
+    business = get_user_business(request.user)
+    if business and request.method == 'POST':
+        note = get_object_or_404(Note, pk=pk, business=business)
+        note.delete()
+        messages.success(request, 'Note deleted successfully.')
+    return redirect('notifications_view')
+

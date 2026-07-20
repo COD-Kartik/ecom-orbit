@@ -5,10 +5,80 @@
 {% block page_title %}Data Exports{% endblock %}
 {% block nav_DataExports %}active{% endblock %}
 
+{% block extra_css %}
+<style>
+    .dropdown-filter {
+        padding: 8px 12px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        border: 1px solid #c7d2fe;
+        border-radius: 8px;
+        background-color: #ffffff;
+        color: #4b5563;
+        outline: none;
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+    .dropdown-filter:hover {
+        border-color: #4f46e5;
+    }
+    
+    .section-header {
+        font-size: 1.15rem;
+        font-weight: 800;
+        color: var(--text-dark, #0f172a);
+        margin: 32px 0 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .section-header::after {
+        content: '';
+        flex-grow: 1;
+        height: 1px;
+        background-color: #e2e8f0;
+        margin-left: 12px;
+    }
+
+    .report-card-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 24px;
+        margin-bottom: 16px;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
 
-<section class="metrics-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 32px;">
+<!-- EXPORTS TOOLBAR -->
+<div class="exports-toolbar" style="background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; padding: 18px 24px; display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; margin-bottom: 24px; box-shadow: var(--card-shadow, 0 4px 6px -1px rgba(0,0,0,0.02));">
+    <div>
+        <h2 style="font-size: 1.35rem; font-weight: 800; color: var(--text-dark, #0f172a); margin: 0;">Export Center</h2>
+        <p style="font-size: 0.82rem; color: var(--text-muted, #64748b); margin: 4px 0 0;">Download complete operational data or customized analytics reports in CSV format.</p>
+    </div>
+    
+    <!-- Date Filtering Form (GET server-side filter) -->
+    <form method="get" id="date-filter-form" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+        <select name="date_range" id="date-range-select" class="dropdown-filter" onchange="handleRangeChange(this.value)">
+            <option value="all" {% if date_range == 'all' or not date_range %}selected{% endif %}>All Time</option>
+            <option value="7" {% if date_range == '7' %}selected{% endif %}>Last 7 Days</option>
+            <option value="30" {% if date_range == '30' %}selected{% endif %}>Last 30 Days</option>
+            <option value="90" {% if date_range == '90' %}selected{% endif %}>Last 90 Days</option>
+            <option value="custom" {% if date_range == 'custom' %}selected{% endif %}>Custom Range</option>
+        </select>
+        
+        <div id="custom-date-inputs" style="display: {% if date_range == 'custom' %}flex{% else %}none{% endif %}; align-items: center; gap: 8px;">
+            <input type="date" name="date_from" value="{{ date_from }}" class="dropdown-filter" style="height: 38px;">
+            <span style="color: var(--text-muted, #64748b); font-size: 0.82rem; font-weight: 600;">to</span>
+            <input type="date" name="date_to" value="{{ date_to }}" class="dropdown-filter" style="height: 38px;">
+            <button type="submit" class="btn btn-primary" style="padding: 8px 16px; border-radius: 8px; font-weight: 700; font-size: 0.82rem; height: 38px;">Apply</button>
+        </div>
+    </form>
+</div>
+
+<!-- TOP SNAPSHOT CARDS -->
+<section class="metrics-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 16px;">
     <div class="metric-card">
         <div class="metric-icon-box orders"><i class="bi bi-cart3"></i></div>
         <div class="metric-info">
@@ -32,24 +102,100 @@
     </div>
 </section>
 
-<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:24px;">
-
+<!-- SECTION 1: SALES & ORDERS -->
+<h2 class="section-header">Sales & Orders</h2>
+<div class="report-card-grid">
     <!-- Sales Report -->
-    <div class="dashboard-card" style="padding:28px;">
+    <div class="dashboard-card" style="padding:28px; position: relative;">
         <div style="width:48px; height:48px; border-radius:12px; background:#eef2ff; color:#4f46e5; display:flex; align-items:center; justify-content:center; margin-bottom:16px;">
             <i class="bi bi-graph-up" style="font-size:1.3rem;"></i>
         </div>
         <h3 style="font-size:1.05rem; font-weight:700; color:var(--text-dark); margin-bottom:6px;">Sales Report</h3>
         <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:20px; line-height:1.5;">
-            Complete order history including customer details, channel, amount, and fulfillment status.
+            Complete order history including customer details, channel, amount, and status.
         </p>
-        <a href="{% url 'export_orders_csv' %}" class="btn-primary-custom btn w-100 d-flex align-items-center justify-content-center gap-2" style="text-decoration:none;">
+        <div style="font-size:0.8rem; font-weight:700; color:#4f46e5; margin-bottom:16px; background:#f5f7ff; padding:8px 12px; border-radius:6px; display:inline-block;">
+            <i class="bi bi-info-circle-fill"></i> {{ sales_count }} orders will be exported
+        </div>
+        <a href="{% url 'export_orders_csv' %}?date_range={{ date_range }}&date_from={{ date_from }}&date_to={{ date_to }}" class="btn-primary-custom btn w-100 d-flex align-items-center justify-content-center gap-2" style="text-decoration:none;">
             <i class="bi bi-download"></i> Download CSV
         </a>
     </div>
 
+    <!-- Order Invoices -->
+    <div class="dashboard-card" style="padding:28px; position: relative;">
+        <div style="width:48px; height:48px; border-radius:12px; background:#f5f3ff; color:#7c3aed; display:flex; align-items:center; justify-content:center; margin-bottom:16px;">
+            <i class="bi bi-printer" style="font-size:1.3rem;"></i>
+        </div>
+        <h3 style="font-size:1.05rem; font-weight:700; color:var(--text-dark); margin-bottom:6px;">Order Invoices</h3>
+        <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:20px; line-height:1.5;">
+            A printable summary of all orders — order ID, date, customer, amount, and status.
+        </p>
+        <div style="font-size:0.8rem; font-weight:700; color:#7c3aed; margin-bottom:16px; background:#faf5ff; padding:8px 12px; border-radius:6px; display:inline-block;">
+            <i class="bi bi-info-circle-fill"></i> {{ invoices_count }} invoices will be exported
+        </div>
+        <a href="{% url 'print_invoices' %}?date_range={{ date_range }}&date_from={{ date_from }}&date_to={{ date_to }}" target="_blank" class="btn-primary-custom btn w-100 d-flex align-items-center justify-content-center gap-2" style="text-decoration:none; background:#7c3aed; border-color:#7c3aed;">
+            <i class="bi bi-printer"></i> Open Printable View
+        </a>
+    </div>
+
+    <!-- Channel Revenue -->
+    <div class="dashboard-card" style="padding:28px; position: relative;">
+        <div style="width:48px; height:48px; border-radius:12px; background:#eff6ff; color:#2563eb; display:flex; align-items:center; justify-content:center; margin-bottom:16px;">
+            <i class="bi bi-diagram-3" style="font-size:1.3rem;"></i>
+        </div>
+        <h3 style="font-size:1.05rem; font-weight:700; color:var(--text-dark); margin-bottom:6px;">Channel Revenue</h3>
+        <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:20px; line-height:1.5;">
+            Revenue and transaction count aggregated by marketing and marketplace channel.
+        </p>
+        <div style="font-size:0.8rem; font-weight:700; color:#2563eb; margin-bottom:16px; background:#f0f7ff; padding:8px 12px; border-radius:6px; display:inline-block;">
+            <i class="bi bi-info-circle-fill"></i> {{ channel_count }} channels will be exported
+        </div>
+        <a href="{% url 'export_channel_revenue_csv' %}?date_range={{ date_range }}&date_from={{ date_from }}&date_to={{ date_to }}" class="btn-primary-custom btn w-100 d-flex align-items-center justify-content-center gap-2" style="text-decoration:none; background:#2563eb; border-color:#2563eb;">
+            <i class="bi bi-download"></i> Download CSV
+        </a>
+    </div>
+
+    <!-- Fulfillment Status -->
+    <div class="dashboard-card" style="padding:28px; position: relative;">
+        <div style="width:48px; height:48px; border-radius:12px; background:#ecfeff; color:#0891b2; display:flex; align-items:center; justify-content:center; margin-bottom:16px;">
+            <i class="bi bi-pie-chart" style="font-size:1.3rem;"></i>
+        </div>
+        <h3 style="font-size:1.05rem; font-weight:700; color:var(--text-dark); margin-bottom:6px;">Fulfillment Status</h3>
+        <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:20px; line-height:1.5;">
+            Breakdown of order counts and percentage share by status (Delivered, Pending, etc).
+        </p>
+        <div style="font-size:0.8rem; font-weight:700; color:#0891b2; margin-bottom:16px; background:#f0fdfa; padding:8px 12px; border-radius:6px; display:inline-block;">
+            <i class="bi bi-info-circle-fill"></i> {{ fulfillment_count }} statuses will be exported
+        </div>
+        <a href="{% url 'export_fulfillment_status_csv' %}?date_range={{ date_range }}&date_from={{ date_from }}&date_to={{ date_to }}" class="btn-primary-custom btn w-100 d-flex align-items-center justify-content-center gap-2" style="text-decoration:none; background:#0891b2; border-color:#0891b2;">
+            <i class="bi bi-download"></i> Download CSV
+        </a>
+    </div>
+
+    <!-- Sales by Weekday -->
+    <div class="dashboard-card" style="padding:28px; position: relative;">
+        <div style="width:48px; height:48px; border-radius:12px; background:#f0fdfa; color:#0d9488; display:flex; align-items:center; justify-content:center; margin-bottom:16px;">
+            <i class="bi bi-calendar-week" style="font-size:1.3rem;"></i>
+        </div>
+        <h3 style="font-size:1.05rem; font-weight:700; color:var(--text-dark); margin-bottom:6px;">Sales by Weekday</h3>
+        <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:20px; line-height:1.5;">
+            Operational metrics and order values grouped by day of the week (Monday - Sunday).
+        </p>
+        <div style="font-size:0.8rem; font-weight:700; color:#0d9488; margin-bottom:16px; background:#f0fdfa; padding:8px 12px; border-radius:6px; display:inline-block;">
+            <i class="bi bi-info-circle-fill"></i> {{ weekday_count }} weekdays will be exported
+        </div>
+        <a href="{% url 'export_sales_by_weekday_csv' %}?date_range={{ date_range }}&date_from={{ date_from }}&date_to={{ date_to }}" class="btn-primary-custom btn w-100 d-flex align-items-center justify-content-center gap-2" style="text-decoration:none; background:#0d9488; border-color:#0d9488;">
+            <i class="bi bi-download"></i> Download CSV
+        </a>
+    </div>
+</div>
+
+<!-- SECTION 2: PRODUCT PERFORMANCE -->
+<h2 class="section-header">Product Performance</h2>
+<div class="report-card-grid">
     <!-- Inventory Report -->
-    <div class="dashboard-card" style="padding:28px;">
+    <div class="dashboard-card" style="padding:28px; position: relative;">
         <div style="width:48px; height:48px; border-radius:12px; background:#ecfdf5; color:#10b981; display:flex; align-items:center; justify-content:center; margin-bottom:16px;">
             <i class="bi bi-box-seam" style="font-size:1.3rem;"></i>
         </div>
@@ -57,13 +203,37 @@
         <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:20px; line-height:1.5;">
             Full product catalog with category, price, current stock levels, and active status.
         </p>
+        <div style="font-size:0.8rem; font-weight:700; color:#10b981; margin-bottom:16px; background:#ecfdf5; padding:8px 12px; border-radius:6px; display:inline-block;">
+            <i class="bi bi-info-circle-fill"></i> {{ inventory_count }} products in catalog (current state)
+        </div>
         <a href="{% url 'export_inventory_csv' %}" class="btn-primary-custom btn w-100 d-flex align-items-center justify-content-center gap-2" style="text-decoration:none;">
             <i class="bi bi-download"></i> Download CSV
         </a>
     </div>
 
+    <!-- Top Products -->
+    <div class="dashboard-card" style="padding:28px; position: relative;">
+        <div style="width:48px; height:48px; border-radius:12px; background:#fdf2f8; color:#db2777; display:flex; align-items:center; justify-content:center; margin-bottom:16px;">
+            <i class="bi bi-trophy" style="font-size:1.3rem;"></i>
+        </div>
+        <h3 style="font-size:1.05rem; font-weight:700; color:var(--text-dark); margin-bottom:6px;">Top Products</h3>
+        <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:20px; line-height:1.5;">
+            Units sold and revenue generated sorted from highest performing catalog items.
+        </p>
+        <div style="font-size:0.8rem; font-weight:700; color:#db2777; margin-bottom:16px; background:#fdf2f8; padding:8px 12px; border-radius:6px; display:inline-block;">
+            <i class="bi bi-info-circle-fill"></i> {{ top_products_count }} products sold in range
+        </div>
+        <a href="{% url 'export_top_products_csv' %}?date_range={{ date_range }}&date_from={{ date_from }}&date_to={{ date_to }}" class="btn-primary-custom btn w-100 d-flex align-items-center justify-content-center gap-2" style="text-decoration:none; background:#db2777; border-color:#db2777;">
+            <i class="bi bi-download"></i> Download CSV
+        </a>
+    </div>
+</div>
+
+<!-- SECTION 3: CUSTOMERS -->
+<h2 class="section-header">Customers</h2>
+<div class="report-card-grid">
     <!-- Customer Report -->
-    <div class="dashboard-card" style="padding:28px;">
+    <div class="dashboard-card" style="padding:28px; position: relative;">
         <div style="width:48px; height:48px; border-radius:12px; background:#fef3c7; color:#f59e0b; display:flex; align-items:center; justify-content:center; margin-bottom:16px;">
             <i class="bi bi-people" style="font-size:1.3rem;"></i>
         </div>
@@ -71,11 +241,33 @@
         <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:20px; line-height:1.5;">
             Every customer who's ordered from you, with total orders, spend, and last order date.
         </p>
-        <a href="{% url 'export_customers_csv' %}" class="btn-primary-custom btn w-100 d-flex align-items-center justify-content-center gap-2" style="text-decoration:none;">
+        <div style="font-size:0.8rem; font-weight:700; color:#f59e0b; margin-bottom:16px; background:#fffbeb; padding:8px 12px; border-radius:6px; display:inline-block;">
+            <i class="bi bi-info-circle-fill"></i> {{ customers_count }} customers in range
+        </div>
+        <a href="{% url 'export_customers_csv' %}?date_range={{ date_range }}&date_from={{ date_from }}&date_to={{ date_to }}" class="btn-primary-custom btn w-100 d-flex align-items-center justify-content-center gap-2" style="text-decoration:none;">
             <i class="bi bi-download"></i> Download CSV
         </a>
     </div>
-
 </div>
 
+<!-- FOOTER SECTION (Dashboard-style centered design) -->
+<footer style="margin-top: 48px; padding: 24px 0; border-top: 1.5px solid #e2e8f0; text-align: center; font-size: 0.82rem; color: #64748b;">
+    <span>&copy; {% now "Y" %} E-Com Orbit. All rights reserved.</span>
+</footer>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Date filter preset change logic
+    function handleRangeChange(val) {
+        const customInputs = document.getElementById('custom-date-inputs');
+        if (val === 'custom') {
+            customInputs.style.display = 'flex';
+        } else {
+            customInputs.style.display = 'none';
+            document.getElementById('date-filter-form').submit();
+        }
+    }
+</script>
 {% endblock %}
