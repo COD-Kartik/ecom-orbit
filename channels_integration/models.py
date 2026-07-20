@@ -11,6 +11,7 @@ class Channel(models.Model):
         ('pinterest', 'Pinterest'),
         ('youtube', 'YouTube'),
         ('flipkart', 'Flipkart'),
+        ('whatsapp', 'WhatsApp'),
         ('other', 'Other'),
     )
 
@@ -42,3 +43,33 @@ class ProductListing(models.Model):
 
     def __str__(self):
         return f"{self.product.title} → {self.channel.name} ({self.status})"
+
+class SyncLog(models.Model):
+    ACTION_CHOICES = (
+        ('product_sync', 'Product Sync'),
+        ('order_import', 'Order Import'),
+    )
+    channel = models.ForeignKey(Channel, on_delete=models.CASCADE, related_name='sync_logs')
+    action = models.CharField(max_length=20, choices=ACTION_CHOICES)
+    success_count = models.PositiveIntegerField(default=0)
+    failed_count = models.PositiveIntegerField(default=0)
+    status = models.CharField(max_length=20, default='success')  # success, partial, failed
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.channel.name} - {self.action} - {self.created_at}"
+    
+class WebhookLog(models.Model):
+    channel = models.ForeignKey(Channel, on_delete=models.CASCADE, null=True, blank=True, related_name='webhook_logs')
+    event_type = models.CharField(max_length=50, blank=True)
+    raw_payload = models.JSONField()
+    received_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-received_at']
+
+    def __str__(self):
+        return f"Webhook event at {self.received_at}"

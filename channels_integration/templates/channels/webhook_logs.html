@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Webhook Logs{% endblock %}
+{% block page_title %}Webhook Logs{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 style="font-size: 1.6rem; font-weight: 900; color: #0f172a; margin: 0;">Webhook Logs</h2>
+        <p style="font-size: 0.88rem; color: #64748b; margin: 4px 0 0;">Real incoming WhatsApp webhook events — {{ total_logs }} total recorded.</p>
+    </div>
+</div>
+
+{% if page_obj %}
+<div class="d-flex flex-column gap-3">
+    {% for log in page_obj %}
+    <div class="dashboard-card" style="padding: 20px;">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <div class="d-flex align-items-center gap-2">
+                <span style="background:#f3f0ff; color:#7c3aed; padding:4px 10px; border-radius:6px; font-size:0.72rem; font-weight:700; text-transform:uppercase;">
+                    {{ log.event_type }}
+                </span>
+                {% if log.channel %}
+                <span style="font-size:0.82rem; color:#334155; font-weight:600;">{{ log.channel.name }}</span>
+                {% endif %}
+            </div>
+            <span style="font-size:0.78rem; color:#64748b;">{{ log.received_at|date:"d M Y, H:i:s" }}</span>
+        </div>
+        <details>
+            <summary style="cursor:pointer; font-size:0.82rem; color:#4f46e5; font-weight:600;">View raw payload</summary>
+            <pre style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:14px; margin-top:10px; font-size:0.78rem; overflow-x:auto; white-space:pre-wrap;">{{ log.raw_payload|pprint }}</pre>
+        </details>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="d-flex justify-content-center gap-2 mt-4">
+    {% if page_obj.has_previous %}
+    <a href="?page={{ page_obj.previous_page_number }}" class="btn-pagination"><i class="bi bi-chevron-left"></i></a>
+    {% endif %}
+    <span style="padding: 6px 14px; font-size:0.85rem; color:#64748b;">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}" class="btn-pagination"><i class="bi bi-chevron-right"></i></a>
+    {% endif %}
+</div>
+
+{% else %}
+<div class="dashboard-card text-center" style="padding: 60px;">
+    <i class="bi bi-inbox" style="font-size:3rem; color:#cbd5e1;"></i>
+    <h5 class="mt-3" style="color:#0f172a;">No webhook events yet</h5>
+    <p style="color:#64748b; font-size:0.9rem;">Trigger a test event from Meta's dashboard to see it appear here.</p>
+</div>
+{% endif %}
+
+{% endblock %}

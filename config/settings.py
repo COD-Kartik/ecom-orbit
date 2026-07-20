@@ -27,7 +27,8 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG') == 'True'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '.ngrok-free.dev', '.ngrok-free.app']
+CSRF_TRUSTED_ORIGINS = ['https://*.ngrok-free.dev', 'https://*.ngrok-free.app']
 
 
 # Application definition
@@ -183,3 +184,10 @@ FRONTEND_URL = 'http://127.0.0.1:8000'
 FLIPKART_API_KEY = os.getenv('FLIPKART_API_KEY')
 FLIPKART_API_SECRET = os.getenv('FLIPKART_API_SECRET')
 FLIPKART_SANDBOX_BASE_URL = 'https://sandbox-api.flipkart.net'
+
+WHATSAPP_PHONE_NUMBER_ID = os.environ.get('WHATSAPP_PHONE_NUMBER_ID')
+WHATSAPP_BUSINESS_ACCOUNT_ID = os.environ.get('WHATSAPP_BUSINESS_ACCOUNT_ID')
+WHATSAPP_ACCESS_TOKEN = os.environ.get('WHATSAPP_ACCESS_TOKEN')
+WHATSAPP_API_BASE_URL = 'https://graph.facebook.com/v21.0'
+WHATSAPP_CATALOG_ID = os.environ.get('WHATSAPP_CATALOG_ID')
+WHATSAPP_WEBHOOK_VERIFY_TOKEN = os.environ.get('WHATSAPP_WEBHOOK_VERIFY_TOKEN')

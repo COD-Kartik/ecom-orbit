@@ -12,134 +12,38 @@
   <style>
     :root {
       --sidebar-width: 280px;
-      --primary: #4f46e5;
-      --primary-dark: #3730a3;
       --sidebar-text: rgba(255,255,255,0.75);
-      
     }
-    body { background: #f5f6fa; font-family: 'Segoe UI', sans-serif; }
-
-  
-  
-    .topbar {
-      background: white;
-      border-bottom: 1px solid #e5e7eb;
-      padding: 14px 28px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: sticky;
-      top: 0;
-      z-index: 50;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-    }
-    .topbar-title {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: #1e1b4b;
-    }
-    .topbar-right { display: flex; align-items: center; gap: 16px; }
-    .topbar-avatar {
-      width: 36px; height: 36px;
-      background: var(--primary);
+    .notif-badge {
+      width: 7px;
+      height: 7px;
       border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      color: white;
-      font-weight: 700;
-      font-size: 0.85rem;
+      margin-top: 6px;
+      flex-shrink: 0;
     }
-    .page-body { padding: 28px; flex: 1; }
-
-    /* ── Cards ── */
-    .stat-card {
-      background: white;
-      border-radius: 14px;
-      padding: 22px 24px;
-      border: 1px solid #e5e7eb;
-      transition: box-shadow 0.2s;
+    .notif-badge.low-stock {
+      background-color: #f59e0b;
     }
-    .stat-card:hover { box-shadow: 0 4px 16px rgba(79,70,229,0.08); }
-    .stat-icon {
-      width: 44px; height: 44px;
+    .notif-badge.resolved {
+      background-color: #10b981;
+    }
+    .message-alert {
+      padding: 12px 16px;
       border-radius: 10px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.2rem;
-    }
-    .stat-num { font-size: 1.8rem; font-weight: 800; color: #1e1b4b; }
-    .stat-label { color: #6b7280; font-size: 0.85rem; }
-
-    /* ── Table ── */
-    .data-table { background: white; border-radius: 14px; border: 1px solid #e5e7eb; overflow: hidden; }
-    .data-table .table { margin: 0; }
-    .data-table .table thead th {
-      background: #f9fafb;
-      color: #6b7280;
-      font-size: 0.78rem;
-      font-weight: 700;
-      letter-spacing: 0.8px;
-      text-transform: uppercase;
-      border-bottom: 1px solid #e5e7eb;
-      padding: 14px 16px;
-    }
-    .data-table .table tbody td {
-      padding: 14px 16px;
-      vertical-align: middle;
-      border-bottom: 1px solid #f3f4f6;
-      font-size: 0.9rem;
-    }
-    .data-table .table tbody tr:last-child td { border-bottom: none; }
-    .data-table .table tbody tr:hover { background: #fafbff; }
-
-    /* ── Badges ── */
-    .badge-active { background: #dcfce7; color: #16a34a; font-size: 0.75rem; padding: 4px 10px; border-radius: 999px; font-weight: 600; }
-    .badge-inactive { background: #fee2e2; color: #dc2626; font-size: 0.75rem; padding: 4px 10px; border-radius: 999px; font-weight: 600; }
-    .badge-pending { background: #fef9c3; color: #ca8a04; font-size: 0.75rem; padding: 4px 10px; border-radius: 999px; font-weight: 600; }
-
-    /* ── Forms ── */
-    .form-card {
-      background: white;
-      border-radius: 14px;
-      border: 1px solid #e5e7eb;
-      padding: 28px;
-    }
-    .form-label { font-weight: 600; font-size: 0.88rem; color: #374151; }
-    .form-control, .form-select {
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
-      padding: 10px 14px;
-      font-size: 0.9rem;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-    .form-control:focus, .form-select:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(79,70,229,0.1);
-    }
-    .btn-primary-custom {
-      background: var(--primary);
-      color: white;
-      border: none;
-      padding: 10px 24px;
-      border-radius: 8px;
+      font-size: 0.85rem;
       font-weight: 600;
-      font-size: 0.9rem;
-      transition: background 0.2s, transform 0.15s;
+      margin-bottom: 16px;
     }
-    .btn-primary-custom:hover { background: var(--primary-dark); transform: translateY(-1px); color: white; }
-    .product-thumb {
-      width: 44px; height: 44px;
-      border-radius: 8px;
-      object-fit: cover;
-      border: 1px solid #e5e7eb;
+    .message-alert.success {
+      background: #ecfdf5;
+      color: #059669;
     }
-    .product-thumb-placeholder {
-      width: 44px; height: 44px;
-      border-radius: 8px;
-      background: #f3f4f6;
-      display: flex; align-items: center; justify-content: center;
-      color: #9ca3af;
-      font-size: 1.1rem;
+    .message-alert.error {
+      background: #fee2e2;
+      color: #dc2626;
     }
   </style>
+
 </head>
 <body>
 
@@ -279,6 +183,7 @@
                 </svg>
                 <span>Data Exports</span>
             </a>
+        </li>
         <li class="menu-item {% block nav_settings %}{% endblock %}">
             <a href="{% url 'settings' %}">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -341,7 +246,7 @@
             <div style="max-height:260px; overflow-y:auto;">
                 {% for n in notif_preview %}
                 <a href="{{ n.url }}" style="display:flex; align-items:flex-start; gap:10px; padding:10px 16px; text-decoration:none; border-bottom:1px solid #f3f4f6;">
-                    <span style="width:7px; height:7px; border-radius:50%; margin-top:6px; flex-shrink:0; background:{% if n.type == 'low-stock' %}#f59e0b{% else %}#10b981{% endif %};"></span>
+                    <span class="notif-badge {% if n.type == 'low-stock' %}low-stock{% else %}resolved{% endif %}"></span>
                     <span style="font-size:0.8rem; color:#374151; line-height:1.4;">{{ n.text }}</span>
                 </a>
                 {% empty %}
@@ -361,7 +266,7 @@
   <div class="page-body">
     {% if messages %}
       {% for message in messages %}
-      <div style="background:{% if message.tags == 'success' %}#ecfdf5{% else %}#fee2e2{% endif %}; color:{% if message.tags == 'success' %}#059669{% else %}#dc2626{% endif %}; padding:12px 16px; border-radius:10px; font-size:0.85rem; font-weight:600; margin-bottom:16px;">
+      <div class="message-alert {% if message.tags == 'success' %}success{% else %}error{% endif %}">
           {{ message }}
       </div>
       {% endfor %}
@@ -509,5 +414,76 @@ function closeDeleteModal() {
     document.getElementById('delete-modal-overlay').style.display = 'none';
 }
 </script>
+
+<!-- Real WhatsApp webhook toast notifications (polling) -->
+<div id="webhook-toast-container" style="position:fixed; bottom:24px; right:24px; z-index:2000; display:flex; flex-direction:column; gap:10px;"></div>
+
+<script>
+function showWebhookToast(summary, timeLabel, rawPayload) {
+    const container = document.getElementById('webhook-toast-container');
+    const toast = document.createElement('div');
+    toast.style.cssText = "background:#ffffff; border:1.5px solid #25D366; border-radius:12px; padding:16px 18px; box-shadow:0 12px 24px rgba(9,8,30,0.15); max-width:400px; animation: slideIn 0.25s ease;";
+
+    const payloadJson = JSON.stringify(rawPayload, null, 2);
+
+    toast.innerHTML = `
+        <div style="display:flex; align-items:flex-start; gap:12px; cursor:pointer;" onclick="toggleWebhookToastDetail(this)">
+            <div style="width:32px; height:32px; background:#e6fcf5; color:#25D366; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                <i class="bi bi-whatsapp"></i>
+            </div>
+            <div style="flex:1;">
+                <div style="font-size:0.82rem; font-weight:700; color:#0f172a;">WhatsApp Event</div>
+                <div style="font-size:0.8rem; color:#475569; margin-top:2px;">${summary}</div>
+                <div style="font-size:0.7rem; color:#94a3b8; margin-top:4px;">${timeLabel} &middot; <span style="color:#25D366; font-weight:600;">Click to view full message</span></div>
+            </div>
+            <button onclick="event.stopPropagation(); this.closest('#webhook-toast-container > div').remove();" style="background:none; border:none; color:#94a3b8; cursor:pointer; font-size:1rem; padding:0;">&times;</button>
+        </div>
+        <pre style="display:none; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin-top:12px; font-size:0.72rem; max-height:240px; overflow:auto; white-space:pre-wrap;">${payloadJson.replace(/</g, '&lt;')}</pre>
+    `;
+    container.appendChild(toast);
+    setTimeout(() => { if (toast.parentElement) toast.remove(); }, 10000);
+}
+
+function toggleWebhookToastDetail(headerEl) {
+    const toast = headerEl.closest('#webhook-toast-container > div');
+    const pre = toast.querySelector('pre');
+    pre.style.display = pre.style.display === 'none' ? 'block' : 'none';
+}
+
+function pollWebhookLogs() {
+    const sinceId = localStorage.getItem('lastSeenWebhookLogId') || 0;
+    fetch(`{% url 'api_latest_webhook_logs' %}?since_id=${sinceId}`)
+        .then(res => res.json())
+        .then(data => {
+            if (data.logs && data.logs.length > 0) {
+                data.logs.forEach(log => {
+                    showWebhookToast(log.summary, log.received_at, log.raw_payload);
+                });
+                localStorage.setItem('lastSeenWebhookLogId', data.latest_id);
+
+                // Bump the existing notification bell badge visually
+                const badge = document.getElementById('notif-bell-badge');
+                if (badge) {
+                    const current = parseInt(badge.innerText) || 0;
+                    badge.innerText = (current + data.logs.length) + (current + data.logs.length > 9 ? '+' : '');
+                    badge.style.display = 'inline-block';
+                }
+            }
+        })
+        .catch(() => {}); // silent fail — don't disrupt the page if polling hiccups
+}
+
+// Poll every 8 seconds, site-wide
+setInterval(pollWebhookLogs, 8000);
+pollWebhookLogs(); // also check immediately on page load
+</script>
+
+<style>
+@keyframes slideIn {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+</style>
+
 </body>
 </html>

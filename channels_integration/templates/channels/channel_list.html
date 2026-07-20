@@ -2,279 +2,470 @@
 {% load static %}
 
 {% block title %}Channels{% endblock %}
-{% block page_title %}Channel Integration{% endblock %}
+
+{% block page_title %}
+<span style="font-size: 0.85rem; font-weight: 600; color: #64748b;">Home &nbsp;&gt;&nbsp; Channels</span>
+{% endblock %}
+
 {% block nav_channels %}active{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'css/channels.css' %}?v=4" rel="stylesheet">
+{% endblock %}
+
 {% block content %}
 
-<!-- Stats Row -->
+<!-- Hero Banner Section -->
+<div class="product-hero-banner mb-4">
+  <div class="hero-left">
+    <h1 class="hero-title">Channel Integration</h1>
+    <p class="hero-subtitle">Connect, manage, and synchronize your marketplace channels from one place.</p>
+  </div>
+  <div class="hero-right">
+    <svg viewBox="0 0 200 200" class="hero-illustration" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="plug-grad-1" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#3b82f6" />
+          <stop offset="100%" stop-color="#1d4ed8" />
+        </linearGradient>
+        <linearGradient id="plug-grad-2" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#a78bfa" />
+          <stop offset="100%" stop-color="#6d28d9" />
+        </linearGradient>
+        <filter id="plug-shadow" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#09081e" flood-opacity="0.12"/>
+        </filter>
+      </defs>
+      <!-- Left Plug Piece -->
+      <g filter="url(#plug-shadow)" transform="translate(35, 60)">
+        <rect x="0" y="20" width="60" height="40" rx="8" fill="url(#plug-grad-1)" stroke="#ffffff" stroke-width="1.5"/>
+        <rect x="60" y="30" width="20" height="6" rx="2" fill="#e2e8f0"/>
+        <rect x="60" y="44" width="20" height="6" rx="2" fill="#e2e8f0"/>
+        <path d="M-15 40 Q-5 40 0 40" stroke="#cbd5e1" stroke-width="4" stroke-linecap="round" fill="none"/>
+      </g>
+      <!-- Right Socket Piece -->
+      <g filter="url(#plug-shadow)" transform="translate(105, 60)">
+        <rect x="20" y="20" width="60" height="40" rx="8" fill="url(#plug-grad-2)" stroke="#ffffff" stroke-width="1.5"/>
+        <rect x="10" y="30" width="10" height="6" rx="1.5" fill="#1e1b4b"/>
+        <rect x="10" y="44" width="10" height="6" rx="1.5" fill="#1e1b4b"/>
+        <path d="M80 40 Q90 40 100 40" stroke="#cbd5e1" stroke-width="4" stroke-linecap="round" fill="none"/>
+      </g>
+      <!-- Floating Sparkles -->
+      <path d="M165 40 L168 45 L173 46 L168 47 L165 52 L162 47 L157 46 L162 45 Z" fill="#fbbf24"/>
+      <path d="M45 125 L47 128 L52 129 L47 130 L45 135 L43 130 L38 129 L43 128 Z" fill="#3b82f6"/>
+    </svg>
+  </div>
+</div>
+
+<!-- Stats Row (Non-overlapping) -->
 <div class="row g-3 mb-4">
+  <!-- KPI 1: Connected Channels -->
   <div class="col-sm-6 col-xl-3">
-    <div class="stat-card">
-      <div class="d-flex align-items-center justify-content-between mb-3">
-        <div class="stat-icon" style="background:#ede9fe;">
-          <i class="bi bi-broadcast" style="color:#7c3aed;"></i>
+    <div class="kpi-metric-card stat-total">
+      <div class="card-inner">
+        <div class="metric-data">
+          <span class="metric-label">Connected Channels</span>
+          <h3 class="metric-value">{{ total_channels }}</h3>
+          <span class="metric-trend text-success"><i class="bi bi-broadcast"></i> +{{ active_channels }} active</span>
         </div>
-        <span class="badge-active">Total</span>
+        <div class="metric-icon">
+          <i class="bi bi-broadcast"></i>
+        </div>
       </div>
-      <div class="stat-num">{{ total_channels }}</div>
-      <div class="stat-label">Connected Channels</div>
     </div>
   </div>
+
+  <!-- KPI 2: Healthy Connections -->
   <div class="col-sm-6 col-xl-3">
-    <div class="stat-card">
-      <div class="d-flex align-items-center justify-content-between mb-3">
-        <div class="stat-icon" style="background:#dcfce7;">
-          <i class="bi bi-check-circle" style="color:#16a34a;"></i>
+    <div class="kpi-metric-card stat-active">
+      <div class="card-inner">
+        <div class="metric-data">
+          <span class="metric-label">Healthy Connections</span>
+          <h3 class="metric-value">{{ healthy_channels }} / {{ total_channels }}</h3>
+          <span class="metric-trend {% if attention_needed > 0 %}text-warning{% else %}text-success{% endif %}">
+            {% if attention_needed > 0 %}
+            <i class="bi bi-exclamation-triangle"></i> Needs attention
+            {% else %}
+            <i class="bi bi-check-circle"></i> All healthy
+            {% endif %}
+          </span>
         </div>
-        <span class="badge-active">Live</span>
+        <div class="metric-icon">
+          <i class="bi bi-shield-check"></i>
+        </div>
       </div>
-      <div class="stat-num">{{ active_channels }}</div>
-      <div class="stat-label">Active Channels</div>
     </div>
   </div>
+
+  <!-- KPI 3: Pending Syncs -->
   <div class="col-sm-6 col-xl-3">
-    <div class="stat-card">
-      <div class="d-flex align-items-center justify-content-between mb-3">
-        <div class="stat-icon" style="background:#fee2e2;">
-          <i class="bi bi-x-circle" style="color:#dc2626;"></i>
+    <div class="kpi-metric-card stat-warning">
+      <div class="card-inner">
+        <div class="metric-data">
+          <span class="metric-label">Pending Syncs</span>
+          <h3 class="metric-value">{{ pending_syncs }}</h3>
+          <span class="metric-trend"><i class="bi bi-info-circle"></i> Manual sync only</span>
         </div>
-        <span class="badge-inactive">Off</span>
+        <div class="metric-icon">
+          <i class="bi bi-arrow-repeat"></i>
+        </div>
       </div>
-      <div class="stat-num">{{ inactive_channels }}</div>
-      <div class="stat-label">Inactive Channels</div>
     </div>
   </div>
+
+  <!-- KPI 4: Total Active Listings -->
   <div class="col-sm-6 col-xl-3">
-    <div class="stat-card">
-      <div class="d-flex align-items-center justify-content-between mb-3">
-        <div class="stat-icon" style="background:#fef9c3;">
-          <i class="bi bi-plug" style="color:#ca8a04;"></i>
+    <div class="kpi-metric-card stat-value">
+      <div class="card-inner">
+        <div class="metric-data">
+          <span class="metric-label">Total Active Listings</span>
+          <h3 class="metric-value">{{ synced_today }}</h3>
+          <span class="metric-trend"><i class="bi bi-link-45deg"></i> Across {{ total_channels }} connected channel{{ total_channels|pluralize }}</span>
         </div>
-        <span class="badge-pending">Available</span>
+        <div class="metric-icon">
+          <i class="bi bi-grid"></i>
+        </div>
       </div>
-      <div class="stat-num">5</div>
-      <div class="stat-label">Supported Platforms</div>
     </div>
+  </div>
+</div>
+
+<!-- Filter Chip Row -->
+<div class="mb-4">
+  <div class="chip-filter-group flex-wrap">
+    <button type="button" class="filter-chip active" data-platform="all" onclick="filterChannels('all', this)">
+        <span class="chip-dot" style="background-color: #6366f1;"></span> All Channels
+    </button>
+    {% for value, label in platform_choices %}
+    <button type="button" class="filter-chip" data-platform="{{ value }}" onclick="filterChannels('{{ value }}', this)">
+        <span class="chip-dot" style="background-color: {% if value == 'facebook' %}#1877F2{% elif value == 'instagram' %}#E1306C{% elif value == 'twitter' %}#1DA1F2{% elif value == 'linkedin' %}#0A66C2{% elif value == 'pinterest' %}#E60023{% elif value == 'youtube' %}#FF0000{% elif value == 'flipkart' %}#2874F0{% elif value == 'whatsapp' %}#25D366{% else %}#64748b{% endif %};"></span> {{ label }}
+    </button>
+    {% endfor %}
   </div>
 </div>
 
 <div class="row g-4">
-
-  <!-- Left — Channel Cards -->
-  <div class="col-lg-8">
-
-    <!-- Supported Platforms Banner -->
-    <div class="p-3 mb-4 rounded-3 d-flex align-items-center gap-3 flex-wrap"
-         style="background:linear-gradient(135deg,#1e1b4b,#4f46e5);">
-      <span style="color:rgba(255,255,255,0.7); font-size:0.85rem; font-weight:600;">
-        SUPPORTED PLATFORMS:
-      </span>
-      {% for value, label in platform_choices %}
-      <span class="px-3 py-1 rounded-pill"
-            style="background:rgba(255,255,255,0.12); color:white;
-                   font-size:0.8rem; font-weight:600; border:1px solid rgba(255,255,255,0.2);">
-        {{ label }}
-      </span>
-      {% endfor %}
-    </div>
-
-    <!-- Channel Cards -->
-    {% if channels %}
-    <div class="row g-3">
+  <!-- LEFT SIDE: Marketplace Cards Grid (col-lg-9) -->
+  <div class="col-lg-9">
+    <div class="row g-3" id="channelsGrid">
       {% for channel in channels %}
-      <div class="col-sm-6">
-        <div class="stat-card" style="border:1px solid #e5e7eb; position:relative;">
-
-          <!-- Platform color bar -->
-          <div style="position:absolute; top:0; left:0; right:0; height:4px; border-radius:14px 14px 0 0;
-            background:{% if channel.platform_type == 'facebook' %}#1877f2
-            {% elif channel.platform_type == 'instagram' %}linear-gradient(90deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888)
-            {% elif channel.platform_type == 'google' %}#4285f4
-            {% elif channel.platform_type == 'shopify' %}#96bf48
-            {% elif channel.platform_type == 'ebay' %}#e53238
-            {% else %}#7c3aed{% endif %};"></div>
-
-          <div class="d-flex align-items-start justify-content-between mt-2">
-            <!-- Platform Icon -->
-            <div class="d-flex align-items-center gap-3">
-              <div class="stat-icon" style="width:48px; height:48px; border-radius:12px;
-                background:{% if channel.platform_type == 'facebook' %}#e7f0fd
-                {% elif channel.platform_type == 'instagram' %}#fce4ec
-                {% elif channel.platform_type == 'google' %}#e8f0fe
-                {% elif channel.platform_type == 'shopify' %}#f0f7ea
-                {% elif channel.platform_type == 'ebay' %}#fdecea
-                {% else %}#ede9fe{% endif %};">
-                <i class="bi
-                  {% if channel.platform_type == 'facebook' %}bi-facebook
-                  {% elif channel.platform_type == 'instagram' %}bi-instagram
-                  {% elif channel.platform_type == 'google' %}bi-google
-                  {% elif channel.platform_type == 'shopify' %}bi-bag
-                  {% elif channel.platform_type == 'ebay' %}bi-shop
-                  {% else %}bi-broadcast{% endif %}"
-                   style="font-size:1.3rem;
-                     color:{% if channel.platform_type == 'facebook' %}#1877f2
-                     {% elif channel.platform_type == 'instagram' %}#e1306c
-                     {% elif channel.platform_type == 'google' %}#4285f4
-                     {% elif channel.platform_type == 'shopify' %}#96bf48
-                     {% elif channel.platform_type == 'ebay' %}#e53238
-                     {% else %}#7c3aed{% endif %};">
-                </i>
+      <!-- Card Item -->
+      <div class="col-12 col-md-6 channel-card-item" data-platform="{{ channel.platform_type }}">
+        <div class="marketplace-card" style="border-top-color: {% if channel.platform_type == 'facebook' %}#1877F2{% elif channel.platform_type == 'instagram' %}#E1306C{% elif channel.platform_type == 'twitter' %}#1DA1F2{% elif channel.platform_type == 'linkedin' %}#0A66C2{% elif channel.platform_type == 'pinterest' %}#E60023{% elif channel.platform_type == 'youtube' %}#FF0000{% elif channel.platform_type == 'flipkart' %}#2874F0{% elif channel.platform_type == 'whatsapp' %}#25D366{% else %}#64748b{% endif %} !important;">
+          <div class="card-body-wrapper">
+            <!-- Card Header -->
+            <div class="d-flex align-items-start justify-content-between mb-3">
+              <div class="d-flex align-items-center gap-3">
+                <div class="marketplace-logo-container">
+                  <!-- Dynamic SVG Logo -->
+                  {% if channel.platform_type == 'whatsapp' %}
+                  <svg viewBox="0 0 24 24" class="platform-logo-svg" fill="#25D366">
+                    <path d="M12.004 2C6.48 2 2.002 6.477 2.002 12c0 1.892.527 3.66 1.442 5.177L2 22l5.004-1.396c1.455.832 3.123 1.3 4.996 1.3 5.525 0 10.002-4.478 10.002-10.002C22.006 6.477 17.528 2 12.004 2zm0 18.002c-1.636 0-3.178-.456-4.526-1.258l-.325-.19-3.003.839.851-2.909-.214-.332a7.973 7.973 0 01-1.228-4.152c0-4.409 3.593-8.002 8.002-8.002 4.41 0 8.002 3.593 8.002 8.002 0 4.41-3.593 8.002-8.002 8.002z"/>
+                  </svg>
+                  {% elif channel.platform_type == 'facebook' %}
+                  <svg viewBox="0 0 24 24" class="platform-logo-svg" fill="#1877F2">
+                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                  </svg>
+                  {% elif channel.platform_type == 'instagram' %}
+                  <svg viewBox="0 0 24 24" class="platform-logo-svg" fill="#E1306C">
+                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.051.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+                  </svg>
+                  {% elif channel.platform_type == 'flipkart' %}
+                  <svg viewBox="0 0 24 24" class="platform-logo-svg" fill="#2874F0">
+                    <path d="M17.5 3H6.5A2.5 2.5 0 004 5.5v13A2.5 2.5 0 006.5 21h11a2.5 2.5 0 002.5-2.5v-13A2.5 2.5 0 0017.5 3zm-2.5 5h-6v2h6v2h-6v2h6v2h-8V6h8v2z"/>
+                  </svg>
+                  {% elif channel.platform_type == 'amazon' %}
+                  <svg viewBox="0 0 24 24" class="platform-logo-svg" fill="#FF9900">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4 13h-8v-2h8v2zm0-4h-8V9h8v2z"/>
+                  </svg>
+                  {% elif channel.platform_type == 'shopify' %}
+                  <svg viewBox="0 0 24 24" class="platform-logo-svg" fill="#95BF47">
+                    <path d="M19.3 7c-.2-.6-.7-1-1.3-1.1L12.5 5h-.1l-1.9-3.2C10.2 1.3 9.6 1 9 1h-.2C8.2 1 7.7 1.5 7.6 2.1l-.8 5.7H4.3c-.6 0-1.1.4-1.2 1L2 17.6c-.1.7.3 1.4.9 1.7l10.4 3.5c.3.1.6.2.9.2s.6-.1.9-.2L21 16.5c.6-.3.9-1 .8-1.7L19.3 7z"/>
+                  </svg>
+                  {% elif channel.platform_type == 'google' %}
+                  <svg viewBox="0 0 24 24" class="platform-logo-svg" fill="#4285F4">
+                    <path d="M12.24 10.285V14.4h6.887c-.648 2.41-2.519 4.113-5.211 4.113A5.73 5.73 0 018.17 12.8a5.73 5.73 0 015.746-5.713c2.4 0 4.18 1.057 5.093 1.928l3.207-3.2c-2.106-1.956-4.986-3.142-8.3-3.142A9.97 9.97 0 003.882 12.8a9.97 9.97 0 009.932 10.085c5.385 0 9.877-3.857 9.877-10.085 0-.585-.053-1.157-.148-1.515H12.24z"/>
+                  </svg>
+                  {% elif channel.platform_type == 'twitter' %}
+                  <svg viewBox="0 0 24 24" class="platform-logo-svg" fill="#0f172a">
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                  </svg>
+                  {% else %}
+                  <svg viewBox="0 0 24 24" class="platform-logo-svg" fill="#64748b">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                  </svg>
+                  {% endif %}
+                </div>
+                <div>
+                  <h4 class="store-name">{{ channel.name }}</h4>
+                  <span class="marketplace-badge">{{ channel.get_platform_type_display }}</span>
+                </div>
               </div>
-              <div>
-                <div class="fw-700" style="color:#1e1b4b; font-size:0.95rem;">
-                  {{ channel.name }}
-                </div>
-                <div style="color:#6b7280; font-size:0.78rem;">
-                  {{ channel.get_platform_type_display }}
-                </div>
+
+              <!-- Dropdown Options -->
+              <div class="dropdown">
+                <button class="btn btn-action-dropdown" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                  {% if channel.platform_type == 'flipkart' %}
+                  <li><a class="dropdown-item" href="{% url 'test_flipkart_connection' channel.id %}">Test Connection</a></li>
+                  <li><a class="dropdown-item" href="{% url 'sync_flipkart_now' channel.id %}">Sync Products</a></li>
+                  <li><a class="dropdown-item" href="{% url 'sync_flipkart_orders' channel.id %}">Import Orders</a></li>
+                  {% elif channel.platform_type == 'whatsapp' %}
+                  <li><a class="dropdown-item" href="{% url 'test_whatsapp_connection' channel.id %}">Test Connection</a></li>
+                  {% else %}
+                  <li><span class="disabled-item">Not available yet</span></li>
+                  {% endif %}
+                  <li><a class="dropdown-item" href="{% url 'listing_list' %}?channel={{ channel.id }}">View Listings</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item" href="{% url 'channel_toggle' channel.id %}">
+                    {% if channel.is_active %}Pause Channel{% else %}Activate Channel{% endif %}
+                  </a></li>
+                  <li><a class="dropdown-item text-danger" href="javascript:void(0)" onclick="showDeleteModal('{% url 'channel_delete' channel.id %}', 'Are you sure you want to delete \'{{ channel.name }}\'?')">Delete Connection</a></li>
+                </ul>
               </div>
             </div>
 
-            <!-- Status Badge -->
-            {% if channel.is_active %}
-              <span class="badge-active">Active</span>
-            {% else %}
-              <span class="badge-inactive">Inactive</span>
-            {% endif %}
-          </div>
+            <!-- Two Status Badges -->
+            <div class="d-flex align-items-center gap-2 mb-4">
+              <!-- Active/Paused Status -->
+              {% if channel.is_active %}
+              <span class="badge-status success">
+                <span class="status-dot success"></span>Active
+              </span>
+              {% else %}
+              <span class="badge-status danger">
+                <span class="status-dot danger"></span>Paused
+              </span>
+              {% endif %}
 
-          <!-- Real API Connection Status -->
-          <div class="mt-2">
-            {% if channel.connection_status == 'connected' %}
-            <span style="font-size:0.72rem; padding:3px 8px; border-radius:6px; background:#ecfdf5; color:#059669; font-weight:600;">
-              <i class="bi bi-check-circle-fill"></i> API Connected
-            </span>
-            {% elif channel.connection_status == 'error' %}
-            <span style="font-size:0.72rem; padding:3px 8px; border-radius:6px; background:#fee2e2; color:#dc2626; font-weight:600;" title="{{ channel.last_sync_error }}">
-              <i class="bi bi-x-circle-fill"></i> Connection Failed
-            </span>
-            {% else %}
-            <span style="font-size:0.72rem; padding:3px 8px; border-radius:6px; background:#f3f4f6; color:#6b7280; font-weight:600;">
-              <i class="bi bi-dash-circle"></i> Not Tested
-            </span>
-            {% endif %}
-            {% if channel.last_sync_attempt %}
-            <span style="font-size:0.7rem; color:#9ca3af; margin-left:6px;">Last checked {{ channel.last_sync_attempt|date:"d M, H:i" }}</span>
-            {% endif %}
-          </div>
+              <!-- Connected/Error/Untested API Health -->
+              {% if channel.connection_status == 'connected' %}
+              <span class="badge-health healthy">
+                <span class="health-dot healthy"></span>Connected
+              </span>
+              {% elif channel.connection_status == 'error' %}
+              <span class="badge-health attention" title="{{ channel.last_sync_error|default:'API Connection Error' }}">
+                <span class="health-dot attention"></span>Error
+              </span>
+              {% else %}
+              <span class="badge-health untested">
+                <span class="health-dot untested"></span>Untested
+              </span>
+              {% endif %}
+            </div>
 
-          <!-- Channel Meta -->
-          <div class="mt-3 pt-3" style="border-top:1px solid #f3f4f6;">
-            <div class="d-flex align-items-center justify-content-between">
-              <div style="font-size:0.78rem; color:#9ca3af;">
-                <i class="bi bi-calendar3 me-1"></i>
-                Added {{ channel.created_at|date:"d M Y" }}
+            <!-- Metrics Row -->
+            <div class="row g-2 py-3 border-top border-bottom border-light mb-3">
+              <div class="col-6">
+                <span class="metric-label">Listings Published</span>
+                <span class="metric-val">{{ channel.listings.count }}</span>
               </div>
-              <!-- Actions -->
-              <div class="d-flex gap-2">
-                {% if channel.platform_type == 'flipkart' %}
-                <a href="{% url 'test_flipkart_connection' channel.id %}"
-                   class="btn btn-sm btn-light border text-primary"
-                   title="Test Flipkart API Connection">
-                  <i class="bi bi-plug"></i>
-                </a>
+              <div class="col-6">
+                <span class="metric-label">Total Orders</span>
+                <span class="metric-val">{{ channel.orders.count }}</span>
+              </div>
+            </div>
+
+            <!-- Sync Info Footer -->
+            <div class="d-flex align-items-center justify-content-between text-muted fs-7">
+              <span>Last synchronized</span>
+              <span class="fw-semibold text-dark">
+                {% if channel.last_sync_attempt %}
+                {{ channel.last_sync_attempt|timesince }} ago
+                {% else %}
+                Never
                 {% endif %}
-                <a href="{% url 'channel_toggle' channel.id %}"
-                   class="btn btn-sm btn-light border"
-                   title="{% if channel.is_active %}Deactivate{% else %}Activate{% endif %}">
-                  <i class="bi {% if channel.is_active %}bi-pause-circle{% else %}bi-play-circle{% endif %}"></i>
-                </a>
-                <a href="javascript:void(0)"
-                   class="btn btn-sm btn-light border text-danger"
-                   onclick="showDeleteModal('{% url 'channel_delete' channel.id %}', 'Are you sure you want to remove \'{{ channel.name }}\'? This will unpublish it from all listings.')"
-                   title="Remove channel">
-                  <i class="bi bi-trash"></i>
-                </a>
-              </div>
+              </span>
             </div>
           </div>
-
+        </div>
+      </div>
+      {% empty %}
+      <div class="col-12">
+        <div class="text-center py-5" style="background:white; border-radius:16px; border:1px solid #cbd5e1; box-shadow: 0 1px 3px rgba(9, 8, 30, 0.01);">
+          <i class="bi bi-broadcast" style="font-size:3rem; color:#cbd5e1;"></i>
+          <h6 class="mt-3 fw-800" style="color:#0f172a;">No Channels Connected Yet</h6>
+          <p class="text-muted" style="font-size:0.9rem;">
+            Connect your first platform using the Quick Connect panel to sync inventory.
+          </p>
         </div>
       </div>
       {% endfor %}
     </div>
-
-    {% else %}
-    <!-- Empty State -->
-    <div class="text-center py-5" style="background:white; border-radius:14px; border:1px solid #e5e7eb;">
-      <i class="bi bi-broadcast" style="font-size:3rem; color:#d1d5db;"></i>
-      <h6 class="mt-3 fw-700" style="color:#374151;">No channels connected yet</h6>
-      <p class="text-muted" style="font-size:0.9rem;">
-        Connect your first platform to start publishing products everywhere.
-      </p>
-    </div>
-    {% endif %}
-
   </div>
 
-  <!-- Right — Add Channel Form -->
-  <div class="col-lg-4">
-    <div class="form-card">
-      <h6 class="fw-700 mb-1" style="color:#1e1b4b;">
-        <i class="bi bi-plus-circle me-2" style="color:#7c3aed;"></i>
-        Connect a Channel
-      </h6>
-      <p class="text-muted mb-4" style="font-size:0.84rem;">
-        Link a selling platform to start publishing products there.
-      </p>
-
-      <form method="post">
-        {% csrf_token %}
-
-        <div class="mb-3">
-          <label class="form-label">Channel Name <span class="text-danger">*</span></label>
-          <input type="text" name="name" class="form-control"
-                 placeholder="e.g. My Instagram Shop" required>
-          <small class="text-muted">Give this connection a recognizable name.</small>
+  <!-- RIGHT SIDE: Operations Panel (col-lg-3) -->
+  <div class="col-lg-3">
+    <div class="row g-3">
+      <!-- CARD 1: Quick Connect -->
+      <div class="col-12">
+        <div class="operation-card add-card">
+          <h3 class="operation-card-title mb-3">Quick Connect</h3>
+          <form method="POST" action="{% url 'channel_list' %}">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label class="form-label">Marketplace Name</label>
+              <input type="text" name="name" class="form-input" placeholder="e.g. Flipkart Electronics Store" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Marketplace Channel</label>
+              <select name="platform_type" class="form-input" required>
+                <option value="" disabled selected>Select Marketplace</option>
+                {% for value, label in platform_choices %}
+                <option value="{{ value }}">{{ label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="mb-4">
+              <label class="form-label">Default Status</label>
+              <select name="is_active" class="form-input">
+                <option value="true" selected>Active</option>
+                <option value="false">Inactive</option>
+              </select>
+            </div>
+            <button type="submit" class="btn-primary-connect">
+              <span>Connect Channel</span>
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width: 16px; height: 16px;"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+            </button>
+          </form>
         </div>
+      </div>
 
-        <div class="mb-3">
-          <label class="form-label">Platform <span class="text-danger">*</span></label>
-          <select name="platform_type" class="form-select" required>
-            <option value="">— Select Platform —</option>
-            {% for value, label in platform_choices %}
-            <option value="{{ value }}">{{ label }}</option>
-            {% endfor %}
-          </select>
+      <!-- CARD 2: Marketplace Overview -->
+      <div class="col-12">
+        <div class="operation-card insights-card">
+          <h3 class="operation-card-title mb-2">Marketplace Overview</h3>
+          <p class="operation-card-desc mb-4">A summary of E-Com Orbit integrated sales networks.</p>
+          
+          <div class="overview-list d-flex flex-column gap-3 mb-4">
+            <!-- Connected -->
+            <div class="d-flex align-items-center justify-content-between">
+              <div class="d-flex align-items-center gap-2">
+                <span class="legend-dot success"></span>
+                <span class="overview-item-label">Connected</span>
+              </div>
+              <span class="overview-item-count">{{ total_channels }}</span>
+            </div>
+            
+            <!-- Attention -->
+            <div class="d-flex align-items-center justify-content-between">
+              <div class="d-flex align-items-center gap-2">
+                <span class="legend-dot warning"></span>
+                <span class="overview-item-label">Requires Attention</span>
+              </div>
+              <span class="overview-item-count">{{ attention_needed }}</span>
+            </div>
+
+            <!-- Active APIs -->
+            <div class="d-flex align-items-center justify-content-between">
+              <div class="d-flex align-items-center gap-2">
+                <span class="legend-dot info"></span>
+                <span class="overview-item-label">Active API Codebases</span>
+              </div>
+              <span class="overview-item-count">2</span>
+            </div>
+          </div>
+
+          <!-- Decorative integration dots -->
+          <div class="border-top border-light pt-3">
+            <span class="form-label mb-2 d-block">Available Integrations</span>
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+              <span class="mini-logo-dot" style="background-color: #2874F0;" title="Flipkart"></span>
+              <span class="mini-logo-dot" style="background-color: #25D366;" title="WhatsApp"></span>
+              <span class="mini-logo-dot" style="background-color: #95BF47;" title="Shopify"></span>
+              <span class="mini-logo-dot" style="background-color: #FF9900;" title="Amazon"></span>
+              <span class="mini-logo-dot" style="background-color: #4285F4;" title="Google Shopping"></span>
+              <span class="mini-logo-dot" style="background-color: #1877F2;" title="Facebook"></span>
+              <span class="mini-logo-dot" style="background-color: #E1306C;" title="Instagram"></span>
+            </div>
+          </div>
         </div>
+      </div>
+    </div>
+  </div>
+</div>
 
-        <div class="mb-4">
-          <label class="form-label">Status</label>
-          <select name="is_active" class="form-select">
-            <option value="true">Active</option>
-            <option value="false">Inactive</option>
-          </select>
+<!-- BOTTOM SECTION: Recent Marketplace Activity -->
+<div class="row mt-4">
+  <div class="col-12">
+    <div class="activity-timeline-card">
+      <header class="card-header mb-3">
+        <h3 class="card-title">Recent Marketplace Activity</h3>
+      </header>
+
+      <div class="timeline-container">
+        {% for log in sync_logs %}
+        <!-- Timeline Item -->
+        <div class="timeline-item">
+          <div class="timeline-logo-col">
+            <div class="timeline-logo-frame">
+              <!-- Dynamic SVG Logo inside timeline -->
+              {% if log.channel.platform_type == 'shopify' %}
+              <svg viewBox="0 0 24 24" class="logo-svg-timeline" fill="#95BF47"><path d="M19.3 7c-.2-.6-.7-1-1.3-1.1L12.5 5h-.1l-1.9-3.2C10.2 1.3 9.6 1 9 1h-.2C8.2 1 7.7 1.5 7.6 2.1l-.8 5.7H4.3c-.6 0-1.1.4-1.2 1L2 17.6c-.1.7.3 1.4.9 1.7l10.4 3.5c.3.1.6.2.9.2s.6-.1.9-.2L21 16.5c.6-.3.9-1 .8-1.7L19.3 7z"/></svg>
+              {% elif log.channel.platform_type == 'amazon' %}
+              <svg viewBox="0 0 24 24" class="logo-svg-timeline" fill="#FF9900"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4 13h-8v-2h8v2zm0-4h-8V9h8v2z"/></svg>
+              {% elif log.channel.platform_type == 'flipkart' %}
+              <svg viewBox="0 0 24 24" class="logo-svg-timeline" fill="#2874F0"><path d="M17.5 3H6.5A2.5 2.5 0 004 5.5v13A2.5 2.5 0 006.5 21h11a2.5 2.5 0 002.5-2.5v-13A2.5 2.5 0 0017.5 3zm-2.5 5h-6v2h6v2h-6v2h6v2h-8V6h8v2z"/></svg>
+              {% elif log.channel.platform_type == 'google' %}
+              <svg viewBox="0 0 24 24" class="logo-svg-timeline" fill="#4285F4"><path d="M12.24 10.285V14.4h6.887c-.648 2.41-2.519 4.113-5.211 4.113A5.73 5.73 0 018.17 12.8a5.73 5.73 0 015.746-5.713c2.4 0 4.18 1.057 5.093 1.928l3.207-3.2c-2.106-1.956-4.986-3.142-8.3-3.142A9.97 9.97 0 003.882 12.8a9.97 9.97 0 009.932 10.085c5.385 0 9.877-3.857 9.877-10.085 0-.585-.053-1.157-.148-1.515H12.24z"/></svg>
+              {% elif log.channel.platform_type == 'facebook' %}
+              <svg viewBox="0 0 24 24" class="logo-svg-timeline" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+              {% elif log.channel.platform_type == 'instagram' %}
+              <svg viewBox="0 0 24 24" class="logo-svg-timeline" fill="#E1306C"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.051.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+              {% elif log.channel.platform_type == 'whatsapp' %}
+              <svg viewBox="0 0 24 24" class="logo-svg-timeline" fill="#25D366"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.455L0 24zm6.59-4.846c1.6.95 3.42 1.453 5.4 1.454 5.28 0 9.574-4.298 9.578-9.582.002-2.561-1.002-4.97-2.83-6.797-1.829-1.83-4.256-2.838-6.797-2.839-5.286 0-9.58 4.299-9.583 9.583 0 2.083.541 4.116 1.568 5.9l-.986 3.6 3.65-.957zM17.472 14.382c-.3-.149-1.772-.874-2.043-.973-.27-.099-.468-.149-.665.15-.197.297-.764.965-.936 1.162-.172.199-.344.223-.644.075-.3-.15-1.266-.466-2.41-1.484-.89-.794-1.49-1.773-1.665-2.072-.173-.3-.018-.462.13-.61.135-.133.3-.348.45-.522.15-.174.2-.298.3-.497.1-.198.05-.372-.025-.521-.075-.149-.665-1.603-.91-2.198-.24-.578-.48-.5-.665-.51h-.57c-.198 0-.518.074-.79.37-.27.296-1.03 1.01-1.03 2.46s1.055 2.85 1.202 3.05c.148.2 2.077 3.17 5.03 4.45.703.303 1.25.485 1.68.62.707.224 1.349.193 1.857.118.566-.084 1.772-.726 2.02-1.428.247-.7 2.47-3.46 2.47-3.51-.05-.05-.198-.124-.497-.273z"/></svg>
+              {% else %}
+              <svg viewBox="0 0 24 24" class="logo-svg-timeline" fill="#64748b"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+              {% endif %}
+            </div>
+          </div>
+          <div class="timeline-body-col">
+            <h4 class="timeline-action">{{ log.get_action_display }}</h4>
+            <span class="timeline-details">
+              Synced <strong>{{ log.success_count }}</strong> items successfully (<strong>{{ log.failed_count }}</strong> failed) on channel <strong>{{ log.channel.name }}</strong>.
+            </span>
+          </div>
+          <div class="timeline-meta-col text-end">
+            <span class="timeline-time">{{ log.created_at|timesince }} ago</span>
+            <span class="badge-status {% if log.status == 'success' %}success{% elif log.status == 'partial' %}warning{% else %}danger{% endif %} ms-2">
+              <span class="status-dot {% if log.status == 'success' %}success{% elif log.status == 'partial' %}warning{% else %}danger{% endif %}"></span>
+              {{ log.status|upper }}
+            </span>
+          </div>
         </div>
-
-        <button type="submit" class="btn-primary-custom btn w-100">
-          <i class="bi bi-plug me-1"></i> Connect Channel
-        </button>
-      </form>
-
-      <!-- Platform Guide -->
-      <div class="mt-4 p-3 rounded-2" style="background:#f9fafb; border:1px solid #e5e7eb;">
-        <div class="fw-700 mb-2" style="font-size:0.85rem; color:#374151;">
-          <i class="bi bi-info-circle me-1" style="color:#7c3aed;"></i>
-          Supported Platforms
-        </div>
-        {% for value, label in platform_choices %}
-        <div class="d-flex align-items-center gap-2 mb-1">
-          <i class="bi
-            {% if value == 'facebook' %}bi-facebook text-primary
-            {% elif value == 'instagram' %}bi-instagram text-danger
-            {% elif value == 'google' %}bi-google text-info
-            {% elif value == 'shopify' %}bi-bag text-success
-            {% elif value == 'ebay' %}bi-shop text-warning
-            {% else %}bi-broadcast text-secondary{% endif %}"
-             style="font-size:0.9rem;"></i>
-          <span style="font-size:0.83rem; color:#6b7280;">{{ label }}</span>
+        {% empty %}
+        <div style="padding: 16px 0; color: #64748b; font-size: 0.88rem;">
+          No synchronization history recorded yet.
         </div>
         {% endfor %}
       </div>
-
     </div>
   </div>
-
 </div>
 
+{% endblock %}
+
+{% block extra_js %}
+<script>
+window.filterChannels = function(platform, clickedBtn) {
+    // update active state of chips
+    document.querySelectorAll('.filter-chip').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    if (clickedBtn) {
+        clickedBtn.classList.add('active');
+    }
+
+    // filter cards
+    document.querySelectorAll('.channel-card-item').forEach(card => {
+        if (platform === 'all' || card.getAttribute('data-platform') === platform) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+};
+</script>
 {% endblock %}

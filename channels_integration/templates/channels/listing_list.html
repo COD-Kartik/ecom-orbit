@@ -1,211 +1,604 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Product Listings{% endblock %}
-{% block page_title %}Channel Listings{% endblock %}
+{% block title %}Channel Listings{% endblock %}
+
+{% block page_title %}
+<span style="font-size: 0.85rem; font-weight: 600; color: #64748b;">Home &nbsp;&gt;&nbsp; Channel Listings</span>
+{% endblock %}
+
 {% block nav_listings %}active{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'css/listings.css' %}?v=4" rel="stylesheet">
+{% endblock %}
+
 {% block content %}
 
-<!-- Stats -->
+<!-- Hero Banner Section -->
+<div class="product-hero-banner mb-4">
+  <div class="hero-left">
+    <h1 class="hero-title">Channel Listings</h1>
+    <p class="hero-subtitle">Publish products across your connected marketplaces and monitor sync status.</p>
+  </div>
+  <div class="hero-right">
+    <svg viewBox="0 0 200 200" class="hero-illustration" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="box-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#fbbf24" />
+          <stop offset="100%" stop-color="#d97706" />
+        </linearGradient>
+        <filter id="dist-shadow" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#09081e" flood-opacity="0.12"/>
+        </filter>
+      </defs>
+      <!-- Central Box Radiating -->
+      <g filter="url(#dist-shadow)" transform="translate(65, 65)">
+        <path d="M10 25 L35 10 L60 25 L60 55 L35 70 L10 55 Z" fill="url(#box-grad)" stroke="#ffffff" stroke-width="1.5"/>
+        <path d="M10 25 L35 38 L60 25" stroke="#ffffff" stroke-width="1" fill="none"/>
+        <path d="M35 38 L35 70" stroke="#ffffff" stroke-width="1"/>
+      </g>
+      <!-- Outward Distribution Arrows/Lines -->
+      <path d="M50 80 L25 70" stroke="#a78bfa" stroke-width="2" stroke-dasharray="4 4" stroke-linecap="round"/>
+      <path d="M150 80 L175 70" stroke="#a78bfa" stroke-width="2" stroke-dasharray="4 4" stroke-linecap="round"/>
+      <path d="M100 50 L100 20" stroke="#a78bfa" stroke-width="2" stroke-dasharray="4 4" stroke-linecap="round"/>
+      <!-- Small Platform Dots -->
+      <circle cx="20" cy="70" r="8" fill="#25D366" stroke="#ffffff" stroke-width="1.5"/>
+      <circle cx="180" cy="70" r="8" fill="#2874F0" stroke="#ffffff" stroke-width="1.5"/>
+      <circle cx="100" cy="15" r="8" fill="#95BF47" stroke="#ffffff" stroke-width="1.5"/>
+      <!-- Floating Sparkles -->
+      <path d="M165 40 L168 45 L173 46 L168 47 L165 52 L162 47 L157 46 L162 45 Z" fill="#fbbf24"/>
+      <path d="M35 130 L37 133 L42 134 L37 135 L35 140 L33 135 L28 134 L33 133 Z" fill="#a78bfa"/>
+    </svg>
+  </div>
+</div>
+
+<!-- Stats Row (Non-overlapping) -->
 <div class="row g-3 mb-4">
+  <!-- KPI 1: Published Listings -->
   <div class="col-sm-6 col-xl-3">
-    <div class="stat-card">
-      <div class="d-flex align-items-center justify-content-between mb-3">
-        <div class="stat-icon" style="background:#ede9fe;">
-          <i class="bi bi-grid" style="color:#7c3aed;"></i>
+    <div class="kpi-metric-card stat-total">
+      <div class="card-inner">
+        <div class="metric-data">
+          <span class="metric-label">Published Listings</span>
+          <h3 class="metric-value">{{ published }}</h3>
+          <span class="metric-trend text-success"><i class="bi bi-check-circle"></i> Live & Active</span>
         </div>
-        <span class="badge-active">All</span>
+        <div class="metric-icon">
+          <i class="bi bi-check-circle"></i>
+        </div>
       </div>
-      <div class="stat-num">{{ total }}</div>
-      <div class="stat-label">Total Listings</div>
     </div>
   </div>
+
+  <!-- KPI 2: Marketplace Coverage -->
   <div class="col-sm-6 col-xl-3">
-    <div class="stat-card">
-      <div class="d-flex align-items-center justify-content-between mb-3">
-        <div class="stat-icon" style="background:#dcfce7;">
-          <i class="bi bi-check-circle" style="color:#16a34a;"></i>
+    <div class="kpi-metric-card stat-active">
+      <div class="card-inner">
+        <div class="metric-data">
+          <span class="metric-label">Marketplace Coverage</span>
+          <h3 class="metric-value">{{ coverage_active }} / {{ coverage_total }}</h3>
+          <span class="metric-trend text-success"><i class="bi bi-broadcast"></i> Active connections</span>
         </div>
-        <span class="badge-active">Live</span>
+        <div class="metric-icon">
+          <i class="bi bi-broadcast"></i>
+        </div>
       </div>
-      <div class="stat-num">{{ published }}</div>
-      <div class="stat-label">Published</div>
     </div>
   </div>
+
+  <!-- KPI 3: Pending Syncs -->
   <div class="col-sm-6 col-xl-3">
-    <div class="stat-card">
-      <div class="d-flex align-items-center justify-content-between mb-3">
-        <div class="stat-icon" style="background:#fef9c3;">
-          <i class="bi bi-clock" style="color:#ca8a04;"></i>
+    <div class="kpi-metric-card stat-warning">
+      <div class="card-inner">
+        <div class="metric-data">
+          <span class="metric-label">Pending Syncs</span>
+          <h3 class="metric-value">{{ pending }}</h3>
+          <span class="metric-trend text-warning"><i class="bi bg-warning-subtle"></i> Awaiting dispatch</span>
         </div>
-        <span class="badge-pending">Wait</span>
+        <div class="metric-icon">
+          <i class="bi bi-arrow-repeat"></i>
+        </div>
       </div>
-      <div class="stat-num">{{ pending }}</div>
-      <div class="stat-label">Pending</div>
     </div>
   </div>
+
+  <!-- KPI 4: Total Sync Success -->
   <div class="col-sm-6 col-xl-3">
-    <div class="stat-card">
-      <div class="d-flex align-items-center justify-content-between mb-3">
-        <div class="stat-icon" style="background:#fee2e2;">
-          <i class="bi bi-x-circle" style="color:#dc2626;"></i>
+    <div class="kpi-metric-card stat-value">
+      <div class="card-inner">
+        <div class="metric-data">
+          <span class="metric-label">Total Sync Success</span>
+          <h3 class="metric-value">{{ successful_syncs_today }}</h3>
+          <span class="metric-trend text-indigo"><i class="bi bi-clock-history"></i> Syncs recorded</span>
         </div>
-        <span class="badge-inactive">Error</span>
+        <div class="metric-icon">
+          <i class="bi bi-cloud-check"></i>
+        </div>
       </div>
-      <div class="stat-num">{{ failed }}</div>
-      <div class="stat-label">Failed</div>
     </div>
   </div>
 </div>
 
-<div class="row g-4">
-  <!-- Listings Table -->
-  <div class="col-lg-9">
-    <div class="data-table">
-      <div class="d-flex align-items-center justify-content-between p-3 border-bottom">
-        <h6 class="mb-0 fw-700" style="color:#1e1b4b;">Product Listings</h6>
-      </div> 
-      <!-- Channel Filter Tabs -->
-      <div class="d-flex align-items-center gap-2 p-3 border-bottom flex-wrap">
-        <a href="{% url 'listing_list' %}"
-          class="btn btn-sm {% if not selected_channel_id %}btn-primary-custom{% else %}btn-light border{% endif %}">
-          All Channels <span class="badge bg-light text-dark ms-1">{{ total }}</span>
-        </a>
-        <div class="dropdown">
-          <button class="btn-primary-custom btn d-flex align-items-center gap-1 dropdown-toggle" type="button" data-bs-toggle="dropdown">
-            <i class="bi bi-plus-lg"></i> Publish Product
-          </button>
-          <ul class="dropdown-menu dropdown-menu-end" style="max-height:300px; overflow-y:auto;">
-            {% for p in products %}
-            <li>
-              <a class="dropdown-item" href="{% url 'select_channels_to_publish' p.id %}">
-                {{ p.title }} <span class="text-muted" style="font-size:0.78rem;">(₹{{ p.price }})</span>
-              </a>
-            </li>
-            {% empty %}
-            <li><span class="dropdown-item-text text-muted">No products yet</span></li>
-            {% endfor %}
-          </ul>
-        </div>
-        {% for ch in all_channels %}
-        <a href="?channel={{ ch.id }}"
-           class="btn btn-sm {% if selected_channel_id == ch.id %}btn-primary-custom{% else %}btn-light border{% endif %}">
-          {{ ch.name }}
-          {% if not ch.is_active %}<span class="text-muted" style="font-size:0.7rem;">(inactive)</span>{% endif %}
-        </a>
-        {% endfor %}
+<!-- Sticky Filters Toolbar -->
+<div class="sticky-toolbar">
+  <div class="row g-3 align-items-center mb-3">
+    <!-- Search Box -->
+    <div class="col-12 col-md-4">
+      <div class="position-relative">
+        <input type="text" id="search-listings" class="form-control ps-5" placeholder="Search listings by product title...">
+        <i class="bi bi-search position-absolute top-50 translate-middle-y start-3 text-muted"></i>
       </div>
-      <table class="table">
+    </div>
+    
+    <!-- Status Filter -->
+    <div class="col-6 col-md-2">
+      <select id="status-filter" class="form-select">
+        <option value="all">All Statuses</option>
+        <option value="published">Published</option>
+        <option value="pending">Pending</option>
+        <option value="failed">Failed</option>
+      </select>
+    </div>
+
+    <!-- Sort Selector -->
+    <div class="col-6 col-md-2">
+      <select id="sort-listings" class="form-select" onchange="window.sortListingsTable(this.value)">
+        <option value="id-desc">Latest Added</option>
+        <option value="title-asc">Product Name (A-Z)</option>
+        <option value="price-desc">Price: High to Low</option>
+        <option value="price-asc">Price: Low to High</option>
+      </select>
+    </div>
+
+    <!-- Publish Product Action Button -->
+    <div class="col-12 col-md-4 text-end">
+        <div class="d-flex gap-2 w-100">
+            {% if products %}
+            <a class="btn btn-primary-custom flex-grow-1 d-flex align-items-center justify-content-center gap-2" href="{% url 'select_channels_to_publish' products.0.id %}" style="border-radius: 8px;">
+            <i class="bi bi-send"></i> Publish Product
+            </a>
+            <div class="dropdown">
+            <button type="button" class="btn btn-primary-custom dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" style="border-radius: 8px; height: 100%;">
+                <span class="visually-hidden">Toggle Dropdown</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end" style="max-height: 280px; overflow-y: auto;">
+          <li class="dropdown-header">Select Product to Publish</li>
+          {% for p in products %}
+          <li>
+            <a class="dropdown-item" href="{% url 'select_channels_to_publish' p.id %}">
+              <i class="bi bi-arrow-right-short text-primary"></i> {{ p.title }}
+            </a>
+          </li>
+          {% endfor %}
+          <li><hr class="dropdown-divider"></li>
+          <li><a class="dropdown-item" href="{% url 'publish_product' products.0.id %}"><i class="bi bi-broadcast text-success me-1"></i> Publish Everywhere</a></li>
+        </ul>
+        </div>
+        {% else %}
+        <button class="btn btn-primary-custom flex-grow-1 d-flex align-items-center justify-content-center gap-2" disabled>
+          <i class="bi bi-send"></i> Publish Product
+        </button>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Channel Filters Chips -->
+  <div class="filter-wrapper d-flex align-items-center gap-2 overflow-auto pt-2 border-top border-light">
+    <button class="channel-chip active" type="button" onclick="window.filterListingsByChannel('all', this)">
+      <span class="chip-dot" style="background-color: #6366f1;"></span> All Channels
+    </button>
+    {% for ch in all_channels %}
+    <button class="channel-chip" type="button" onclick="window.filterListingsByChannel('{{ ch.id }}', this)">
+      <span class="chip-dot" style="background-color: {% if ch.platform_type == 'facebook' %}#1877F2{% elif ch.platform_type == 'instagram' %}#E1306C{% elif ch.platform_type == 'twitter' %}#1DA1F2{% elif ch.platform_type == 'linkedin' %}#0A66C2{% elif ch.platform_type == 'pinterest' %}#E60023{% elif ch.platform_type == 'youtube' %}#FF0000{% elif ch.platform_type == 'flipkart' %}#2874F0{% elif ch.platform_type == 'whatsapp' %}#25D366{% else %}#64748b{% endif %};"></span>
+      <span>{{ ch.name }}</span>
+    </button>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="row g-4 align-items-start">
+  <!-- LEFT SIDE: Listings DataTable (col-lg-9) -->
+  <div class="col-lg-9">
+    <div class="listings-table-card" id="listingsDataTable">
+      <table class="listings-table">
         <thead>
           <tr>
             <th>Product</th>
-            <th>Channel</th>
-            <th>Platform</th>
-            <th>Status</th>
-            <th>External ID</th>
+            <th>Marketplace</th>
+            <th>Publishing Status</th>
+            <th>Inventory Sync</th>
+            <th>External SKU</th>
+            <th>Last Sync</th>
             <th>Actions</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody id="listings-tbody">
           {% for listing in listings %}
-          <tr>
+          <tr class="listing-row" 
+              data-channel="{{ listing.channel.id }}" 
+              data-status="{{ listing.status }}" 
+              data-title="{{ listing.product.title|lower }}"
+              data-price="{{ listing.product.price }}"
+              data-id="{{ listing.id }}">
+            <!-- Product column -->
             <td>
-              <div class="fw-600" style="color:#1e1b4b;">{{ listing.product.title }}</div>
-              <div class="text-muted" style="font-size:0.78rem;">₹{{ listing.product.price }}</div>
+              <div class="product-cell">
+                {% if listing.product.image %}
+                <img src="{{ listing.product.image.url }}" class="product-img" alt="{{ listing.product.title }}">
+                {% else %}
+                <div class="product-img-placeholder">
+                  <i class="bi bi-box-seam"></i>
+                </div>
+                {% endif %}
+                <div>
+                  <h5 class="product-title">{{ listing.product.title }}</h5>
+                  <span class="product-sku-price">SKU: {{ listing.product.sku|default:"N/A" }} | ₹{{ listing.product.price }}</span>
+                </div>
+              </div>
             </td>
-            <td>{{ listing.channel.name }}</td>
+
+            <!-- Marketplace column -->
             <td>
-              <span class="badge bg-light text-secondary">
-                {{ listing.channel.get_platform_type_display }}
-              </span>
+              <div class="marketplace-cell">
+                <div class="marketplace-logo-frame">
+                  <!-- Dynamic SVG logo -->
+                  {% if listing.channel.platform_type == 'whatsapp' %}
+                  <svg viewBox="0 0 24 24" fill="#25D366"><path d="M12.004 2C6.48 2 2.002 6.477 2.002 12c0 1.892.527 3.66 1.442 5.177L2 22l5.004-1.396c1.455.832 3.123 1.3 4.996 1.3 5.525 0 10.002-4.478 10.002-10.002C22.006 6.477 17.528 2 12.004 2zm0 18.002c-1.636 0-3.178-.456-4.526-1.258l-.325-.19-3.003.839.851-2.909-.214-.332a7.973 7.973 0 01-1.228-4.152c0-4.409 3.593-8.002 8.002-8.002 4.41 0 8.002 3.593 8.002 8.002 0 4.41-3.593 8.002-8.002 8.002z"/></svg>
+                  {% elif listing.channel.platform_type == 'facebook' %}
+                  <svg viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                  {% elif listing.channel.platform_type == 'instagram' %}
+                  <svg viewBox="0 0 24 24" fill="#E1306C"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.051.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+                  {% elif listing.channel.platform_type == 'flipkart' %}
+                  <svg viewBox="0 0 24 24" fill="#2874F0"><path d="M17.5 3H6.5A2.5 2.5 0 004 5.5v13A2.5 2.5 0 006.5 21h11a2.5 2.5 0 002.5-2.5v-13A2.5 2.5 0 0017.5 3zm-2.5 5h-6v2h6v2h-6v2h6v2h-8V6h8v2z"/></svg>
+                  {% elif listing.channel.platform_type == 'amazon' %}
+                  <svg viewBox="0 0 24 24" fill="#FF9900"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4 13h-8v-2h8v2zm0-4h-8V9h8v2z"/></svg>
+                  {% elif listing.channel.platform_type == 'shopify' %}
+                  <svg viewBox="0 0 24 24" fill="#95BF47"><path d="M19.3 7c-.2-.6-.7-1-1.3-1.1L12.5 5h-.1l-1.9-3.2C10.2 1.3 9.6 1 9 1h-.2C8.2 1 7.7 1.5 7.6 2.1l-.8 5.7H4.3c-.6 0-1.1.4-1.2 1L2 17.6c-.1.7.3 1.4.9 1.7l10.4 3.5c.3.1.6.2.9.2s.6-.1.9-.2L21 16.5c.6-.3.9-1 .8-1.7L19.3 7z"/></svg>
+                  {% elif listing.channel.platform_type == 'google' %}
+                  <svg viewBox="0 0 24 24" fill="#4285F4"><path d="M12.24 10.285V14.4h6.887c-.648 2.41-2.519 4.113-5.211 4.113A5.73 5.73 0 018.17 12.8a5.73 5.73 0 015.746-5.713c2.4 0 4.18 1.057 5.093 1.928l3.207-3.2c-2.106-1.956-4.986-3.142-8.3-3.142A9.97 9.97 0 003.882 12.8a9.97 9.97 0 009.932 10.085c5.385 0 9.877-3.857 9.877-10.085 0-.585-.053-1.157-.148-1.515H12.24z"/></svg>
+                  {% elif listing.channel.platform_type == 'twitter' %}
+                  <svg viewBox="0 0 24 24" fill="#0f172a"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                  {% else %}
+                  <svg viewBox="0 0 24 24" fill="#64748b"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                  {% endif %}
+                </div>
+                <div>
+                  <h5 class="marketplace-name">{{ listing.channel.name }}</h5>
+                  <span class="store-name">{{ listing.channel.get_platform_type_display }}</span>
+                </div>
+              </div>
             </td>
+
+            <!-- Publishing Status column -->
             <td>
               {% if listing.status == 'published' %}
-                <span class="badge-active">Published</span>
+              <span class="badge-status success">
+                <span class="status-dot success"></span>Published
+              </span>
               {% elif listing.status == 'pending' %}
-                <span class="badge-pending">Pending</span>
+              <span class="badge-status warning">
+                <span class="status-dot warning"></span>Pending
+              </span>
               {% else %}
-                <span class="badge-inactive">Failed</span>
+              <span class="badge-status danger">
+                <span class="status-dot danger"></span>Failed
+              </span>
               {% endif %}
             </td>
+
+            <!-- Inventory Sync column (Mapped honestly to Channel.connection_status) -->
+            <td>
+              {% if listing.channel.connection_status == 'connected' %}
+              <span class="badge-health healthy">Healthy API</span>
+              {% elif listing.channel.connection_status == 'error' %}
+              <span class="badge-health attention" title="{{ listing.channel.last_sync_error|default:'API Sync Error' }}">API Error</span>
+              {% else %}
+              <span class="badge-health untested">Untested API</span>
+              {% endif %}
+            </td>
+
+            <!-- External SKU column -->
             <td>
               {% if listing.external_id %}
-                <code style="font-size:0.78rem;">{{ listing.external_id }}</code>
+              <code style="font-size: 0.8rem; color: #4f46e5;">{{ listing.external_id }}</code>
               {% else %}
-                <span class="text-muted">—</span>
+              <span class="text-muted">—</span>
               {% endif %}
             </td>
+
+            <!-- Last Sync column -->
             <td>
-              <div class="d-flex gap-2 align-items-center">
-                <form method="post" action="{% url 'listing_status_update' listing.id %}">
-                  {% csrf_token %}
-                  <select name="status" class="form-select form-select-sm"
-                          style="width:110px;"
-                          onchange="this.form.submit()">
-                    <option value="pending" {% if listing.status == 'pending' %}selected{% endif %}>Pending</option>
-                    <option value="published" {% if listing.status == 'published' %}selected{% endif %}>Published</option>
-                    <option value="failed" {% if listing.status == 'failed' %}selected{% endif %}>Failed</option>
-                  </select>
-                </form>
-                <a href="javascript:void(0)"
-                   class="btn btn-sm btn-light border text-danger"
-                   onclick="showDeleteModal('{% url 'listing_delete' listing.id %}', 'Are you sure you want to remove this product listing?')">
-                  <i class="bi bi-trash"></i>
-                </a>
+              {% if listing.channel.last_sync_attempt %}
+              <span class="fw-semibold text-dark">{{ listing.channel.last_sync_attempt|timesince }} ago</span>
+              {% else %}
+              <span class="text-muted">Never</span>
+              {% endif %}
+            </td>
+
+            <!-- Actions dropdown with POST status updates & delete -->
+            <td>
+              <div class="dropdown">
+                <button class="btn btn-action-dropdown" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                  <li><a class="dropdown-item" href="{% url 'select_channels_to_publish' listing.product.id %}"><i class="bi bi-eye me-2"></i> View Listing</a></li>
+                  {% if listing.channel.platform_type == 'flipkart' %}
+                  <li><a class="dropdown-item" href="{% url 'sync_flipkart_now' listing.channel.id %}"><i class="bi bi-arrow-repeat me-2"></i> Sync Now</a></li>
+                  {% endif %}
+                  <li><hr class="dropdown-divider"></li>
+                  <!-- Real Status updates POST links -->
+                  <li>
+                    <form method="POST" action="{% url 'listing_status_update' listing.id %}">
+                      {% csrf_token %}
+                      <input type="hidden" name="status" value="published">
+                      <button type="submit" class="dropdown-item"><i class="bi bi-check-circle text-success me-2"></i> Mark Published</button>
+                    </form>
+                  </li>
+                  <li>
+                    <form method="POST" action="{% url 'listing_status_update' listing.id %}">
+                      {% csrf_token %}
+                      <input type="hidden" name="status" value="pending">
+                      <button type="submit" class="dropdown-item"><i class="bi bi-hourglass-split text-warning me-2"></i> Mark Pending</button>
+                    </form>
+                  </li>
+                  <li>
+                    <form method="POST" action="{% url 'listing_status_update' listing.id %}">
+                      {% csrf_token %}
+                      <input type="hidden" name="status" value="failed">
+                      <button type="submit" class="dropdown-item"><i class="bi bi-x-circle text-danger me-2"></i> Mark Failed</button>
+                    </form>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item" href="{% url 'channel_list' %}"><i class="bi bi-sliders me-2"></i> Marketplace Details</a></li>
+                  <li><a class="dropdown-item text-danger" href="javascript:void(0)" onclick="showDeleteModal('{% url 'listing_delete' listing.id %}', 'Are you sure you want to remove this product listing?')"><i class="bi bi-trash me-2"></i> Remove Listing</a></li>
+                </ul>
               </div>
             </td>
           </tr>
           {% empty %}
-                    <tr>
-                      <td colspan="6" class="text-center py-5">
-                        <i class="bi bi-broadcast" style="font-size:2.5rem; color:#d1d5db;"></i>
-                        {% if selected_channel_id %}
-                        <p class="mt-3 text-muted">No products published on this channel yet.
-                          <a href="{% url 'listing_list' %}">View all channels</a>
-                        </p>
-                        {% else %}
-                        <p class="mt-3 text-muted">No listings yet.
-                          <a href="{% url 'product_list' %}">Go to products to publish.</a>
-                        </p>
-                        {% endif %}
-                      </td>
-                    </tr>
-                    {% endfor %}
-                  </tbody>
+          <tr class="empty-state-row">
+            <td colspan="7" class="text-center py-5">
+              <i class="bi bi-broadcast" style="font-size:3rem; color:#cbd5e1;"></i>
+              <h6 class="mt-3 fw-800" style="color:#0f172a;">No Listings Found</h6>
+              <p class="text-muted" style="font-size:0.9rem;">
+                There are no product listings matched by the current filters.
+              </p>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
       </table>
     </div>
   </div>
 
-  <!-- Quick Publish -->
-  <div class="col-lg-3" style="position: sticky; top: 50px; align-self: start; max-height: calc(100vh - 40px); overflow-y: auto;">
-    <div class="form-card">
-      <h6 class="fw-700 mb-1" style="color:#1e1b4b;">
-        <i class="bi bi-send me-2" style="color:#7c3aed;"></i>
-        Quick Publish
-      </h6>
-      <p class="text-muted mb-3" style="font-size:0.83rem;">
-        Publish a product to all active channels instantly.
-      </p>
-      <div class="d-grid gap-2">
-        {% for product in products %}
-        <a href="{% url 'publish_product' product.id %}"
-           class="btn btn-light border text-start p-2 d-flex align-items-center gap-2">
-          <i class="bi bi-box-seam" style="color:#7c3aed;"></i>
-          <div>
-            <div style="font-size:0.85rem; font-weight:600; color:#1e1b4b;">
-              {{ product.title|truncatechars:22 }}
+  <!-- RIGHT SIDEBAR (col-lg-3) -->
+  <div class="col-lg-3">
+    <div class="sticky-sidebar d-flex flex-column gap-3">
+      <!-- Card 1: Marketplace Operations -->
+      <div class="sidebar-card">
+        <h4 class="sidebar-card-title">
+          <i class="bi bi-cpu text-primary"></i> Marketplace Operations
+        </h4>
+        <p class="sidebar-card-desc mb-3">Sync products and import orders across platforms.</p>
+        
+        <div class="d-flex flex-column gap-3" id="marketplaceOpsList">
+          {% for ch in all_channels %}
+          <div class="sync-channel-card">
+            <div class="sync-channel-header mb-2">
+              <div class="sync-channel-logo">
+                <!-- Platform Logo -->
+                {% if ch.platform_type == 'whatsapp' %}
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="#25D366"><path d="M12.004 2C6.48 2 2.002 6.477 2.002 12c0 1.892.527 3.66 1.442 5.177L2 22l5.004-1.396c1.455.832 3.123 1.3 4.996 1.3 5.525 0 10.002-4.478 10.002-10.002C22.006 6.477 17.528 2 12.004 2zm0 18.002c-1.636 0-3.178-.456-4.526-1.258l-.325-.19-3.003.839.851-2.909-.214-.332a7.973 7.973 0 01-1.228-4.152c0-4.409 3.593-8.002 8.002-8.002 4.41 0 8.002 3.593 8.002 8.002 0 4.41-3.593 8.002-8.002 8.002z"/></svg>
+                {% elif ch.platform_type == 'facebook' %}
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                {% elif ch.platform_type == 'instagram' %}
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="#E1306C"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.051.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+                {% elif ch.platform_type == 'flipkart' %}
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="#2874F0"><path d="M17.5 3H6.5A2.5 2.5 0 004 5.5v13A2.5 2.5 0 006.5 21h11a2.5 2.5 0 002.5-2.5v-13A2.5 2.5 0 0017.5 3zm-2.5 5h-6v2h6v2h-6v2h6v2h-8V6h8v2z"/></svg>
+                {% elif ch.platform_type == 'amazon' %}
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="#FF9900"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4 13h-8v-2h8v2zm0-4h-8V9h8v2z"/></svg>
+                {% elif ch.platform_type == 'shopify' %}
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="#95BF47"><path d="M19.3 7c-.2-.6-.7-1-1.3-1.1L12.5 5h-.1l-1.9-3.2C10.2 1.3 9.6 1 9 1h-.2C8.2 1 7.7 1.5 7.6 2.1l-.8 5.7H4.3c-.6 0-1.1.4-1.2 1L2 17.6c-.1.7.3 1.4.9 1.7l10.4 3.5c.3.1.6.2.9.2s.6-.1.9-.2L21 16.5c.6-.3.9-1 .8-1.7L19.3 7z"/></svg>
+                {% elif ch.platform_type == 'google' %}
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="#4285F4"><path d="M12.24 10.285V14.4h6.887c-.648 2.41-2.519 4.113-5.211 4.113A5.73 5.73 0 018.17 12.8a5.73 5.73 0 015.746-5.713c2.4 0 4.18 1.057 5.093 1.928l3.207-3.2c-2.106-1.956-4.986-3.142-8.3-3.142A9.97 9.97 0 003.882 12.8a9.97 9.97 0 009.932 10.085c5.385 0 9.877-3.857 9.877-10.085 0-.585-.053-1.157-.148-1.515H12.24z"/></svg>
+                {% else %}
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="#64748b"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                {% endif %}
+              </div>
+              <div class="flex-grow-1">
+                <div style="font-size:0.86rem; font-weight:700; color:#0f172a;">{{ ch.name }}</div>
+                <div style="font-size:0.7rem; color:#64748b;">{{ ch.get_platform_type_display }}</div>
+              </div>
+              {% if ch.connection_status == 'connected' %}
+              <span class="sync-status-dot connected" title="Connected"></span>
+              {% elif ch.connection_status == 'error' %}
+              <span class="sync-status-dot error" title="{{ ch.last_sync_error }}"></span>
+              {% else %}
+              <span class="sync-status-dot untested" title="Not tested"></span>
+              {% endif %}
             </div>
-            <div style="font-size:0.75rem; color:#6b7280;">₹{{ product.price }}</div>
+
+            {% if ch.last_sync_attempt %}
+            <div class="sync-last-checked mb-2">Last synced {{ ch.last_sync_attempt|timesince }} ago</div>
+            {% endif %}
+
+            <div class="d-flex gap-2">
+              {% if ch.platform_type == 'flipkart' %}
+              <a href="{% url 'sync_flipkart_now' ch.id %}" class="btn-sync-action" title="Push all products to Flipkart">
+                <i class="bi bi-box-arrow-up"></i> Sync
+              </a>
+              <a href="{% url 'sync_flipkart_orders' ch.id %}" class="btn-sync-action" title="Import new orders from Flipkart">
+                <i class="bi bi-box-arrow-in-down"></i> Import
+              </a>
+              {% elif ch.platform_type == 'whatsapp' %}
+              <a href="{% url 'test_whatsapp_connection' ch.id %}" class="btn-sync-action" style="flex: 1;" title="Test WhatsApp API connection">
+                <i class="bi bi-plug"></i> Test Connection
+              </a>
+              {% else %}
+              <span class="btn-sync-action" style="opacity:0.5; cursor:not-allowed;" title="Sync not yet available for this platform">
+                <i class="bi bi-dash-circle"></i> Not available
+              </span>
+              {% endif %}
+            </div>
           </div>
-        </a>
-        {% empty %}
-        <p class="text-muted" style="font-size:0.85rem;">
-          No products yet. <a href="{% url 'product_add' %}">Add one first.</a>
-        </p>
-        {% endfor %}
+          {% empty %}
+          <div style="font-size: 0.82rem; color: #64748b;">
+            No channels connected. <a href="{% url 'channel_list' %}">Connect one now</a>.
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Card 2: Publishing Activity -->
+      <div class="sidebar-card">
+        <h4 class="sidebar-card-title">
+          <i class="bi bi-clock-history text-primary"></i> Publishing Activity
+        </h4>
+        <div class="timeline-container">
+          {% for log in sync_logs %}
+          <div class="timeline-item">
+            <div class="timeline-dot {% if log.status == 'success' %}success{% elif log.status == 'partial' %}warning{% else %}danger{% endif %}"></div>
+            <div class="timeline-content">
+              <strong>{{ log.get_action_display }}</strong> on {{ log.channel.name }}
+              <div style="font-size: 0.76rem; color: #64748b; margin-top: 1px;">
+                {{ log.success_count }} synced, {{ log.failed_count }} failed
+              </div>
+            </div>
+            <div class="timeline-time">{{ log.created_at|timesince }} ago</div>
+          </div>
+          {% empty %}
+          <div style="font-size: 0.82rem; color: #64748b; padding: 8px 0;">
+            No sync activity logged yet.
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Card 3: Quick Actions -->
+      <div class="sidebar-card">
+        <h4 class="sidebar-card-title">
+          <i class="bi bi-lightning-charge text-primary"></i> Quick Actions
+        </h4>
+        <div class="d-grid gap-2">
+          <!-- Bulk Publish (Coming Soon) -->
+          <button class="btn btn-light border text-start p-2 d-flex align-items-center gap-2 w-100" disabled style="opacity: 0.7; cursor: not-allowed;">
+            <i class="bi bi-send-plus text-muted fs-5"></i>
+            <div>
+              <div style="font-size: 0.82rem; font-weight: 600; color: #64748b;">Bulk Publish <span class="badge bg-secondary-subtle text-secondary" style="font-size:0.6rem; padding: 2px 4px;">Coming Soon</span></div>
+              <span style="font-size: 0.7rem; color: #64748b; font-weight: normal;">Publish catalog to live feeds</span>
+            </div>
+          </button>
+          
+          <!-- Refresh Listings (Real local action) -->
+          <button type="button" onclick="location.reload();" class="btn btn-light border text-start p-2 d-flex align-items-center gap-2 w-100">
+            <i class="bi bi-arrow-clockwise text-success fs-5"></i>
+            <div>
+              <div style="font-size: 0.82rem; font-weight: 600; color: #0f172a;">Refresh Listings</div>
+              <span style="font-size: 0.7rem; color: #64748b; font-weight: normal;">Reload latest mapping states</span>
+            </div>
+          </button>
+
+          <!-- Manage Connections (Real URL link) -->
+          <a href="{% url 'channel_list' %}" class="btn btn-light border text-start p-2 d-flex align-items-center gap-2 w-100" style="text-decoration: none;">
+            <i class="bi bi-gear text-info fs-5"></i>
+            <div>
+              <div style="font-size: 0.82rem; font-weight: 600; color: #0f172a;">Manage Connections</div>
+              <span style="font-size: 0.7rem; color: #64748b; font-weight: normal;">Edit APIs & credentials</span>
+            </div>
+          </a>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
+{% endblock %}
+
+{% block extra_js %}
+<script>
+window.currentChannel = 'all';
+window.currentStatus = 'all';
+window.searchQuery = '';
+
+window.filterListings = function() {
+    const rows = document.querySelectorAll('.listing-row');
+    let visibleCount = 0;
+    
+    rows.forEach(row => {
+        const rowChannel = row.getAttribute('data-channel');
+        const rowStatus = row.getAttribute('data-status');
+        const rowTitle = row.getAttribute('data-title');
+        
+        const channelMatch = (window.currentChannel === 'all' || rowChannel === window.currentChannel);
+        const statusMatch = (window.currentStatus === 'all' || rowStatus === window.currentStatus);
+        const searchMatch = (window.searchQuery === '' || rowTitle.includes(window.searchQuery));
+        
+        if (channelMatch && statusMatch && searchMatch) {
+            row.style.display = '';
+            visibleCount++;
+        } else {
+            row.style.display = 'none';
+        }
+    });
+
+    const emptyRow = document.querySelector('.empty-state-row');
+    if (emptyRow) {
+        if (visibleCount === 0 && rows.length > 0) {
+            emptyRow.style.display = '';
+        } else {
+            emptyRow.style.display = 'none';
+        }
+    }
+};
+
+window.filterListingsByChannel = function(channelId, btnElement) {
+    document.querySelectorAll('.channel-chip').forEach(chip => {
+        chip.classList.remove('active');
+    });
+    btnElement.classList.add('active');
+    window.currentChannel = channelId.toString();
+    window.filterListings();
+};
+
+document.getElementById('status-filter').addEventListener('change', function() {
+    window.currentStatus = this.value;
+    window.filterListings();
+});
+
+document.getElementById('search-listings').addEventListener('input', function() {
+    window.searchQuery = this.value.toLowerCase().trim();
+    window.filterListings();
+});
+
+window.sortListingsTable = function(criteria) {
+    const tbody = document.getElementById('listings-tbody');
+    const rows = Array.from(tbody.querySelectorAll('.listing-row'));
+    
+    rows.sort((a, b) => {
+        if (criteria === 'title-asc') {
+            const titleA = a.getAttribute('data-title');
+            const titleB = b.getAttribute('data-title');
+            return titleA.localeCompare(titleB);
+        } else if (criteria === 'price-desc') {
+            const priceA = parseFloat(a.getAttribute('data-price')) || 0;
+            const priceB = parseFloat(b.getAttribute('data-price')) || 0;
+            return priceB - priceA;
+        } else if (criteria === 'price-asc') {
+            const priceA = parseFloat(a.getAttribute('data-price')) || 0;
+            const priceB = parseFloat(b.getAttribute('data-price')) || 0;
+            return priceA - priceB;
+        } else {
+            // Default: id desc (latest added)
+            const idA = parseInt(a.getAttribute('data-id')) || 0;
+            const idB = parseInt(b.getAttribute('data-id')) || 0;
+            return idB - idA;
+        }
+    });
+
+    rows.forEach(row => tbody.appendChild(row));
+};
+</script>
 {% endblock %}

@@ -19,9 +19,16 @@ urlpatterns = [
     # Publishing
     path('dashboard/products/<int:product_id>/publish/', views.publish_product, name='publish_product'),
     path('dashboard/products/<int:product_id>/select-channels/', views.select_channels_to_publish, name='select_channels_to_publish'),
-    # test connection
+    # test connection -- FLIPKART
     path('dashboard/channels/<int:pk>/test-connection/', views.test_flipkart_connection, name='test_flipkart_connection'),
-    
+    path('dashboard/channels/<int:pk>/sync-now/', views.sync_flipkart_now, name='sync_flipkart_now'),
+    path('dashboard/channels/<int:pk>/sync-orders/', views.sync_flipkart_orders, name='sync_flipkart_orders'),
+    # test connection -- WHATSAPP
+    path('dashboard/channels/<int:pk>/test-whatsapp-connection/', views.test_whatsapp_connection, name='test_whatsapp_connection'),
+    # WhatsApp webhook (Meta calls this directly, not a dashboard page)
+    path('webhooks/whatsapp/', views.whatsapp_webhook, name='whatsapp_webhook'),
+    path('dashboard/channels/webhook-logs/', views.webhook_logs_view, name='webhook_logs'),
+    path('dashboard/channels/webhook-logs/latest/', views.api_latest_webhook_logs, name='api_latest_webhook_logs'),
     # API
     path('api/', include(router.urls)),
 ]
