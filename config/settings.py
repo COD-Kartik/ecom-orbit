@@ -202,13 +202,13 @@ CLOUDINARY_STORAGE = {
     'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
 }
 
- STORAGES = {
-     "default": {
-         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
-     },
-     "staticfiles": {
-         "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
-     },
- }
+STORAGES = {
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
 
- STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
