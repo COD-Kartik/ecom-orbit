@@ -6,36 +6,146 @@
 
 {% block content %}
 
-<section class="hero" style="min-height:auto; padding-top:140px; padding-bottom:40px;">
+<style>
+    .legal-layout {
+        display: flex;
+        gap: 48px;
+        margin-top: 40px;
+        align-items: start;
+    }
+    .legal-sidebar {
+        width: 260px;
+        flex-shrink: 0;
+        position: sticky;
+        top: 120px;
+        height: fit-content;
+        padding-right: 20px;
+        border-right: 1px solid var(--border-light, #e2e8f0);
+    }
+    .toc-nav {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+    .toc-link {
+        font-size: 0.92rem;
+        color: var(--text-dark-muted, #64748b);
+        text-decoration: none;
+        transition: color 0.2s ease;
+        line-height: 1.4;
+    }
+    .toc-link:hover {
+        color: var(--primary, #4f46e5);
+    }
+    .legal-content {
+        flex: 1;
+        max-width: 840px;
+    }
+    .legal-content section {
+        padding: 0 0 40px 0;
+        border-bottom: 1px solid var(--border-light, #e2e8f0);
+        margin-bottom: 40px;
+    }
+    .legal-content section:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+    .legal-content h2 {
+        font-family: 'Outfit', sans-serif;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text-dark-main, #0f172a);
+        margin-bottom: 16px;
+        margin-top: 0;
+    }
+    .legal-content p {
+        font-size: 1rem;
+        line-height: 1.8;
+        color: var(--text-dark-muted, #64748b);
+        margin-bottom: 16px;
+    }
+    .legal-content p:last-child {
+        margin-bottom: 0;
+    }
+    @media (max-width: 991px) {
+        .legal-layout {
+            flex-direction: column;
+            gap: 32px;
+        }
+        .legal-sidebar {
+            width: 100%;
+            position: relative;
+            top: 0;
+            border-right: none;
+            border-bottom: 1px solid var(--border-light, #e2e8f0);
+            padding-bottom: 24px;
+            padding-right: 0;
+        }
+        .toc-nav {
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 12px 18px;
+        }
+    }
+</style>
+
+<section class="legal-hero" style="background-color: var(--bg-light, #f8fafc); border-bottom: 1px solid var(--border-light, #e2e8f0); padding: 80px 0; margin-top: 80px;">
     <div class="container">
-        <div class="section-header">
-            <h1 style="font-size:2.4rem;">Cookie Policy</h1>
-            <p>Last updated: July 2026</p>
-        </div>
+        <h1 style="font-family: 'Outfit', sans-serif; font-size: 2.6rem; font-weight: 800; color: var(--text-dark-main, #0f172a); margin-bottom: 12px; margin-top: 0;">Cookie Policy</h1>
+        <p style="font-size: 0.95rem; color: var(--text-dark-muted, #64748b); margin: 0;">Last Updated: {% now "F j, Y" %}</p>
     </div>
 </section>
 
-<section>
-    <div class="container" style="max-width:760px; color:var(--text-muted, #444); line-height:1.75; font-size:0.98rem;">
+<section style="padding: 60px 0; background-color: #ffffff;">
+    <div class="container">
+        <div class="legal-layout">
+            <!-- Sidebar Table of Contents -->
+            <aside class="legal-sidebar">
+                <h4 style="font-size: 0.8rem; font-weight: 800; text-transform: uppercase; color: var(--text-dark-main, #0f172a); margin-top: 0; margin-bottom: 16px; letter-spacing: 1px;">Table of Contents</h4>
+                <nav class="toc-nav">
+                    <a href="#section-1" class="toc-link">1. What Are Cookies</a>
+                    <a href="#section-2" class="toc-link">2. How We Use Cookies</a>
+                    <a href="#section-3" class="toc-link">3. What We Don't Use</a>
+                    <a href="#section-4" class="toc-link">4. Managing Cookies</a>
+                    <a href="#section-5" class="toc-link">5. Changes to This Policy</a>
+                    <a href="#section-6" class="toc-link">6. Contact Us</a>
+                </nav>
+            </aside>
 
-        <h3 style="color:var(--text-dark, #111); margin-bottom:10px; margin-top:28px;">1. What Are Cookies</h3>
-        <p>Cookies are small text files stored on your device when you visit a website. They help the website remember information about your visit, such as your login session.</p>
+            <!-- Main Legal Content -->
+            <article class="legal-content">
+                <section id="section-1">
+                    <h2>1. What Are Cookies</h2>
+                    <p>Cookies are small text files stored on your device when you visit a website. They help the website remember information about your visit, such as your login session.</p>
+                </section>
 
-        <h3 style="color:var(--text-dark, #111); margin-bottom:10px; margin-top:28px;">2. How We Use Cookies</h3>
-        <p>E-Com Orbit uses only essential, first-party cookies required to keep you securely logged in and to protect your session (such as CSRF protection tokens). We do not use these cookies to track your browsing activity across other websites.</p>
+                <section id="section-2">
+                    <h2>2. How We Use Cookies</h2>
+                    <p>E-Com Orbit uses only essential, first-party cookies required to keep you securely logged in and to protect your session (such as CSRF protection tokens). We do not use these cookies to track your browsing activity across other websites.</p>
+                </section>
 
-        <h3 style="color:var(--text-dark, #111); margin-bottom:10px; margin-top:28px;">3. What We Don't Use</h3>
-        <p>We do not use third-party advertising cookies, cross-site tracking cookies, or analytics cookies that build a profile of your behavior for marketing purposes.</p>
+                <section id="section-3">
+                    <h2>3. What We Don't Use</h2>
+                    <p>We do not use third-party advertising cookies, cross-site tracking cookies, or analytics cookies that build a profile of your behavior for marketing purposes.</p>
+                </section>
 
-        <h3 style="color:var(--text-dark, #111); margin-bottom:10px; margin-top:28px;">4. Managing Cookies</h3>
-        <p>Most web browsers allow you to control cookies through their settings. Please note that disabling essential cookies will prevent you from logging in or using your E-Com Orbit dashboard, since these cookies are required for session security.</p>
+                <section id="section-4">
+                    <h2>4. Managing Cookies</h2>
+                    <p>Most web browsers allow you to control cookies through their settings. Please note that disabling essential cookies will prevent you from logging in or using your E-Com Orbit dashboard, since these cookies are required for session security.</p>
+                </section>
 
-        <h3 style="color:var(--text-dark, #111); margin-bottom:10px; margin-top:28px;">5. Changes to This Policy</h3>
-        <p>We may update this Cookie Policy from time to time. Continued use of E-Com Orbit after changes constitutes acceptance of the revised policy.</p>
+                <section id="section-5">
+                    <h2>5. Changes to This Policy</h2>
+                    <p>We may update this Cookie Policy from time to time. Continued use of E-Com Orbit after changes constitutes acceptance of the revised policy.</p>
+                </section>
 
-        <h3 style="color:var(--text-dark, #111); margin-bottom:10px; margin-top:28px;">6. Contact Us</h3>
-        <p>If you have questions about this cookie policy, please reach out via our <a href="{% url 'contact_page' %}" style="color:var(--primary); font-weight:600;">Contact page</a>.</p>
-
+                <section id="section-6">
+                    <h2>6. Contact Us</h2>
+                    <p>If you have questions about this cookie policy, please reach out via our <a href="{% url 'contact_page' %}" style="color:var(--primary); font-weight:600;">Contact page</a>.</p>
+                </section>
+            </article>
+        </div>
     </div>
 </section>
 

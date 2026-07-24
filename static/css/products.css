@@ -2,11 +2,17 @@
    E-Com Orbit - Products Module Redesign Styles
    ========================================================================== */
 
-/* 1. Hero Banner Section */
+:root {
+    --sidebar-width: 60px;
+    --sidebar-width-collapsed: 60px;
+}
+
+/* 1. Product Hero Banner - Locked Height 115px */
 .product-hero-banner {
-    background: linear-gradient(135deg, #1e1b4b 0%, #312e81 40%, #4f46e5 100%);
+    background: linear-gradient(135deg, #1e1b4b 0%, #312e81 40%, #4f46e5 100%) !important;
     border-radius: 20px;
-    padding: 36px 40px;
+    height: 115px !important;
+    padding: 0 28px !important;
     color: #ffffff;
     display: flex;
     align-items: center;
@@ -35,19 +41,19 @@
 }
 
 .hero-title {
-    font-size: 2.2rem;
+    font-size: 1.4rem !important;
     font-weight: 800;
     letter-spacing: -0.8px;
-    margin-bottom: 8px;
+    margin-bottom: 4px !important;
     background: linear-gradient(to right, #ffffff, #c7d2fe);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
 .hero-subtitle {
-    font-size: 0.95rem;
+    font-size: 0.8rem !important;
     color: rgba(255, 255, 255, 0.75);
-    line-height: 1.5;
+    line-height: 1.4;
     margin-bottom: 0;
 }
 
@@ -59,15 +65,15 @@
 }
 
 .hero-illustration {
-    width: 140px;
-    height: 140px;
+    width: 80px !important;
+    height: 80px !important;
     filter: drop-shadow(0 8px 16px rgba(0,0,0,0.15));
     animation: floatAnim 6s ease-in-out infinite;
 }
 
 @keyframes floatAnim {
     0%, 100% { transform: translateY(0px) rotate(0deg); }
-    50% { transform: translateY(-8px) rotate(3deg); }
+    50% { transform: translateY(-4px) rotate(2deg); }
 }
 
 /* 2. Advanced KPI Stat Cards */
@@ -514,7 +520,7 @@
 .sticky-action-bar {
     position: fixed;
     bottom: 0;
-    left: 280px; /* aligns exactly with sidebar panel */
+    left: var(--sidebar-width); /* aligns exactly with sidebar panel */
     right: 0;
     background: #ffffff;
     border-top: 1px solid #e2e8f0;
@@ -605,6 +611,11 @@
     border-bottom: 1px solid #fde68a !important;
     padding: 28px;
     box-shadow: 0 4px 12px rgba(9, 8, 30, 0.02) !important;
+}
+
+/* Sidebar Collapsed State Rules */
+body.sidebar-collapsed {
+    --sidebar-width: var(--sidebar-width-collapsed);
 }
 
 

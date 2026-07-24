@@ -10,7 +10,7 @@
 {% block nav_listings %}active{% endblock %}
 
 {% block extra_css %}
-<link href="{% static 'css/listings.css' %}?v=4" rel="stylesheet">
+<link href="{% static 'css/listings.css' %}?v=10" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -202,7 +202,8 @@
   <!-- LEFT SIDE: Listings DataTable (col-lg-9) -->
   <div class="col-lg-9">
     <div class="listings-table-card" id="listingsDataTable">
-      <table class="listings-table">
+      <div class="table-responsive" style="overflow-x: auto; width: 100%;">
+        <table class="listings-table">
         <thead>
           <tr>
             <th>Product</th>
@@ -371,6 +372,7 @@
           {% endfor %}
         </tbody>
       </table>
+      </div>
     </div>
   </div>
 

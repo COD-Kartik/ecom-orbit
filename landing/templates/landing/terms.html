@@ -6,45 +6,164 @@
 
 {% block content %}
 
-<section class="hero" style="min-height:auto; padding-top:140px; padding-bottom:40px;">
+<style>
+    .legal-layout {
+        display: flex;
+        gap: 48px;
+        margin-top: 40px;
+        align-items: start;
+    }
+    .legal-sidebar {
+        width: 260px;
+        flex-shrink: 0;
+        position: sticky;
+        top: 120px;
+        height: fit-content;
+        padding-right: 20px;
+        border-right: 1px solid var(--border-light, #e2e8f0);
+    }
+    .toc-nav {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+    .toc-link {
+        font-size: 0.92rem;
+        color: var(--text-dark-muted, #64748b);
+        text-decoration: none;
+        transition: color 0.2s ease;
+        line-height: 1.4;
+    }
+    .toc-link:hover {
+        color: var(--primary, #4f46e5);
+    }
+    .legal-content {
+        flex: 1;
+        max-width: 840px;
+    }
+    .legal-content section {
+        padding: 0 0 40px 0;
+        border-bottom: 1px solid var(--border-light, #e2e8f0);
+        margin-bottom: 40px;
+    }
+    .legal-content section:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+    .legal-content h2 {
+        font-family: 'Outfit', sans-serif;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text-dark-main, #0f172a);
+        margin-bottom: 16px;
+        margin-top: 0;
+    }
+    .legal-content p {
+        font-size: 1rem;
+        line-height: 1.8;
+        color: var(--text-dark-muted, #64748b);
+        margin-bottom: 16px;
+    }
+    .legal-content p:last-child {
+        margin-bottom: 0;
+    }
+    @media (max-width: 991px) {
+        .legal-layout {
+            flex-direction: column;
+            gap: 32px;
+        }
+        .legal-sidebar {
+            width: 100%;
+            position: relative;
+            top: 0;
+            border-right: none;
+            border-bottom: 1px solid var(--border-light, #e2e8f0);
+            padding-bottom: 24px;
+            padding-right: 0;
+        }
+        .toc-nav {
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 12px 18px;
+        }
+    }
+</style>
+
+<section class="legal-hero" style="background-color: var(--bg-light, #f8fafc); border-bottom: 1px solid var(--border-light, #e2e8f0); padding: 80px 0; margin-top: 80px;">
     <div class="container">
-        <div class="section-header">
-            <h1 style="font-size:2.4rem;">Terms of Service</h1>
-            <p>Last updated: July 2026</p>
-        </div>
+        <h1 style="font-family: 'Outfit', sans-serif; font-size: 2.6rem; font-weight: 800; color: var(--text-dark-main, #0f172a); margin-bottom: 12px; margin-top: 0;">Terms of Service</h1>
+        <p style="font-size: 0.95rem; color: var(--text-dark-muted, #64748b); margin: 0;">Last Updated: {% now "F j, Y" %}</p>
     </div>
 </section>
 
-<section>
-    <div class="container" style="max-width:760px; color:var(--text-muted, #444); line-height:1.75; font-size:0.98rem;">
+<section style="padding: 60px 0; background-color: #ffffff;">
+    <div class="container">
+        <div class="legal-layout">
+            <!-- Sidebar Table of Contents -->
+            <aside class="legal-sidebar">
+                <h4 style="font-size: 0.8rem; font-weight: 800; text-transform: uppercase; color: var(--text-dark-main, #0f172a); margin-top: 0; margin-bottom: 16px; letter-spacing: 1px;">Table of Contents</h4>
+                <nav class="toc-nav">
+                    <a href="#section-1" class="toc-link">1. Acceptance of Terms</a>
+                    <a href="#section-2" class="toc-link">2. Description of Service</a>
+                    <a href="#section-3" class="toc-link">3. Account Responsibilities</a>
+                    <a href="#section-4" class="toc-link">4. Acceptable Use</a>
+                    <a href="#section-5" class="toc-link">5. Third-Party Connections</a>
+                    <a href="#section-6" class="toc-link">6. Service Availability</a>
+                    <a href="#section-7" class="toc-link">7. Account Termination</a>
+                    <a href="#section-8" class="toc-link">8. Changes to These Terms</a>
+                    <a href="#section-9" class="toc-link">9. Contact Us</a>
+                </nav>
+            </aside>
 
-        <h3 style="color:var(--text-dark, #111); margin-bottom:10px; margin-top:28px;">1. Acceptance of Terms</h3>
-        <p>By creating an account and using E-Com Orbit, you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use the platform.</p>
+            <!-- Main Legal Content -->
+            <article class="legal-content">
+                <section id="section-1">
+                    <h2>1. Acceptance of Terms</h2>
+                    <p>By creating an account and using E-Com Orbit, you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use the platform.</p>
+                </section>
 
-        <h3 style="color:var(--text-dark, #111); margin-bottom:10px; margin-top:28px;">2. Description of Service</h3>
-        <p>E-Com Orbit provides a multi-channel e-commerce management platform, allowing sellers to manage products, inventory, orders, and connected sales channels from a single dashboard.</p>
+                <section id="section-2">
+                    <h2>2. Description of Service</h2>
+                    <p>E-Com Orbit provides a multi-channel e-commerce management platform, allowing sellers to manage products, inventory, orders, and connected sales channels from a single dashboard.</p>
+                </section>
 
-        <h3 style="color:var(--text-dark, #111); margin-bottom:10px; margin-top:28px;">3. Account Responsibilities</h3>
-        <p>You are responsible for maintaining the confidentiality of your account credentials and for all activity that occurs under your account. You must provide accurate business and contact information when registering.</p>
+                <section id="section-3">
+                    <h2>3. Account Responsibilities</h2>
+                    <p>You are responsible for maintaining the confidentiality of your account credentials and for all activity that occurs under your account. You must provide accurate business and contact information when registering.</p>
+                </section>
 
-        <h3 style="color:var(--text-dark, #111); margin-bottom:10px; margin-top:28px;">4. Acceptable Use</h3>
-        <p>You agree not to use E-Com Orbit for any unlawful purpose, to list counterfeit or prohibited goods, or to attempt to interfere with the platform's security or normal operation.</p>
+                <section id="section-4">
+                    <h2>4. Acceptable Use</h2>
+                    <p>You agree not to use E-Com Orbit for any unlawful purpose, to list counterfeit or prohibited goods, or to attempt to interfere with the platform's security or normal operation.</p>
+                </section>
 
-        <h3 style="color:var(--text-dark, #111); margin-bottom:10px; margin-top:28px;">5. Third-Party Channel Connections</h3>
-        <p>When you connect a sales channel (such as Facebook, Instagram, or Google Shopping), you remain responsible for complying with that platform's own terms of service and policies. E-Com Orbit is not liable for actions taken by third-party platforms against your account.</p>
+                <section id="section-5">
+                    <h2>5. Third-Party Channel Connections</h2>
+                    <p>When you connect a sales channel (such as Facebook, Instagram, or Google Shopping), you remain responsible for complying with that platform's own terms of service and policies. E-Com Orbit is not liable for actions taken by third-party platforms against your account.</p>
+                </section>
 
-        <h3 style="color:var(--text-dark, #111); margin-bottom:10px; margin-top:28px;">6. Service Availability</h3>
-        <p>We aim to keep E-Com Orbit available and reliable, but we do not guarantee uninterrupted access. Scheduled maintenance or unforeseen issues may occasionally affect availability.</p>
+                <section id="section-6">
+                    <h2>6. Service Availability</h2>
+                    <p>We aim to keep E-Com Orbit available and reliable, but we do not guarantee uninterrupted access. Scheduled maintenance or unforeseen issues may occasionally affect availability.</p>
+                </section>
 
-        <h3 style="color:var(--text-dark, #111); margin-bottom:10px; margin-top:28px;">7. Account Termination</h3>
-        <p>You may delete your account at any time from your Settings page. We reserve the right to suspend or terminate accounts that violate these terms.</p>
+                <section id="section-7">
+                    <h2>7. Account Termination</h2>
+                    <p>You may delete your account at any time from your Settings page. We reserve the right to suspend or terminate accounts that violate these terms.</p>
+                </section>
 
-        <h3 style="color:var(--text-dark, #111); margin-bottom:10px; margin-top:28px;">8. Changes to These Terms</h3>
-        <p>We may update these Terms of Service from time to time. Continued use of E-Com Orbit after changes constitutes acceptance of the revised terms.</p>
+                <section id="section-8">
+                    <h2>8. Changes to These Terms</h2>
+                    <p>We may update these Terms of Service from time to time. Continued use of E-Com Orbit after changes constitutes acceptance of the revised terms.</p>
+                </section>
 
-        <h3 style="color:var(--text-dark, #111); margin-bottom:10px; margin-top:28px;">9. Contact Us</h3>
-        <p>If you have questions about these terms, please reach out via our <a href="{% url 'contact_page' %}" style="color:var(--primary); font-weight:600;">Contact page</a>.</p>
-
+                <section id="section-9">
+                    <h2>9. Contact Us</h2>
+                    <p>If you have questions about these terms, please reach out via our <a href="{% url 'contact_page' %}" style="color:var(--primary); font-weight:600;">Contact page</a>.</p>
+                </section>
+            </article>
+        </div>
     </div>
 </section>
 

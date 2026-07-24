@@ -2,11 +2,12 @@
    MARKETPLACE PUBLISHING CENTER - SELF-CONTAINED CSS
    ========================================================================== */
 
-/* 1. Hero Banner Section */
+/* 1. Hero Banner Section - Locked Height 115px */
 .product-hero-banner {
     background: linear-gradient(135deg, #1e1b4b 0%, #312e81 40%, #4f46e5 100%) !important;
     border-radius: 20px;
-    padding: 36px 40px !important;
+    height: 115px !important;
+    padding: 0 28px !important;
     color: #ffffff;
     display: flex;
     align-items: center;
@@ -35,19 +36,19 @@
 }
 
 .hero-title {
-    font-size: 2.2rem;
+    font-size: 1.4rem !important;
     font-weight: 800;
     letter-spacing: -0.8px;
-    margin-bottom: 8px;
+    margin-bottom: 4px !important;
     background: linear-gradient(to right, #ffffff, #c7d2fe);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
 .hero-subtitle {
-    font-size: 0.95rem;
+    font-size: 0.8rem !important;
     color: rgba(255, 255, 255, 0.75);
-    line-height: 1.5;
+    line-height: 1.4;
     margin-bottom: 0;
 }
 
@@ -59,17 +60,17 @@
 }
 
 .hero-illustration {
-    width: 140px !important;
-    height: 140px !important;
-    max-width: 140px !important;
-    max-height: 140px !important;
+    width: 80px !important;
+    height: 80px !important;
+    max-width: 80px !important;
+    max-height: 80px !important;
     filter: drop-shadow(0 8px 16px rgba(0,0,0,0.15));
     animation: floatAnim 6s ease-in-out infinite;
 }
 
 @keyframes floatAnim {
     0%, 100% { transform: translateY(0px) rotate(0deg); }
-    50% { transform: translateY(-8px) rotate(3deg); }
+    50% { transform: translateY(-4px) rotate(2deg); }
 }
 
 /* 2. Advanced KPI Stat Cards */
@@ -209,10 +210,24 @@
 
 /* 4. Filter Chips Bar */
 .filter-wrapper {
-    scrollbar-width: none;
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: thin !important;
+    padding-bottom: 8px !important;
+    width: 100% !important;
 }
 .filter-wrapper::-webkit-scrollbar {
-    display: none;
+    height: 5px !important;
+}
+.filter-wrapper::-webkit-scrollbar-track {
+    background: #f1f5f9 !important;
+    border-radius: 4px !important;
+}
+.filter-wrapper::-webkit-scrollbar-thumb {
+    background: #cbd5e1 !important;
+    border-radius: 4px !important;
 }
 
 .channel-chip {
@@ -276,18 +291,18 @@
     background-color: #f8fafc;
     border-bottom: 2px solid #c7d2fe !important;
     color: #0f172a;
-    font-size: 0.78rem;
+    font-size: 0.72rem !important;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    padding: 16px 20px;
+    padding: 10px 14px !important;
 }
 
 .listings-table td {
     border-bottom: 1px solid #e2e8f0;
-    padding: 16px 20px;
+    padding: 10px 14px !important;
     vertical-align: middle;
-    font-size: 0.88rem;
+    font-size: 0.8rem !important;
     color: #475569;
 }
 
@@ -307,8 +322,8 @@
 }
 
 .product-img {
-    width: 44px;
-    height: 44px;
+    width: 32px !important;
+    height: 32px !important;
     border-radius: 6px;
     object-fit: cover;
     border: 1px solid #c7d2fe;
@@ -316,8 +331,8 @@
 }
 
 .product-img-placeholder {
-    width: 44px;
-    height: 44px;
+    width: 32px !important;
+    height: 32px !important;
     border-radius: 6px;
     border: 1px solid #c7d2fe;
     background-color: #f8fafc;
@@ -325,18 +340,18 @@
     align-items: center;
     justify-content: center;
     color: #94a3b8;
-    font-size: 1.1rem;
+    font-size: 0.95rem !important;
 }
 
 .product-title {
-    font-size: 0.9rem;
+    font-size: 0.82rem !important;
     font-weight: 700;
     color: #0f172a;
     margin-bottom: 2px;
 }
 
 .product-sku-price {
-    font-size: 0.76rem;
+    font-size: 0.72rem !important;
     color: #64748b;
 }
 

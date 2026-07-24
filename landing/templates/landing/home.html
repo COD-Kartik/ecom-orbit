@@ -1,6 +1,10 @@
 {% extends 'landing/base_landing.html' %}
 {% load static %}
 
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+{% endblock %}
+
 {% block title %}Home{% endblock %}
 
 {% block content %}
@@ -42,105 +46,18 @@
             </div>
         </div>
 
-        <div class="hero-visual-wrapper">
-            <div class="orbit-system">
-
-                <div class="orbit-core" onclick="window.open('{% url 'demo_dashboard' %}', '_blank')" style="cursor:pointer;" title="Click to view live Demo Dashboard">
-                    <svg class="orbit-core-icon" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
-                        <ellipse cx="20" cy="20" rx="18" ry="6" fill="none" stroke="#00f2fe" stroke-width="2" transform="rotate(-30 20 20)"/>
-                        <circle cx="20" cy="20" r="8" fill="#6366f1"/>
-                    </svg>
-                    <span>View Demo</span>
-                </div>
-
-                <div class="orbit-track inner">
-                    <div class="satellite fb" title="Facebook Shop Connected">
-                        <div class="satellite-inner">
-                            <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                            </svg>
-                        </div>
-                    </div>
-                    <div class="satellite ig" title="Instagram Shop Connected">
-                        <div class="satellite-inner">
-                            <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069z"/>
-                            </svg>
-                        </div>
-                    </div>
-                    <div class="satellite google" title="Google Shopping Connected">
-                        <div class="satellite-inner">
-                            <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M12.24 10.285V14.4h6.887c-.648 2.41-2.519 4.113-5.136 4.113-3.28 0-5.938-2.699-5.938-6.027 0-3.328 2.659-6.027 5.938-6.027 1.493 0 2.86.55 3.905 1.446l3.07-3.081C19.123 2.012 15.865 1 12.24 1 6.033 1 1 6.05 1 12.28 1 18.51 6.033 23.56 12.24 23.56z"/>
-                            </svg>
-                        </div>
-                    </div>
-                    <div class="satellite shopify" title="Shopify Store Connected">
-                        <div class="satellite-inner">
-                            <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M18.89 2.76A1 1 0 0018 2.22l-5.69.75-5.6-1.74a1 1 0 00-.91.13L1.57 6.09a1 1 0 00-.47.84V19a1 1 0 00.59.91l8 3.59a1 1 0 00.82 0l9.33-4.18A1 1 0 0020 18.4V3.53a1 1 0 00-.06-.32z"/>
-                            </svg>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="orbit-track outer">
-                    <div class="satellite amazon" title="Amazon Store Connected">
-                        <div class="satellite-outer">
-                            <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M15.42 13.41c-.42.27-.96.48-1.62.63-.66.15-1.41.22-2.25.22-.84 0-1.53-.12-2.07-.36-.54-.24-.9-.63-1.08-1.17.42-.09.93-.15 1.53-.18.6-.03 1.23-.09 1.89-.18.66-.09 1.23-.24 1.71-.45.48-.21.81-.54.99-.99-.06-.57-.3-1.02-.72-1.35-.42-.33-.99-.48-1.71-.48-.51 0-.96.09-1.35.27-.39.18-.72.48-.99.9L7.8 8.88c.45-.63 1.02-1.11 1.71-1.44.69-.33 1.53-.48 2.52-.48 1.47 0 2.58.39 3.33 1.17.75.78 1.12 1.86 1.12 3.24v2.79c0 .48.06.93.18 1.35h-1.92l-.32-.54z"/>
-                            </svg>
-                        </div>
-                    </div>
-                    <div class="satellite woo" title="WooCommerce Connected">
-                        <div class="satellite-outer">
-                            <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 14.5h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
-                            </svg>
-                        </div>
-                    </div>
-                    <div class="satellite flipkart" title="Flipkart Connected">
-                        <div class="satellite-outer">
-                            <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M12 .587l3.668 7.431 8.2 1.192-5.934 5.784 1.4 8.168-7.334-3.856-7.334 3.856 1.4-8.168-5.934-5.784 8.2-1.192z"/>
-                            </svg>
-                        </div>
-                    </div>
-                    <div class="satellite ebay" title="eBay Connected">
-                        <div class="satellite-outer">
-                            <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M6.3 12c0-1.8 1.4-3.3 3.2-3.3s3.2 1.5 3.2 3.3c0 1.8-1.4 3.3-3.2 3.3S6.3 13.8 6.3 12m11.4-1.2v2.4h-1.6V12c0-.5-.3-.9-.7-.9s-.7.4-.7.9v1.2H13V10.8h1.6V11c.3-.4.8-.6 1.3-.6.9.1 1.8.8 1.8 1.6M1 10.8h1.6V12c0 .5.3.9.7.9s.7-.4.7-.9v-1.2h1.6v2.4H4v-.2c-.3.4-.8.6-1.3.6-.9-.1-1.7-.8-1.7-1.7zm22 0h-1.6v2.4H20v-.2c-.3.4-.8.6-1.3.6-.9-.1-1.7-.8-1.7-1.7 0-1.8 1.4-3.3 3.2-3.3s3.2 1.5 3.2 3.3v1.3H23z" />
-                            </svg>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="floating-metric fm-sales">
-                    <div class="fm-icon green">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
-                        </svg>
-                    </div>
-                    <div class="fm-info">
-                        <div>Sales Sync</div>
-                        <span>₹2,45,680</span>
-                    </div>
-                </div>
-
-                <div class="floating-metric fm-stock">
-                    <div class="fm-icon blue">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75"/>
-                        </svg>
-                    </div>
-                    <div class="fm-info">
-                        <div>Stock Synced</div>
-                        <span>100% Live</span>
-                    </div>
-                </div>
-
-            </div>
+        <div class="hero-visual-wrapper" style="height: auto; margin-top: 40px;">
+        <div class="video-placeholder-card" style="padding: 0; overflow: hidden; cursor: default;">
+            <video controls style="width: 100%; height: 100%; border-radius: inherit; display: block; object-fit: cover;">
+                <source src="{% static 'videos/product-demo.mp4' %}" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
         </div>
+        <div style="text-align: center; margin-top: 12px;">
+            <a href="{% url 'demo_dashboard' %}" target="_blank" style="font-size: 0.85rem; color: #6366f1; font-weight: 600; text-decoration: none;">
+            </a>
+        </div>
+    </div>
 
     </div>
 </section>
@@ -148,75 +65,320 @@
 <!-- ==========================================================================
      QUICK LINKS TEASER GRID — replaces long inline sections, links to full pages
      ========================================================================== -->
-<section id="quick-links">
-    <div class="container">
-        <div class="section-header">
-            <h2>Everything You Need to Sell Everywhere</h2>
-            <p>Explore how E-Com Orbit transforms multi-channel selling from chaos into a single streamlined workflow.</p>
-        </div>
+<section id="quick-links" class="section-padding" style="position: relative; overflow: hidden; background-color: #ffffff; border-top: 1px solid var(--border-light); padding-top: 80px; padding-bottom: 80px;">
+    <!-- Ambient Background Blobs -->
+    <div class="bg-blob blob-indigo" style="top: -100px; left: -200px;"></div>
+    <div class="bg-blob blob-cyan" style="bottom: -150px; right: -200px;"></div>
 
+    <div class="container" style="position: relative; z-index: 2;">
+        <div class="section-header-banner">
+            <h2>Everything You Need <span class="text-gradient">to Sell Everywhere</span></h2>
+            <p>Explore how E-Com Orbit transforms multi-channel selling from chaos into a single streamlined workflow.</p>
+            <div class="banner-divider"></div>
+        </div>
         <div class="features-grid">
 
-            <a href="{% url 'why_orbit_page' %}" class="feature-card" style="text-decoration:none; color:inherit;">
+            <a href="{% url 'why_orbit_page' %}" class="feature-card scroll-reveal" style="text-decoration:none; color:inherit;">
                 <div class="feature-icon-wrapper">
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+                    <i class="bi bi-arrow-left-right" style="font-size: 1.5rem;"></i>
                 </div>
                 <h3>Chaos vs Orbit</h3>
                 <p>See exactly how E-Com Orbit replaces manual, error-prone multi-channel workflows with one-click automation.</p>
             </a>
 
-            <a href="{% url 'features_page' %}" class="feature-card" style="text-decoration:none; color:inherit;">
+            <a href="{% url 'features_page' %}" class="feature-card scroll-reveal" style="text-decoration:none; color:inherit;">
                 <div class="feature-icon-wrapper">
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
-                    </svg>
+                    <i class="bi bi-grid-3x3-gap" style="font-size: 1.5rem;"></i>
                 </div>
                 <h3>Features</h3>
                 <p>Central product hub, real-time inventory sync, combined order desk, and omni-channel analytics — all built in.</p>
             </a>
 
-            <a href="{% url 'how_it_works_page' %}" class="feature-card" style="text-decoration:none; color:inherit;">
+            <a href="{% url 'how_it_works_page' %}" class="feature-card scroll-reveal" style="text-decoration:none; color:inherit;">
                 <div class="feature-icon-wrapper">
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M14.25 9.75v-4.5m0 4.5h4.5m-4.5 0l6-6M3 5.25a2.25 2.25 0 012.25-2.25H9a2.25 2.25 0 012.25 2.25v3.75a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 9V5.25zM3 18.75V15a2.25 2.25 0 012.25-2.25H9A2.25 2.25 0 0110.25 15v3.75A2.25 2.25 0 019 21H5.25A2.25 2.25 0 013 18.75z" />
-                    </svg>
+                    <i class="bi bi-gear" style="font-size: 1.5rem;"></i>
                 </div>
                 <h3>How It Works</h3>
                 <p>Set up your Orbit in 3 simple steps — connect channels, centralize your catalog, and let automation do the rest.</p>
             </a>
 
-            <a href="{% url 'pricing_page' %}" class="feature-card" style="text-decoration:none; color:inherit;">
+            <a href="{% url 'pricing_page' %}" class="feature-card scroll-reveal" style="text-decoration:none; color:inherit;">
                 <div class="feature-icon-wrapper">
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 10.136 12 10.513 12 9.5c0-.987.904-1.724 2.12-1.48M6.75 19.5a12.75 12.75 0 0110.5 0v-15a12.75 12.75 0 01-10.5 0v15z" />
-                    </svg>
+                    <i class="bi bi-credit-card" style="font-size: 1.5rem;"></i>
                 </div>
                 <h3>Pricing</h3>
                 <p>Affordable plans for every stage — from a free tier to test listings, up to enterprise-scale automation.</p>
             </a>
 
-            <a href="{% url 'success_stories_page' %}" class="feature-card" style="text-decoration:none; color:inherit;">
+            <a href="{% url 'success_stories_page' %}" class="feature-card scroll-reveal" style="text-decoration:none; color:inherit;">
                 <div class="feature-icon-wrapper">
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M9.813 15.904L9 21l8.904-4.437M18 10a3 3 0 11-6 0 3 3 0 016 0zM4 10h.008v.008H4V10zm5.244-6.853a8.25 8.25 0 1110.512 10.511" />
-                    </svg>
+                    <i class="bi bi-trophy" style="font-size: 1.5rem;"></i>
                 </div>
                 <h3>Success Stories</h3>
                 <p>Real results from real sellers who automated their multi-channel operations with E-Com Orbit.</p>
             </a>
 
-            <a href="{% url 'about_page' %}" class="feature-card" style="text-decoration:none; color:inherit;">
+            <a href="{% url 'about_page' %}" class="feature-card scroll-reveal" style="text-decoration:none; color:inherit;">
                 <div class="feature-icon-wrapper">
-                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.109A9.342 9.342 0 0012 20.25a9.34 9.34 0 00-3.011-.514v-.108c0-1.112-.285-2.16-.786-3.07M11.25 12.75A4.5 4.5 0 117 8.25m4.25 4.5a4.5 4.5 0 01-4.25-4.5m4.25 4.5A4.5 4.5 0 0012 17.25a4.5 4.5 0 003.582-1.776M11.25 12.75a4.5 4.5 0 01-3.667-1.897M12 17.25a4.5 4.5 0 01-3.667-1.897m7.167.397a4.5 4.5 0 003.582-1.776M15.502 12h.008v.008h-.008V12zM18 12h.008v.008H18V12z" />
-                    </svg>
+                    <i class="bi bi-info-circle" style="font-size: 1.5rem;"></i>
                 </div>
                 <h3>About Us</h3>
                 <p>Learn about the team and mission behind E-Com Orbit, and why we're building the future of social commerce.</p>
             </a>
 
+        </div>
+    </div>
+</section>
+
+<!-- ==========================================================================
+     WHAT WE OFFER SECTION
+     ========================================================================== -->
+<section id="what-we-offer" class="section-padding" style="position: relative; overflow: hidden; background: linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%); border-top: 1px solid var(--border-light); padding-top: 80px; padding-bottom: 80px;">
+    <!-- Ambient Background Blobs -->
+    <div class="bg-blob blob-cyan" style="top: 10%; right: -250px;"></div>
+    <div class="bg-blob blob-indigo" style="bottom: 10%; left: -250px;"></div>
+
+    <div class="container" style="position: relative; z-index: 2;">
+        <div class="section-header-banner">
+            <h2>Real Capabilities Built <span class="text-gradient">For You</span></h2>
+            <p>E-Com Orbit comes equipped with functional automation tools directly integrated into your workspace.</p>
+            <div class="banner-divider"></div>
+        </div>
+
+        <div class="capabilities-container">
+            <!-- Left column: simple vertical list -->
+            <div class="capabilities-list">
+                <div class="capability-item scroll-reveal">
+                    <div class="capability-icon">
+                        <i class="bi bi-broadcast"></i>
+                    </div>
+                    <div class="capability-info">
+                        <h3>Multi-Channel Publishing</h3>
+                        <p>Instantly sync and distribute your catalog items directly to Flipkart and WhatsApp business feeds from a single action.</p>
+                    </div>
+                </div>
+
+                <div class="capability-item scroll-reveal">
+                    <div class="capability-icon">
+                        <i class="bi bi-clipboard-check"></i>
+                    </div>
+                    <div class="capability-info">
+                        <h3>Centralized Order Desk</h3>
+                        <p>Track statuses, manage seller notes, and execute bulk fulfillment actions across channels in one centralized desk.</p>
+                    </div>
+                </div>
+
+                <div class="capability-item scroll-reveal">
+                    <div class="capability-icon">
+                        <i class="bi bi-graph-up"></i>
+                    </div>
+                    <div class="capability-info">
+                        <h3>Omni-Channel Analytics</h3>
+                        <p>Aggregate sales data, track revenue by weekday or channel, and monitor your top-performing products dynamically.</p>
+                    </div>
+                </div>
+
+                <div class="capability-item scroll-reveal">
+                    <div class="capability-icon">
+                        <i class="bi bi-exclamation-triangle"></i>
+                    </div>
+                    <div class="capability-info">
+                        <h3>Inventory Stock Alerts</h3>
+                        <p>Automated low stock notifications flag products dropping below safety thresholds to prevent stockouts.</p>
+                    </div>
+                </div>
+
+                <div class="capability-item scroll-reveal">
+                    <div class="capability-icon">
+                        <i class="bi bi-tag"></i>
+                    </div>
+                    <div class="capability-info">
+                        <h3>Discount Code Directory</h3>
+                        <p>Configure product-specific or storewide coupon campaigns, redeem usages, and schedule promotional events.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right column: visual diagram (real image) -->
+            <div class="capabilities-diagram">
+                <img src="{% static 'images/capabilities-diagram.png' %}" class="scroll-reveal" alt="E-Com Orbit capabilities diagram showing Multi-Channel Publishing, Centralized Order Desk, Omni-Channel Analytics, Inventory Stock Alerts, and Discount Code Directory connected to a central hub" style="width: 100%; height: auto; border-radius: 12px;">
+            </div>
+        </div>
+
+        <div class="text-center" style="text-align: center; margin-top: 48px;">
+            <a href="{% url 'features_page' %}" class="btn btn-outline" style="border: 2px solid var(--primary); color: var(--primary); text-decoration: none; padding: 12px 28px; border-radius: 8px; font-weight: 700; display: inline-block; transition: all 0.2s;">
+                See All Features
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- ==========================================================================
+     CHAOS VS ORBIT TEASER
+     ========================================================================== -->
+<section id="chaos-vs-orbit-teaser" class="section-padding" style="position: relative; overflow: hidden; background-color: #ffffff; border-top: 1px solid var(--border-light); padding-top: 80px; padding-bottom: 80px;">
+    <!-- Ambient Background Blobs -->
+    <div class="bg-blob blob-indigo" style="top: 20%; left: -250px;"></div>
+    <div class="bg-blob blob-cyan" style="bottom: 20%; right: -250px;"></div>
+
+    <div class="container" style="position: relative; z-index: 2;">
+        <div class="section-header-banner">
+            <h2>The Chaos of Selling <span class="text-gradient">vs The Simplicity of Orbit</span></h2>
+            <p>Managing inventory across multiple tabs is exhausting. See how E-Com Orbit puts your business in order.</p>
+            <div class="banner-divider"></div>
+        </div>
+
+        <div class="comparison-grid">
+            <!-- Chaos Panel -->
+            <div class="comparison-card chaos-card scroll-reveal" style="background: #fef2f2; border: 1px solid #fee2e2; border-radius: 16px; padding: 48px; text-align: center; display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                    <span class="teaser-badge text-danger" style="background: rgba(239, 68, 68, 0.1); padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">Before E-Com Orbit</span>
+                    <h3 style="margin-top: 16px; margin-bottom: 24px; color: #991b1b; font-size: 1.3rem;">Tab Overload & Mismatch Chaos</h3>
+                    
+                    <div class="chaos-visual" style="position: relative; height: 180px; margin-bottom: 24px;">
+                        <!-- Scattered icons -->
+                        <div class="scattered-icon icon-1" style="position: absolute; top: 10%; left: 15%; background: #ffffff; border: 1px solid #fecaca; border-radius: 12px; padding: 12px; opacity: 0.85; text-align: center; box-shadow: var(--shadow-sm);">
+                            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color: #ef4444; display: block; margin: 0 auto 4px;">
+                                <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+                                <path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6M10 10l4 4m0-4l-4 4"/>
+                            </svg>
+                            <div style="font-size: 0.6rem; color: #991b1b; font-weight: 600;">Flipkart Stock Mismatch</div>
+                        </div>
+                        <div class="scattered-icon icon-2" style="position: absolute; top: 50%; left: 60%; background: #ffffff; border: 1px solid #fecaca; border-radius: 12px; padding: 12px; opacity: 0.85; text-align: center; box-shadow: var(--shadow-sm);">
+                            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color: #ef4444; display: block; margin: 0 auto 4px;">
+                                <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+                                <line x1="8" y1="10" x2="8.01" y2="10"/><line x1="12" y1="10" x2="12.01" y2="10"/><line x1="16" y1="10" x2="16.01" y2="10"/>
+                            </svg>
+                            <div style="font-size: 0.6rem; color: #991b1b; font-weight: 600;">WhatsApp Manual Order</div>
+                        </div>
+                        <div class="scattered-icon icon-3" style="position: absolute; top: 55%; left: 10%; background: #ffffff; border: 1px solid #fecaca; border-radius: 12px; padding: 12px; opacity: 0.85; text-align: center; box-shadow: var(--shadow-sm);">
+                            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color: #ef4444; display: block; margin: 0 auto 4px;">
+                                <polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"/>
+                                <line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                            </svg>
+                            <div style="font-size: 0.6rem; color: #991b1b; font-weight: 600;">Double Selling Risk</div>
+                        </div>
+                        <div class="scattered-icon icon-4" style="position: absolute; top: 10%; left: 65%; background: #ffffff; border: 1px solid #fecaca; border-radius: 12px; padding: 12px; opacity: 0.85; text-align: center; box-shadow: var(--shadow-sm);">
+                            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color: #ef4444; display: block; margin: 0 auto 4px;">
+                                <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <div style="font-size: 0.6rem; color: #991b1b; font-weight: 600;">Out of Stock Delay</div>
+                        </div>
+                    </div>
+                </div>
+                <p style="font-size: 0.88rem; line-height: 1.5; margin: 0; color: #7f1d1d;">Manual tracking leads to stockout cancellations, late order imports, and frustrated clients.</p>
+            </div>
+
+            <!-- Orbit Panel -->
+            <div class="comparison-card orbit-card scroll-reveal" style="background: #eef2ff; border: 1px solid #e0e7ff; border-radius: 16px; padding: 48px; text-align: center; display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                    <span class="teaser-badge text-success" style="background: rgba(16, 185, 129, 0.1); color: #10b981 !important; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">With E-Com Orbit</span>
+                    <h3 style="margin-top: 16px; margin-bottom: 24px; color: #3730a3; font-size: 1.3rem;">Organized Automation</h3>
+                    
+                    <div class="orbit-visual" style="position: relative; height: 180px; margin-bottom: 24px; display: flex; align-items: center; justify-content: center; gap: 30px;">
+                        <div style="display: flex; flex-direction: column; gap: 12px;">
+                            <div class="neat-icon" style="background: #ffffff; border: 1.5px solid #2874F0; border-radius: 10px; padding: 10px; display: flex; align-items: center; gap: 8px; box-shadow: var(--shadow-sm);">
+                                <span style="background: #2874F0; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.6rem; font-weight: 700;">FK</span>
+                                <span style="font-size: 0.75rem; font-weight: 600; color: var(--text-dark-main);">Flipkart Live</span>
+                            </div>
+                            <div class="neat-icon" style="background: #ffffff; border: 1.5px solid #25D366; border-radius: 10px; padding: 10px; display: flex; align-items: center; gap: 8px; box-shadow: var(--shadow-sm);">
+                                <span style="background: #25D366; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.6rem; font-weight: 700;">WA</span>
+                                <span style="font-size: 0.75rem; font-weight: 600; color: var(--text-dark-main);">WhatsApp Connected</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flow-arrows" style="color: #4f46e5; display: flex; flex-direction: column; gap: 16px;">
+                            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/>
+                            </svg>
+                        </div>
+                        
+                        <div class="central-core" style="background: linear-gradient(135deg, #4f46e5, #00f2fe); border-radius: 50%; width: 70px; height: 70px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);">
+                            <svg viewBox="0 0 40 40" style="width: 32px; height: 32px;">
+                                <ellipse cx="20" cy="20" rx="18" ry="6" fill="none" stroke="#ffffff" stroke-width="2" transform="rotate(-30 20 20)"/>
+                                <circle cx="20" cy="20" r="8" fill="#ffffff"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+                <p style="font-size: 0.88rem; line-height: 1.5; margin: 0; color: #312e81;">Automated channel routing syncs stock counts instantly, import client carts, and manages listings.</p>
+            </div>
+        </div>
+
+        <div class="text-center" style="text-align: center; margin-top: 48px;">
+            <a href="{% url 'why_orbit_page' %}" class="btn btn-outline" style="border: 2px solid var(--primary); color: var(--primary); text-decoration: none; padding: 12px 28px; border-radius: 8px; font-weight: 700; display: inline-block; transition: all 0.2s;">
+                See How It Works
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- ==========================================================================
+     TESTIMONIALS SECTION
+     ========================================================================== -->
+<section id="testimonials" class="section-padding" style="position: relative; overflow: hidden; background: linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%); border-top: 1px solid var(--border-light); padding-top: 80px; padding-bottom: 80px;">
+    <!-- Ambient Background Blobs -->
+    <div class="bg-blob blob-cyan" style="top: 15%; left: -250px;"></div>
+    <div class="bg-blob blob-indigo" style="bottom: 15%; right: -250px;"></div>
+
+    <div class="container" style="position: relative; z-index: 2;">
+        <div class="section-header-banner">
+            <span class="teaser-badge" style="background: rgba(255, 255, 255, 0.1); color: #cbd5e1; padding: 4px 14px; border-radius: 20px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; display: inline-block; margin-bottom: 12px;">
+                🔒 Example Seller Feedback (Illustrative Content)
+            </span>
+            <h2>What Multi-Channel Sellers <span class="text-gradient">Are Saying</span></h2>
+            <p>The following are illustrative examples demonstrating how sellers evaluate E-Com Orbit's features. Swapping real testimonials here post-launch is seamless.</p>
+            <div class="banner-divider"></div>
+        </div>
+
+        <div class="testimonials-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-top: 40px;">
+            <!-- Testimonial 1 -->
+            <div class="testimonial-card scroll-reveal" style="background: var(--bg-light); border: 1px solid var(--border-light); border-radius: 12px; padding: 24px; display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
+                <p style="font-size: 0.92rem; line-height: 1.6; color: var(--text-dark-muted); font-style: italic; margin-bottom: 20px;">
+                    "Listing products to Flipkart used to take hours. With the centralized publishing feed, I can sync my stock values immediately in just one click."
+                </p>
+                <div class="testimonial-user" style="display: flex; align-items: center; gap: 12px;">
+                    <div class="avatar-circle" style="width: 36px; height: 36px; border-radius: 50%; background: #4f46e5; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 0.84rem;">
+                        RS
+                    </div>
+                    <div>
+                        <h4 style="font-size: 0.88rem; font-weight: 700; color: var(--text-dark-main); margin: 0;">Rohan S.</h4>
+                        <span style="font-size: 0.76rem; color: var(--text-dark-muted);">Apparel Retailer</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Testimonial 2 -->
+            <div class="testimonial-card scroll-reveal" style="background: var(--bg-light); border: 1px solid var(--border-light); border-radius: 12px; padding: 24px; display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
+                <p style="font-size: 0.92rem; line-height: 1.6; color: var(--text-dark-muted); font-style: italic; margin-bottom: 20px;">
+                    "The low-stock warning card triggers exactly when inventory drops. Since connecting my WhatsApp order channel, I've had zero stockouts."
+                </p>
+                <div class="testimonial-user" style="display: flex; align-items: center; gap: 12px;">
+                    <div class="avatar-circle" style="width: 36px; height: 36px; border-radius: 50%; background: #10b981; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 0.84rem;">
+                        AP
+                    </div>
+                    <div>
+                        <h4 style="font-size: 0.88rem; font-weight: 700; color: var(--text-dark-main); margin: 0;">Amit P.</h4>
+                        <span style="font-size: 0.76rem; color: var(--text-dark-muted);">Gadget Boutique</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Testimonial 3 -->
+            <div class="testimonial-card scroll-reveal" style="background: var(--bg-light); border: 1px solid var(--border-light); border-radius: 12px; padding: 24px; display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
+                <p style="font-size: 0.92rem; line-height: 1.6; color: var(--text-dark-muted); font-style: italic; margin-bottom: 20px;">
+                    "Managing coupon redemptions storewide from the discounts panel has improved our sales campaigns. Excellent analytical graphs as well."
+                </p>
+                <div class="testimonial-user" style="display: flex; align-items: center; gap: 12px;">
+                    <div class="avatar-circle" style="width: 36px; height: 36px; border-radius: 50%; background: #f59e0b; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 0.84rem;">
+                        KV
+                    </div>
+                    <div>
+                        <h4 style="font-size: 0.88rem; font-weight: 700; color: var(--text-dark-main); margin: 0;">Kriti V.</h4>
+                        <span style="font-size: 0.76rem; color: var(--text-dark-muted);">Home Decor Creator</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </section>
@@ -233,5 +395,43 @@
         </div>
     </div>
 </section>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const revealElements = document.querySelectorAll(".scroll-reveal");
+    
+    const observerOptions = {
+        root: null,
+        rootMargin: "0px 0px -50px 0px",
+        threshold: 0.10
+    };
+
+    const observer = new IntersectionObserver((entries, observer) => {
+        const intersectingEntries = entries.filter(entry => entry.isIntersecting);
+        
+        // Group by parent element to stagger siblings
+        const parentGroups = new Map();
+        intersectingEntries.forEach(entry => {
+            const parent = entry.target.parentElement;
+            if (!parentGroups.has(parent)) {
+                parentGroups.set(parent, []);
+            }
+            parentGroups.get(parent).push(entry.target);
+        });
+
+        // Stagger reveal for each parent group
+        parentGroups.forEach((elements) => {
+            elements.forEach((el, index) => {
+                setTimeout(() => {
+                    el.classList.add("active");
+                }, index * 100); // 100ms stagger delay
+                observer.unobserve(el);
+            });
+        });
+    }, observerOptions);
+
+    revealElements.forEach(el => observer.observe(el));
+});
+</script>
 
 {% endblock %}

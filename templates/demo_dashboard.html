@@ -46,8 +46,18 @@
         /* KPI cards design system with left borders and tints */
         .metric-card {
             border-left: 5px solid #cbd5e1 !important;
-            border-radius: 12px !important;
-            transition: all 0.2s ease;
+            border-top: 1px solid #e2e8f0 !important;
+            border-right: 1px solid #e2e8f0 !important;
+            border-bottom: 1px solid #e2e8f0 !important;
+            border-radius: 16px !important;
+            box-shadow: 0 1px 3px rgba(9, 8, 30, 0.01), 0 10px 20px -5px rgba(9, 8, 30, 0.03) !important;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            position: relative;
+            overflow: hidden;
+        }
+        .metric-card:hover {
+            transform: translateY(-4px) !important;
+            box-shadow: 0 12px 32px -4px rgba(9, 8, 30, 0.08), 0 4px 12px -2px rgba(9, 8, 30, 0.04) !important;
         }
         .stat-total {
             border-left-color: #4f46e5 !important;
@@ -72,9 +82,9 @@
 
         /* Icon badges customization */
         .metric-icon-box {
-            width: 42px;
-            height: 42px;
-            border-radius: 10px;
+            width: 36px;
+            height: 36px;
+            border-radius: 9px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -89,32 +99,45 @@
     </style>
 </head>
 <body>
+<script>
+  if (localStorage.getItem("sidebarCollapsed") === "true") {
+      document.body.classList.add("sidebar-collapsed");
+  }
+</script>
 
 <div class="demo-banner">
     🚀 Live Demo — <a href="{% url 'register' %}">Create your free account</a> to start managing your own store
 </div>
 
     <aside class="sidebar" id="sidebar-panel">
-        <div class="brand">
-            <div class="brand-logo">
-                <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                        <linearGradient id="orbit-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stop-color="#00f2fe" />
-                            <stop offset="100%" stop-color="#4f46e5" />
-                        </linearGradient>
-                    </defs>
-                    <ellipse cx="20" cy="20" rx="18" ry="6" fill="none" stroke="url(#orbit-grad)" stroke-width="2" transform="rotate(-30 20 20)"/>
-                    <ellipse cx="20" cy="20" rx="14" ry="4" fill="none" stroke="#a5b4fc" stroke-width="1" opacity="0.6" transform="rotate(45 20 20)"/>
-                    <circle cx="20" cy="20" r="8" fill="url(#orbit-grad)"/>
-                    <circle cx="9" cy="14" r="2" fill="#00f2fe" />
-                    <circle cx="31" cy="26" r="2" fill="#ffffff" />
+        <div class="brand" style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+            <div class="brand-logo-info-wrapper" style="display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1;">
+                <div class="brand-logo" style="flex-shrink: 0;">
+                    <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="orbit-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#00f2fe" />
+                                <stop offset="100%" stop-color="#4f46e5" />
+                            </linearGradient>
+                        </defs>
+                        <ellipse cx="20" cy="20" rx="18" ry="6" fill="none" stroke="url(#orbit-grad)" stroke-width="2" transform="rotate(-30 20 20)"/>
+                        <ellipse cx="20" cy="20" rx="14" ry="4" fill="none" stroke="#a5b4fc" stroke-width="1" opacity="0.6" transform="rotate(45 20 20)"/>
+                        <circle cx="20" cy="20" r="8" fill="url(#orbit-grad)"/>
+                        <circle cx="9" cy="14" r="2" fill="#00f2fe" />
+                        <circle cx="31" cy="26" r="2" fill="#ffffff" />
+                    </svg>
+                </div>
+                <div class="brand-info" style="min-width: 0;">
+                    <h1 style="font-size: 16px; font-weight: 700; color: #ffffff; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">E-Com Orbit</h1>
+                    <p style="font-size: 10px; color: var(--text-light); opacity: 0.7; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Sell Everywhere, Manage Anywhere</p>
+                </div>
+            </div>
+            <button id="sidebar-toggle" style="background: none; border: none; color: #94a3b8; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 6px; border-radius: 6px; transition: color var(--transition-fast); flex-shrink: 0;" title="Toggle Sidebar">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 4.5l7.5 7.5-7.5 7.5" class="expand-icon" style="display: none;" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M18.75 19.5l-7.5-7.5 7.5-7.5M11.25 19.5l-7.5-7.5 7.5-7.5" class="collapse-icon" />
                 </svg>
-            </div>
-            <div class="brand-info">
-                <h1>E-Com Orbit</h1>
-                <p>Sell Everywhere, Manage Anywhere</p>
-            </div>
+            </button>
         </div>
 
         <div class="profile-card">
@@ -319,5 +342,16 @@
             </div>
         </section>
     </main>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const sidebarToggle = document.getElementById("sidebar-toggle");
+    if (sidebarToggle) {
+        sidebarToggle.addEventListener("click", function() {
+            const collapsed = document.body.classList.toggle("sidebar-collapsed");
+            localStorage.setItem("sidebarCollapsed", collapsed ? "true" : "false");
+        });
+    }
+});
+</script>
 </body>
 </html>

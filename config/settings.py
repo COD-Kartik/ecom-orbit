@@ -39,6 +39,10 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
+
+    'cloudinary_storage',
+    'cloudinary',
+
     "django.contrib.staticfiles",
     # Third party
     'rest_framework',
@@ -51,7 +55,7 @@ INSTALLED_APPS = [
     'orders',
     'channels_integration',
     'analytics',
-    'landing'
+    'landing',
 ]
 
 AUTH_USER_MODEL = 'accounts.User'
@@ -93,15 +97,14 @@ WSGI_APPLICATION = "config.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
+import dj_database_url
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('DB_NAME'),
-        'USER': os.getenv('DB_USER'),
-        'PASSWORD': os.getenv('DB_PASSWORD'),
-        'HOST': os.getenv('DB_HOST'),
-        'PORT': os.getenv('DB_PORT'),
-    }
+    'default': dj_database_url.config(
+        default=os.environ.get('DATABASE_URL'),
+        conn_max_age=600,
+        ssl_require=True
+    )
 }
 
 
@@ -191,3 +194,19 @@ WHATSAPP_ACCESS_TOKEN = os.environ.get('WHATSAPP_ACCESS_TOKEN')
 WHATSAPP_API_BASE_URL = 'https://graph.facebook.com/v21.0'
 WHATSAPP_CATALOG_ID = os.environ.get('WHATSAPP_CATALOG_ID')
 WHATSAPP_WEBHOOK_VERIFY_TOKEN = os.environ.get('WHATSAPP_WEBHOOK_VERIFY_TOKEN')
+
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
+    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
+}
+
+STORAGES = {
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}

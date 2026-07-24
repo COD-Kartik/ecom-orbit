@@ -505,23 +505,8 @@
 
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-    const topbarRight = document.querySelector(".topbar-right");
-    if (topbarRight) {
-        const homeLink = topbarRight.querySelector("a[href*='landing']");
-        if (homeLink) { homeLink.remove(); }
-        const searchContainer = document.createElement("div");
-        searchContainer.style.cssText = "position: relative; display: flex; align-items: center; width: 220px; margin-right: 8px;";
-        searchContainer.innerHTML = `
-            <input type="text" placeholder="Search anything..." readonly style="width: 100%; height: 38px; padding: 8px 36px 8px 12px; border: 1.5px solid #cbd5e1; border-radius: 10px; background: #f8fafc; font-size: 0.82rem; color: #64748b; cursor: default; outline: none;">
-            <i class="bi bi-search" style="position: absolute; right: 12px; color: #94a3b8; font-size: 0.85rem;"></i>
-            <span style="position: absolute; right: 36px; background: #e2e8f0; border-radius: 4px; padding: 2px 4px; font-size: 0.65rem; color: #64748b; font-weight: 700; border: 1px solid #cbd5e1; pointer-events: none;">Ctrl+K</span>
-        `;
-        topbarRight.insertBefore(searchContainer, topbarRight.firstChild);
-    }
-});
 
+<script>
 {% if total_orders > 0 %}
     function roundToTwo(num) {
         return +(Math.round(num + "e+2")  + "e-2");

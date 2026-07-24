@@ -11,7 +11,9 @@
   {% block extra_css %}{% endblock %}
   <style>
     :root {
-      --sidebar-width: 280px;
+      --sidebar-width: 60px;
+      --sidebar-width-collapsed: 60px;
+      --sidebar-width-expanded: 220px;
       --sidebar-text: rgba(255,255,255,0.75);
     }
     .notif-badge {
@@ -46,54 +48,57 @@
 
 </head>
 <body>
-
 <!-- ═══ SIDEBAR ═══ -->
 <aside class="sidebar" id="sidebar-panel">
-    <div class="brand">
-        <div class="brand-logo">
-            <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                    <linearGradient id="orbit-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stop-color="#00f2fe" />
-                        <stop offset="100%" stop-color="#4f46e5" />
-                    </linearGradient>
-                </defs>
-                <ellipse cx="20" cy="20" rx="18" ry="6" fill="none" stroke="url(#orbit-grad)" stroke-width="2" transform="rotate(-30 20 20)"/>
-                <ellipse cx="20" cy="20" rx="14" ry="4" fill="none" stroke="#a5b4fc" stroke-width="1" opacity="0.6" transform="rotate(45 20 20)"/>
-                <circle cx="20" cy="20" r="8" fill="url(#orbit-grad)"/>
-                <circle cx="9" cy="14" r="2" fill="#00f2fe" />
-                <circle cx="31" cy="26" r="2" fill="#ffffff" />
-            </svg>
-        </div>
-        <div class="brand-info">
-            <h1>E-Com Orbit</h1>
-            <p>Sell Everywhere, Manage Anywhere</p>
-        </div>
-    </div>
-
-    <div class="profile-card">
-        <a href="{% url 'settings' %}" class="profile-avatar-wrapper" title="Go to Settings to change your photo">
-            {% if request.user.profile_picture %}
-            <img class="profile-img" src="{{ request.user.profile_picture.url }}" alt="Seller Avatar">
-            {% else %}
-            <div class="profile-img" style="display:flex; align-items:center; justify-content:center; background:#6366f1; color:#fff; font-weight:700; font-size:1.1rem;">
-                {{ request.user.first_name|default:request.user.username|slice:":1"|upper }}
-            </div>
-            {% endif %}
-            <div class="avatar-overlay">
-                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z"></path>
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z"></path>
+    <div class="sidebar-header-card">
+        <div class="brand">
+            <div class="brand-logo">
+                <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="orbit-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#00f2fe" />
+                            <stop offset="100%" stop-color="#4f46e5" />
+                        </linearGradient>
+                    </defs>
+                    <ellipse cx="20" cy="20" rx="18" ry="6" fill="none" stroke="url(#orbit-grad)" stroke-width="2" transform="rotate(-30 20 20)"/>
+                    <ellipse cx="20" cy="20" rx="14" ry="4" fill="none" stroke="#a5b4fc" stroke-width="1" opacity="0.6" transform="rotate(45 20 20)"/>
+                    <circle cx="20" cy="20" r="8" fill="url(#orbit-grad)"/>
+                    <circle cx="9" cy="14" r="2" fill="#00f2fe" />
+                    <circle cx="31" cy="26" r="2" fill="#ffffff" />
                 </svg>
             </div>
-        </a>
-        <div class="profile-info">
-            <div class="profile-name">{% if business %}{{ business.business_name }}{% else %}{{ request.user.username }}{% endif %}</div>
-            <div class="profile-badge">Pro Seller</div>
+            <div class="brand-info">
+                <h1>E-Com Orbit</h1>
+                <p>Sell Everywhere, Manage Anywhere</p>
+            </div>
+        </div>
+
+        <div class="sidebar-header-divider"></div>
+
+        <div class="profile-card">
+            <a href="{% url 'settings' %}" class="profile-avatar-wrapper" title="Go to Settings to change your photo">
+                {% if request.user.profile_picture %}
+                <img class="profile-img" src="{{ request.user.profile_picture.url }}" alt="Seller Avatar">
+                {% else %}
+                <div class="profile-img" style="display:flex; align-items:center; justify-content:center; background:#6366f1; color:#fff; font-weight:700; font-size:1.1rem;">
+                    {{ request.user.first_name|default:request.user.username|slice:":1"|upper }}
+                </div>
+                {% endif %}
+                <div class="avatar-overlay">
+                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z"></path>
+                    </svg>
+                </div>
+            </a>
+            <div class="profile-info">
+                <div class="profile-name">{% if business %}{{ business.business_name }}{% else %}{{ request.user.username }}{% endif %}</div>
+            </div>
         </div>
     </div>
 
-    <ul class="sidebar-menu">
+    <div class="sidebar-menu-scroll">
+        <ul class="sidebar-menu">
         <li class="menu-item {% block nav_dashboard %}{% endblock %}">
             <a href="{% url 'dashboard' %}">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -219,6 +224,7 @@
             <span>End your session</span>
         </div>
     </a>
+    </div>
 </aside>
 
 <!-- ═══ MAIN ═══ -->
@@ -489,6 +495,19 @@ function pollWebhookLogs() {
 // Poll every 8 seconds, site-wide
 setInterval(pollWebhookLogs, 8000);
 pollWebhookLogs(); // also check immediately on page load
+
+// Sidebar collapse hover expand/collapse handler
+document.addEventListener("DOMContentLoaded", function() {
+    const sidebar = document.getElementById("sidebar-panel");
+    if (sidebar) {
+        sidebar.addEventListener("mouseenter", function() {
+            document.body.classList.add("sidebar-expanded");
+        });
+        sidebar.addEventListener("mouseleave", function() {
+            document.body.classList.remove("sidebar-expanded");
+        });
+    }
+});
 </script>
 
 <style>

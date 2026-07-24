@@ -10,7 +10,7 @@
 {% block nav_categories %}active{% endblock %}
 
 {% block extra_css %}
-<link href="{% static 'css/categories.css' %}?v=5" rel="stylesheet">
+<link href="{% static 'css/categories.css' %}?v=10" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -155,9 +155,10 @@
 
 <div class="row g-4">
   <!-- Left Column: Category Table -->
-  <div class="col-lg-8">
+  <div class="col-lg-9">
     <div class="data-table mb-0" id="categoriesDataTable" style="border-bottom-left-radius:0 !important; border-bottom-right-radius:0 !important;">
-      <table class="table" id="categoriesTable">
+      <div class="table-responsive" style="overflow-x: auto; width: 100%;">
+        <table class="table" id="categoriesTable">
         <thead>
           <tr>
             <th width="20"></th>
@@ -240,6 +241,7 @@
           {% endfor %}
         </tbody>
       </table>
+      </div>
     </div>
 
     <!-- Pagination Footer Mock -->
@@ -249,7 +251,7 @@
   </div>
 
   <!-- Right Sidebar Column: Sticky Config Cards -->
-  <div class="col-lg-4" style="position: sticky; top: 20px; align-self: start;">
+  <div class="col-lg-3" style="position: sticky; top: 20px; align-self: start;">
     <!-- Sidebar Card 1: Create Category Form -->
     <div class="category-sidebar-card add-card">
       <h6 class="fw-700 mb-4" id="categoryFormTitle" style="color:#0f172a;">
