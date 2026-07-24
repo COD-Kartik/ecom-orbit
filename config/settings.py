@@ -144,7 +144,7 @@ USE_TZ = True
 
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
@@ -202,14 +202,13 @@ CLOUDINARY_STORAGE = {
     'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
 }
 
-STORAGES = {
-    "default": {
-        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
-    },
-    "staticfiles": {
-        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
-    },
-}
+ STORAGES = {
+     "default": {
+         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+     },
+     "staticfiles": {
+         "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+     },
+ }
 
-
-STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+ STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
