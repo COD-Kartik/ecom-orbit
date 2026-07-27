@@ -18,6 +18,7 @@ from django.http import JsonResponse, HttpResponse
 import json
 from django.conf import settings
 from .models import Channel, ProductListing, SyncLog, WebhookLog
+from datetime import timedelta
 
 def get_user_business(user):
     try:
@@ -170,7 +171,14 @@ def publish_product(request, product_id):
         messages.error(request, 'No active channels connected. Please connect a channel first before publishing.')
         return redirect('channel_list')
 
-    for channel in channels:
+    now = timezone.now()
+    expired_channels = channels.filter(
+        connection_status='connected',
+        sync_expires_at__lt=now,
+    )
+    healthy_channels = channels.exclude(id__in=expired_channels.values_list('id', flat=True))
+
+    for channel in healthy_channels:
         listing, created = ProductListing.objects.get_or_create(
             product=product,
             channel=channel,
@@ -180,11 +188,18 @@ def publish_product(request, product_id):
             listing.status = 'published'
             listing.save()
 
-    messages.success(request, f'"{product.title}" published to {channels.count()} channel(s).')
+    if healthy_channels.exists():
+        messages.success(request, f'"{product.title}" published to {healthy_channels.count()} channel(s).')
+
+    if expired_channels.exists():
+        request.session['expired_sync_channels'] = list(expired_channels.values_list('id', 'name'))
+
     return redirect('listing_list')
+
 @login_required
 def listing_list(request):
     business = get_user_business(request.user)
+    expired_sync_channels = request.session.pop('expired_sync_channels', None)
     channels = Channel.objects.filter(business=business)
     listings = ProductListing.objects.filter(channel__in=channels).select_related('product', 'channel')
 
@@ -219,6 +234,7 @@ def listing_list(request):
         'coverage_total': coverage_total,
         'successful_syncs_today': successful_syncs_today,
         'sync_logs': sync_logs,
+        'expired_sync_channels': expired_sync_channels,
     })
 
 @login_required
@@ -396,8 +412,9 @@ def test_whatsapp_connection(request, pk):
     channel.last_sync_attempt = timezone.now()
 
     if result['success']:
-        channel.connection_status = 'connected'
+        channel.connection_status = 'active'
         channel.last_sync_error = None
+        channel.sync_expires_at = timezone.now() + timedelta(hours=24)
         messages.success(request, f'"{channel.name}" connected successfully to WhatsApp ({result.get("display_phone_number")}).')
     else:
         channel.connection_status = 'error'
@@ -608,3 +625,14 @@ def api_latest_webhook_logs(request):
         latest_id = log.id
 
     return JsonResponse({'logs': results, 'latest_id': latest_id})
+
+@login_required
+def channel_remind_later(request, pk):
+    business = get_user_business(request.user)
+    channel = get_object_or_404(Channel, pk=pk, business=business)
+
+    if request.method == 'POST':
+        channel.remind_later_until = timezone.now() + timedelta(hours=12)
+        channel.save()
+
+    return JsonResponse({'success': True})

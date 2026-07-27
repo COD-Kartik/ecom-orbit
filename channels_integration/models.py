@@ -11,21 +11,30 @@ class Channel(models.Model):
         ('whatsapp', 'WhatsApp'),
         ('other', 'Other'),
     )
+    CONNECTION_STATUS_CHOICES = (
+    ('not_connected', 'Not Connected'),
+    ('connected', 'Connected'),
+    ('expired', 'Expired'),
+    ('syncing', 'Syncing'),
+    ('error', 'Error'),
+    )
 
     business = models.ForeignKey(BusinessProfile, on_delete=models.CASCADE, related_name='channels', null=True, blank=True)
     name = models.CharField(max_length=100)
     platform_type = models.CharField(max_length=20, choices=PLATFORM_CHOICES)
     api_credentials = models.JSONField(default=dict, blank=True)
-    is_active = models.BooleanField(default = True)
+    is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    connection_status = models.CharField(max_length=20, default='not_connected')
+    connection_status = models.CharField(max_length=20, choices=CONNECTION_STATUS_CHOICES, default='not_connected')
     last_sync_attempt = models.DateTimeField(blank=True, null=True)
     last_sync_error = models.TextField(blank=True, null=True)
+    sync_expires_at = models.DateTimeField(blank=True, null=True)
+    remind_later_until = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
         return f"{self.name} ({self.platform_type})"
-    
 
+    
 class ProductListing(models.Model):
     STATUS_CHOICES = (
         ('pending', 'Pending'),
@@ -71,3 +80,15 @@ class WebhookLog(models.Model):
 
     def __str__(self):
         return f"{self.event_type or 'Webhook'} - {self.received_at}"
+
+
+sync_status = models.CharField(choices=[
+    ('not_connected', 'Not Connected'),
+    ('active', 'Active'),
+    ('expired', 'Expired'),
+    ('syncing', 'Syncing'),
+    ('error', 'Error'),
+], default='not_connected')
+last_synced_at = models.DateTimeField(null=True, blank=True)
+sync_expires_at = models.DateTimeField(null=True, blank=True)
+remind_later_until = models.DateTimeField(null=True, blank=True)  # for the "snooze" button

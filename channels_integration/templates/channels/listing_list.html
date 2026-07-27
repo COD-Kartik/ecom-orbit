@@ -603,4 +603,24 @@ window.sortListingsTable = function(criteria) {
     rows.forEach(row => tbody.appendChild(row));
 };
 </script>
+
+{% if expired_sync_channels %}
+<div id="expired-sync-modal-overlay" class="modal-overlay active">
+    <div class="modal-card">
+        <div class="modal-icon">⚠️</div>
+        <h3>Your channel sync has expired</h3>
+        <p>
+            {% for ch_id, ch_name in expired_sync_channels %}{{ ch_name }}{% if not forloop.last %}, {% endif %}{% endfor %}
+            could not be published to because the connection needs to be renewed.
+        </p>
+        <div class="modal-actions">
+            {% with first_channel=expired_sync_channels.0 %}
+            <a href="{% url 'channel_list' %}?open_sync={{ first_channel.0 }}" class="modal-btn modal-btn-primary">Login Again</a>
+            {% endwith %}
+            <button class="modal-btn modal-btn-secondary" onclick="document.getElementById('expired-sync-modal-overlay').remove()">Remind Later</button>
+        </div>
+    </div>
+</div>
+{% endif %}
+
 {% endblock %}

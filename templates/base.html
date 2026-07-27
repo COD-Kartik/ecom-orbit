@@ -277,6 +277,34 @@
       </div>
       {% endfor %}
     {% endif %}
+
+    {% if sync_banner %}
+    <div id="sync-status-banner" class="sync-banner sync-banner-{{ sync_banner.type }}">
+        {% if sync_banner.type == 'no_channels' %}
+            <div class="sync-banner-icon">🔗</div>
+            <div class="sync-banner-text">
+                <strong>Connect your first sales channel</strong>
+                <span>Start syncing products and orders automatically.</span>
+            </div>
+            <a href="{% url 'channel_list' %}" class="sync-banner-btn sync-banner-btn-primary">Add Channel</a>
+            <button class="sync-banner-dismiss" onclick="document.getElementById('sync-status-banner').remove()">×</button>
+        {% elif sync_banner.type == 'expired' %}
+            <div class="sync-banner-icon">⚠️</div>
+            <div class="sync-banner-text">
+                <strong>{{ sync_banner.channels|length }} channel{{ sync_banner.channels|length|pluralize }} sync expired</strong>
+                <span>
+                    {% for ch in sync_banner.channels %}{{ ch.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                    needs reconnecting to keep syncing.
+                </span>
+            </div>
+            {% with first_channel=sync_banner.channels.0 %}
+            <a href="{% url 'channel_list' %}?open_sync={{ first_channel.id }}" class="sync-banner-btn sync-banner-btn-primary">Sync Now</a>
+            <button class="sync-banner-btn sync-banner-btn-secondary" onclick="remindLaterChannel({{ first_channel.id }})">Remind Later</button>
+            {% endwith %}
+        {% endif %}
+    </div>
+    {% endif %}
+
     {% block content %}{% endblock %}
   </div>
 </div>
@@ -508,6 +536,16 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 });
+
+function remindLaterChannel(channelId) {
+    fetch(`/dashboard/channels/${channelId}/remind-later/`, {
+        method: 'POST',
+        headers: {'X-CSRFToken': getCookie('csrftoken')},
+    }).then(() => {
+        document.getElementById('sync-status-banner').remove();
+    });
+}
+
 </script>
 
 <style>

@@ -44,3 +44,35 @@ def notifications_context(request):
         'notif_count': unread_count,
         'notif_preview': sorted(preview, key=lambda x: x['created_at'], reverse=True)[:5],
     }
+
+def channel_sync_context(request):
+    if not request.user.is_authenticated:
+        return {}
+
+    try:
+        business = BusinessProfile.objects.get(user=request.user)
+    except BusinessProfile.DoesNotExist:
+        return {}
+
+    from channels_integration.models import Channel  # local import avoids circular import
+
+    channels = Channel.objects.filter(business=business, is_active=True)
+
+    if not channels.exists():
+        return {'sync_banner': {'type': 'no_channels'}}
+
+    now = timezone.now()
+    expired_channels = channels.filter(
+        connection_status='connected',
+        sync_expires_at__lt=now,
+    ).exclude(remind_later_until__gt=now)
+
+    if expired_channels.exists():
+        return {
+            'sync_banner': {
+                'type': 'expired',
+                'channels': list(expired_channels),
+            }
+        }
+
+    return {}

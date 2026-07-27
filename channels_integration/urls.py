@@ -29,6 +29,7 @@ urlpatterns = [
     path('webhooks/whatsapp/', views.whatsapp_webhook, name='whatsapp_webhook'),
     path('dashboard/channels/webhook-logs/', views.webhook_logs_view, name='webhook_logs'),
     path('dashboard/channels/webhook-logs/latest/', views.api_latest_webhook_logs, name='api_latest_webhook_logs'),
+    path('dashboard/channels/<int:pk>/remind-later/', views.channel_remind_later, name='channel_remind_later'),
     # API
     path('api/', include(router.urls)),
 ]

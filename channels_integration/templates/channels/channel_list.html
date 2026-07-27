@@ -150,7 +150,7 @@
     <div class="row g-3" id="channelsGrid">
       {% for channel in channels %}
       <!-- Card Item -->
-      <div class="col-12 col-md-6 channel-card-item" data-platform="{{ channel.platform_type }}">
+      <div class="col-12 col-md-6 channel-card-item" data-platform="{{ channel.platform_type }}" data-channel-id="{{ channel.id }}">
         <div class="marketplace-card" style="border-top-color: {% if channel.platform_type == 'facebook' %}#1877F2{% elif channel.platform_type == 'instagram' %}#E1306C{% elif channel.platform_type == 'twitter' %}#1DA1F2{% elif channel.platform_type == 'linkedin' %}#0A66C2{% elif channel.platform_type == 'pinterest' %}#E60023{% elif channel.platform_type == 'youtube' %}#FF0000{% elif channel.platform_type == 'flipkart' %}#2874F0{% elif channel.platform_type == 'whatsapp' %}#25D366{% else %}#64748b{% endif %} !important;">
           <div class="card-body-wrapper">
             <!-- Card Header -->
@@ -455,6 +455,24 @@ window.filterChannels = function(platform, clickedBtn) {
     if (clickedBtn) {
         clickedBtn.classList.add('active');
     }
+
+document.addEventListener('DOMContentLoaded', function() {
+    const params = new URLSearchParams(window.location.search);
+    const openSyncId = params.get('open_sync');
+    if (!openSyncId) return;
+
+    const targetCard = document.querySelector(`.channel-card-item[data-channel-id="${openSyncId}"]`);
+    if (!targetCard) return;
+
+    targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    targetCard.classList.add('sync-highlight');
+
+    const dropdownToggle = targetCard.querySelector('.btn-action-dropdown');
+    if (dropdownToggle) {
+        const dropdown = new bootstrap.Dropdown(dropdownToggle);
+        dropdown.show();
+    }
+});
 
     // filter cards
     document.querySelectorAll('.channel-card-item').forEach(card => {
