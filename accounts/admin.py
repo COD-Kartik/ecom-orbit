@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import User, BusinessProfile, SellerProfile
+from .models import User, BusinessProfile
 
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
@@ -14,8 +14,3 @@ class CustomUserAdmin(UserAdmin):
 class BusinessProfileAdmin(admin.ModelAdmin):
     list_display = ('business_name', 'user', 'slug', 'created_at')
     prepopulated_fields = {'slug': ('business_name',)}
-
-@admin.register(SellerProfile)
-class SellerProfileAdmin(admin.ModelAdmin):
-    list_display = ('user', 'business', 'is_active', 'created_at')
-    list_filter = ('is_active',)
