@@ -5,9 +5,8 @@ class User(AbstractUser):
     ROLE_CHOICES = (
         ('admin', 'Admin'),
         ('business_owner', 'Business Owner'),
-        ('seller', 'Seller'),
     )
-    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='seller')
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='business_owner')
     email = models.EmailField(unique=True)
     phone = models.CharField(max_length=15, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -17,6 +16,8 @@ class User(AbstractUser):
 
     def __str__(self):
         return f"{self.username} ({self.role})"
+
+    
 class BusinessProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='business_profile')
     business_name = models.CharField(max_length=255)
