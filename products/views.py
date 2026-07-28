@@ -283,7 +283,7 @@ def product_add(request):
         title       = request.POST.get('title')
         description = request.POST.get('description', '')
         price       = request.POST.get('price')
-        stock       = request.POST.get('stock')
+        stock       = int(request.POST.get('stock') or 0)
         category_id = request.POST.get('category')
         is_active   = request.POST.get('is_active') == 'true'
         image       = request.FILES.get('image')
@@ -317,14 +317,29 @@ def product_edit(request, pk):
     if request.method == 'POST':
         product.title       = request.POST.get('title')
         product.description = request.POST.get('description', '')
-        product.price       = request.POST.get('price')
-        product.stock       = request.POST.get('stock')
+        product.price = request.POST.get('price') or 0
+        product.stock       = int(request.POST.get('stock') or 0)
         product.is_active   = request.POST.get('is_active') == 'true'
         category_id = request.POST.get('category')
         product.category = Category.objects.get(id=category_id) if category_id else None
         if request.FILES.get('image'):
             product.image = request.FILES.get('image')
         product.save()
+        # Push updated price/stock/details to any channel this product is already published on
+        from channels_integration.models import ProductListing, SyncLog
+        from channels_integration.whatsapp_client import sync_product_to_whatsapp
+
+        published_listings = ProductListing.objects.filter(product=product, status='published').select_related('channel')
+        for listing in published_listings:
+            if listing.channel.platform_type == 'whatsapp':
+                result = sync_product_to_whatsapp(product, method='UPDATE')
+                if result['success']:
+                    SyncLog.objects.create(channel=listing.channel, action='product_sync', success_count=1, failed_count=0, status='success')
+                else:
+                    SyncLog.objects.create(channel=listing.channel, action='product_sync', success_count=0, failed_count=1, status='failed', error_detail=result.get('error'))
+                    messages.warning(request, f'Product saved, but failed to sync stock/price update to {listing.channel.name}.')
+
+        messages.success(request, f'"{product.title}" updated successfully.')
         return redirect('product_list')
     return render(request, 'products/product_form.html', {
         'product'   : product,
@@ -336,6 +351,19 @@ def product_edit(request, pk):
 def product_delete(request, pk):
     business = get_user_business(request.user)
     product  = get_object_or_404(Product, pk=pk, business=business)
+
+    from channels_integration.models import ProductListing, SyncLog
+    from channels_integration.whatsapp_client import sync_product_to_whatsapp
+
+    published_listings = ProductListing.objects.filter(product=product, status='published').select_related('channel')
+    for listing in published_listings:
+        if listing.channel.platform_type == 'whatsapp' and listing.external_id:
+            result = sync_product_to_whatsapp(product, method='DELETE')
+            if result['success']:
+                SyncLog.objects.create(channel=listing.channel, action='product_sync', success_count=1, failed_count=0, status='success')
+            else:
+                SyncLog.objects.create(channel=listing.channel, action='product_sync', success_count=0, failed_count=1, status='failed')
+
     product.delete()
     return redirect('product_list')
 

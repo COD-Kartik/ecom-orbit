@@ -602,6 +602,22 @@ window.sortListingsTable = function(criteria) {
 
     rows.forEach(row => tbody.appendChild(row));
 };
+
+document.querySelectorAll('#listingsDataTable .dropdown-toggle').forEach(function(toggle) {
+    new bootstrap.Dropdown(toggle, {
+        popperConfig: function (defaultBsPopperConfig) {
+            return Object.assign({}, defaultBsPopperConfig, {
+                strategy: 'fixed',
+                modifiers: [
+                    ...defaultBsPopperConfig.modifiers,
+                    { name: 'preventOverflow', options: { boundary: document.body } },
+                    { name: 'flip', options: { boundary: document.body } },
+                ],
+            });
+        }
+    });
+});
+
 </script>
 
 {% if expired_sync_channels %}

@@ -59,7 +59,8 @@ class SyncLog(models.Model):
     action = models.CharField(max_length=20, choices=ACTION_CHOICES)
     success_count = models.PositiveIntegerField(default=0)
     failed_count = models.PositiveIntegerField(default=0)
-    status = models.CharField(max_length=20, default='success')  # success, partial, failed
+    status = models.CharField(max_length=20, default='success')
+    error_detail = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -68,7 +69,7 @@ class SyncLog(models.Model):
     def __str__(self):
         return f"{self.channel.name} - {self.action} - {self.created_at}"
 
-
+    
 class WebhookLog(models.Model):
     channel = models.ForeignKey(Channel, on_delete=models.CASCADE, related_name='webhook_logs', blank=True, null=True)
     event_type = models.CharField(max_length=50, blank=True)
@@ -82,13 +83,3 @@ class WebhookLog(models.Model):
         return f"{self.event_type or 'Webhook'} - {self.received_at}"
 
 
-sync_status = models.CharField(choices=[
-    ('not_connected', 'Not Connected'),
-    ('active', 'Active'),
-    ('expired', 'Expired'),
-    ('syncing', 'Syncing'),
-    ('error', 'Error'),
-], default='not_connected')
-last_synced_at = models.DateTimeField(null=True, blank=True)
-sync_expires_at = models.DateTimeField(null=True, blank=True)
-remind_later_until = models.DateTimeField(null=True, blank=True)  # for the "snooze" button

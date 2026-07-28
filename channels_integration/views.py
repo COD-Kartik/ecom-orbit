@@ -19,6 +19,7 @@ import json
 from django.conf import settings
 from .models import Channel, ProductListing, SyncLog, WebhookLog
 from datetime import timedelta
+from .whatsapp_client import sync_product_to_whatsapp
 
 def get_user_business(user):
     try:
@@ -178,23 +179,43 @@ def publish_product(request, product_id):
     )
     healthy_channels = channels.exclude(id__in=expired_channels.values_list('id', flat=True))
 
+    published_count = 0
     for channel in healthy_channels:
         listing, created = ProductListing.objects.get_or_create(
             product=product,
             channel=channel,
             defaults={'status': 'published'}
         )
-        if not created and listing.status != 'published':
-            listing.status = 'published'
-            listing.save()
 
-    if healthy_channels.exists():
-        messages.success(request, f'"{product.title}" published to {healthy_channels.count()} channel(s).')
+        if channel.platform_type == 'whatsapp':
+            method = 'UPDATE' if listing.external_id else 'CREATE'
+            result = sync_product_to_whatsapp(product, method=method)
+            if result['success']:
+                listing.external_id = result['retailer_id']
+                listing.status = 'published'
+                listing.published_at = timezone.now()
+                listing.save()
+                SyncLog.objects.create(channel=channel, action='product_sync', success_count=1, failed_count=0, status='success')
+                published_count += 1
+            else:
+                listing.status = 'failed'
+                listing.save()
+                SyncLog.objects.create(channel=channel, action='product_sync', success_count=0, failed_count=1, status='failed', error_detail=result.get('error'))
+                messages.error(request, f'Failed to sync "{product.title}" to {channel.name}: {result.get("error", "Unknown error")}')
+        else:
+            if not created and listing.status != 'published':
+                listing.status = 'published'
+                listing.save()
+            published_count += 1
+
+    if published_count:
+        messages.success(request, f'"{product.title}" published to {published_count} channel(s).')
 
     if expired_channels.exists():
         request.session['expired_sync_channels'] = list(expired_channels.values_list('id', 'name'))
 
     return redirect('listing_list')
+
 
 @login_required
 def listing_list(request):
@@ -527,6 +548,28 @@ def whatsapp_webhook(request):
                                 'unit_price': item_price,
                             })
 
+                        # Decrement stock for each product and push the updated
+                        # availability back to WhatsApp's catalog automatically.
+                        for line_item in line_items_to_create:
+                            product = line_item['product']
+                            if product:
+                                product.stock = max(0, product.stock - line_item['quantity'])
+                                product.save()
+
+                                listing = ProductListing.objects.filter(
+                                    product=product, channel=channel, status='published'
+                                ).first()
+                                if listing:
+                                    sync_result = sync_product_to_whatsapp(product, method='UPDATE')
+                                    SyncLog.objects.create(
+                                        channel=channel,
+                                        action='product_sync',
+                                        success_count=1 if sync_result['success'] else 0,
+                                        failed_count=0 if sync_result['success'] else 1,
+                                        status='success' if sync_result['success'] else 'failed',
+                                        error_detail=None if sync_result['success'] else sync_result.get('error'),
+                                    )
+
                         order = Order.objects.create(
                             business=business,
                             channel=channel,
@@ -562,6 +605,7 @@ def whatsapp_webhook(request):
         return JsonResponse({'status': 'received'}, status=200)
 
     return HttpResponse(status=405)
+
 
 @login_required
 def webhook_logs_view(request):
