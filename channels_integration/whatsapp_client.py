@@ -76,8 +76,12 @@ def sync_product_to_whatsapp(product, method='CREATE'):
     so customers can select and order variants independently. If no variants
     exist, the product itself is synced as a single item.
 
-    Uses product.image.url directly — Cloudinary storage already returns a
-    full public HTTPS URL, so no base_url needs to be prepended.
+    Any extra photos in product.extra_images are sent as additional_image_urls
+    so customers can browse a full gallery — this is unrelated to variant
+    selection, which is driven by item_group_id/title, not images.
+
+    Uses product.image.url / gallery image URLs directly — Cloudinary storage
+    already returns full public HTTPS URLs, so no base_url needs prepending.
     """
     url = f"{settings.WHATSAPP_API_BASE_URL}/{settings.WHATSAPP_CATALOG_ID}/items_batch"
     headers = {'Authorization': f'Bearer {settings.WHATSAPP_ACCESS_TOKEN}'}
@@ -85,6 +89,8 @@ def sync_product_to_whatsapp(product, method='CREATE'):
 
     if not product.image and method != 'DELETE':
         return {'success': False, 'status_code': None, 'error': 'Product has no image — WhatsApp catalog requires an image.'}
+
+    gallery_urls = [img.image.url for img in product.extra_images.all()] if method != 'DELETE' else []
 
     payload_requests = []
     variants = list(product.variants.all())
@@ -97,36 +103,36 @@ def sync_product_to_whatsapp(product, method='CREATE'):
     elif variants:
         for v in variants:
             variant_retailer_id = f"{base_retailer_id}-V{v.id}"
-            payload_requests.append({
-                'method': method,
-                'data': {
-                    'id': variant_retailer_id,
-                    'item_group_id': base_retailer_id,
-                    'title': f"{product.title} - {v.name}",
-                    'description': product.description or product.title,
-                    'availability': 'in stock' if v.stock > 0 else 'out of stock',
-                    'condition': 'new',
-                    'price': f"{float(v.price):.2f} INR",
-                    'image_link': product.image.url,
-                    'link': product.image.url,
-                    'brand': product.business.business_name if hasattr(product.business, 'business_name') else 'E-Com Orbit',
-                }
-            })
-    else:
-        payload_requests.append({
-            'method': method,
-            'data': {
-                'id': base_retailer_id,
-                'title': product.title,
+            item_data = {
+                'id': variant_retailer_id,
+                'item_group_id': base_retailer_id,
+                'title': f"{product.title} - {v.name}",
                 'description': product.description or product.title,
-                'availability': 'in stock' if product.stock > 0 else 'out of stock',
+                'availability': 'in stock' if v.stock > 0 else 'out of stock',
                 'condition': 'new',
-                'price': f"{float(product.price):.2f} INR",
+                'price': f"{float(v.price):.2f} INR",
                 'image_link': product.image.url,
                 'link': product.image.url,
                 'brand': product.business.business_name if hasattr(product.business, 'business_name') else 'E-Com Orbit',
             }
-        })
+            if gallery_urls:
+                item_data['additional_image_urls'] = gallery_urls
+            payload_requests.append({'method': method, 'data': item_data})
+    else:
+        item_data = {
+            'id': base_retailer_id,
+            'title': product.title,
+            'description': product.description or product.title,
+            'availability': 'in stock' if product.stock > 0 else 'out of stock',
+            'condition': 'new',
+            'price': f"{float(product.price):.2f} INR",
+            'image_link': product.image.url,
+            'link': product.image.url,
+            'brand': product.business.business_name if hasattr(product.business, 'business_name') else 'E-Com Orbit',
+        }
+        if gallery_urls:
+            item_data['additional_image_urls'] = gallery_urls
+        payload_requests.append({'method': method, 'data': item_data})
 
     import json
     response = requests.post(
@@ -144,6 +150,7 @@ def sync_product_to_whatsapp(product, method='CREATE'):
     else:
         return {'success': False, 'status_code': response.status_code, 'error': response.text}
 
+    
 
     
 def send_order_status_notification(order, status):

@@ -5,7 +5,7 @@ from .models import Product, Category, ProductVariant
 from accounts.models import BusinessProfile
 from django.db.models import Sum, F
 from django.contrib import messages
-
+from .models import Product, Category, ProductVariant, ProductImage
 
 def get_user_business(user):
     """Helper — gets business profile for logged in user or None"""
@@ -294,6 +294,8 @@ def product_add(request):
             category=category, is_active=is_active,
             image=image, business=business,
         )
+        for f in request.FILES.getlist('gallery_images'):
+            ProductImage.objects.create(product=product, image=f)
         names  = request.POST.getlist('variant_name[]')
         prices = request.POST.getlist('variant_price[]')
         stocks = request.POST.getlist('variant_stock[]')
@@ -324,6 +326,8 @@ def product_edit(request, pk):
         product.category = Category.objects.get(id=category_id) if category_id else None
         if request.FILES.get('image'):
             product.image = request.FILES.get('image')
+        for f in request.FILES.getlist('gallery_images'):
+            ProductImage.objects.create(product=product, image=f, order=product.extra_images.count())
         product.save()
 
         # Sync variants: update existing, create new, delete removed
@@ -450,3 +454,9 @@ def category_delete(request, pk):
     get_object_or_404(Category, pk=pk, business=business).delete()
     return redirect('category_list')
 
+@login_required
+def product_image_delete(request, pk):
+    business = get_user_business(request.user)
+    img = get_object_or_404(ProductImage, pk=pk, product__business=business)
+    img.delete()
+    return redirect(request.META.get('HTTP_REFERER', 'product_list'))

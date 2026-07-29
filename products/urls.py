@@ -47,7 +47,7 @@ urlpatterns = [
     path('dashboard/categories/', views.category_list, name='category_list'),
     path('dashboard/categories/<int:pk>/edit/', views.category_edit, name='category_edit'),
     path('dashboard/categories/<int:pk>/delete/', views.category_delete, name='category_delete'),
-
+    path('products/<int:pk>/image/delete/', views.product_image_delete, name='product_image_delete'),
     # API
     path('api/', include(router.urls)),
 ]
