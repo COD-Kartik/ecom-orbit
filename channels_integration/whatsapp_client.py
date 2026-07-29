@@ -68,35 +68,65 @@ def check_whatsapp_connection():
 
 def sync_product_to_whatsapp(product, method='CREATE'):
     """
-    Creates, updates, or deletes a product in the Meta Commerce Catalog
-    via items_batch. method: 'CREATE', 'UPDATE', or 'DELETE'.
+    Creates, updates, or deletes a product (and its variants, if any) in the
+    Meta Commerce Catalog via items_batch. method: 'CREATE', 'UPDATE', or 'DELETE'.
 
-    Uses product.image.url directly — Cloudinary storage already returns
-    a full public HTTPS URL, so no base_url needs to be prepended.
+    If the product has variants, each variant becomes its own catalog item
+    (retailer_id like ECOMORBIT-8-V3), grouped under item_group_id ECOMORBIT-8
+    so customers can select and order variants independently. If no variants
+    exist, the product itself is synced as a single item.
+
+    Uses product.image.url directly — Cloudinary storage already returns a
+    full public HTTPS URL, so no base_url needs to be prepended.
     """
     url = f"{settings.WHATSAPP_API_BASE_URL}/{settings.WHATSAPP_CATALOG_ID}/items_batch"
     headers = {'Authorization': f'Bearer {settings.WHATSAPP_ACCESS_TOKEN}'}
-    retailer_id = f"ECOMORBIT-{product.id}"
+    base_retailer_id = f"ECOMORBIT-{product.id}"
+
+    if not product.image and method != 'DELETE':
+        return {'success': False, 'status_code': None, 'error': 'Product has no image — WhatsApp catalog requires an image.'}
+
+    payload_requests = []
+    variants = list(product.variants.all())
 
     if method == 'DELETE':
-        item_data = {'id': retailer_id}
+        payload_requests.append({'method': 'DELETE', 'data': {'id': base_retailer_id}})
+        for v in variants:
+            variant_retailer_id = v.external_id or f"{base_retailer_id}-V{v.id}"
+            payload_requests.append({'method': 'DELETE', 'data': {'id': variant_retailer_id}})
+    elif variants:
+        for v in variants:
+            variant_retailer_id = f"{base_retailer_id}-V{v.id}"
+            payload_requests.append({
+                'method': method,
+                'data': {
+                    'id': variant_retailer_id,
+                    'item_group_id': base_retailer_id,
+                    'title': f"{product.title} - {v.name}",
+                    'description': product.description or product.title,
+                    'availability': 'in stock' if v.stock > 0 else 'out of stock',
+                    'condition': 'new',
+                    'price': f"{float(v.price):.2f} INR",
+                    'image_link': product.image.url,
+                    'link': product.image.url,
+                    'brand': product.business.business_name if hasattr(product.business, 'business_name') else 'E-Com Orbit',
+                }
+            })
     else:
-        if not product.image:
-            return {'success': False, 'status_code': None, 'error': 'Product has no image — WhatsApp catalog requires an image.'}
-
-        item_data = {
-            'id': retailer_id,
-            'title': product.title,
-            'description': product.description or product.title,
-            'availability': 'in stock' if product.stock > 0 else 'out of stock',
-            'condition': 'new',
-            'price': f"{float(product.price):.2f} INR",
-            'image_link': product.image.url,
-            'link': product.image.url,
-            'brand': product.business.business_name if hasattr(product.business, 'business_name') else 'E-Com Orbit',
-        }
-
-    payload_requests = [{'method': method, 'data': item_data}]
+        payload_requests.append({
+            'method': method,
+            'data': {
+                'id': base_retailer_id,
+                'title': product.title,
+                'description': product.description or product.title,
+                'availability': 'in stock' if product.stock > 0 else 'out of stock',
+                'condition': 'new',
+                'price': f"{float(product.price):.2f} INR",
+                'image_link': product.image.url,
+                'link': product.image.url,
+                'brand': product.business.business_name if hasattr(product.business, 'business_name') else 'E-Com Orbit',
+            }
+        })
 
     import json
     response = requests.post(
@@ -106,11 +136,16 @@ def sync_product_to_whatsapp(product, method='CREATE'):
     )
 
     if response.status_code == 200:
-        return {'success': True, 'retailer_id': retailer_id, 'response': response.json()}
+        if variants and method != 'DELETE':
+            for v, req in zip(variants, payload_requests):
+                v.external_id = req['data']['id']
+                v.save(update_fields=['external_id'])
+        return {'success': True, 'retailer_id': base_retailer_id, 'response': response.json()}
     else:
         return {'success': False, 'status_code': response.status_code, 'error': response.text}
 
 
+    
 def send_order_status_notification(order, status):
     """
     Sends an order status update to the customer via WhatsApp using a

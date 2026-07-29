@@ -20,6 +20,7 @@ from django.conf import settings
 from .models import Channel, ProductListing, SyncLog, WebhookLog
 from datetime import timedelta
 from .whatsapp_client import sync_product_to_whatsapp
+from products.models import Product, ProductVariant
 
 def get_user_business(user):
     try:
@@ -475,9 +476,6 @@ def whatsapp_webhook(request):
         print(json.dumps(payload, indent=2))
         print("==================================")
 
-        # Real persisted log — every webhook call gets saved, regardless
-        # of whether it turns into an order, so nothing is lost once the
-        # terminal scrolls past it.
         whatsapp_channel = Channel.objects.filter(platform_type='whatsapp').first()
         event_type = 'unknown'
         try:
@@ -534,27 +532,47 @@ def whatsapp_webhook(request):
                             item_price = float(item.get('item_price', 0))
 
                             product = None
+                            variant = None
                             if retailer_id.startswith('ECOMORBIT-'):
-                                try:
-                                    product_id = int(retailer_id.replace('ECOMORBIT-', ''))
-                                    product = Product.objects.filter(id=product_id, business=business).first()
-                                except ValueError:
-                                    product = None
+                                stripped = retailer_id.replace('ECOMORBIT-', '')
+                                if '-V' in stripped:
+                                    product_id_str, variant_id_str = stripped.split('-V', 1)
+                                    try:
+                                        product_id = int(product_id_str)
+                                        variant_id = int(variant_id_str)
+                                        product = Product.objects.filter(id=product_id, business=business).first()
+                                        if product:
+                                            variant = ProductVariant.objects.filter(id=variant_id, product=product).first()
+                                    except ValueError:
+                                        product = None
+                                        variant = None
+                                else:
+                                    try:
+                                        product_id = int(stripped)
+                                        product = Product.objects.filter(id=product_id, business=business).first()
+                                    except ValueError:
+                                        product = None
 
                             total_amount += item_price * quantity
                             line_items_to_create.append({
                                 'product': product,
+                                'variant': variant,
                                 'quantity': quantity,
                                 'unit_price': item_price,
                             })
 
-                        # Decrement stock for each product and push the updated
-                        # availability back to WhatsApp's catalog automatically.
+                        # Decrement stock for each product/variant and push the
+                        # updated availability back to WhatsApp's catalog automatically.
                         for line_item in line_items_to_create:
                             product = line_item['product']
+                            variant = line_item['variant']
                             if product:
-                                product.stock = max(0, product.stock - line_item['quantity'])
-                                product.save()
+                                if variant:
+                                    variant.stock = max(0, variant.stock - line_item['quantity'])
+                                    variant.save()
+                                else:
+                                    product.stock = max(0, product.stock - line_item['quantity'])
+                                    product.save()
 
                                 listing = ProductListing.objects.filter(
                                     product=product, channel=channel, status='published'
@@ -585,6 +603,7 @@ def whatsapp_webhook(request):
                             OrderItem.objects.create(
                                 order=order,
                                 product=line_item['product'],
+                                variant=line_item['variant'],
                                 quantity=line_item['quantity'],
                                 unit_price=line_item['unit_price'],
                             )
@@ -605,7 +624,6 @@ def whatsapp_webhook(request):
         return JsonResponse({'status': 'received'}, status=200)
 
     return HttpResponse(status=405)
-
 
 @login_required
 def webhook_logs_view(request):

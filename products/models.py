@@ -38,3 +38,15 @@ class ProductVariant(models.Model):
 
     def __str__(self):
         return f"{self.product.title} - {self.name}"
+
+
+class ProductVariant(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='variants')
+    name = models.CharField(max_length=100)  # e.g. "Size L", "Red"
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    stock = models.PositiveIntegerField(default=0)
+    external_id = models.CharField(max_length=255, blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.product.title} - {self.name}"
+

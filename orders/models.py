@@ -37,15 +37,18 @@ class Order(models.Model):
 class OrderItem(models.Model):
     order      = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
     product    = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True, related_name='order_items')
+    variant    = models.ForeignKey('products.ProductVariant', on_delete=models.SET_NULL, null=True, blank=True, related_name='order_items')
     quantity   = models.PositiveIntegerField(default=1)
     unit_price = models.DecimalField(max_digits=10, decimal_places=2)
 
     def __str__(self):
-        return f"{self.quantity} x {self.product.title if self.product else 'Deleted Product'}"
+        variant_label = f" ({self.variant.name})" if self.variant else ""
+        return f"{self.quantity} x {self.product.title if self.product else 'Deleted Product'}{variant_label}"
 
     @property
     def subtotal(self):
         return self.quantity * self.unit_price
+
     
 class Discount(models.Model):
     TYPE_CHOICES = (
