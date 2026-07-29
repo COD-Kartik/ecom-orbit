@@ -147,6 +147,24 @@ def order_status_update(request, pk):
             if new_status == 'cancelled':
                 order.cancellation_reason = request.POST.get('cancellation_reason', '').strip()
             order.save()
+
+            if new_status in ('shipped', 'delivered', 'cancelled') and order.channel and order.channel.platform_type == 'whatsapp':
+                from channels_integration.whatsapp_client import send_order_status_notification
+                from channels_integration.models import SyncLog
+
+                result = send_order_status_notification(order, new_status)
+                SyncLog.objects.create(
+                    channel=order.channel,
+                    action='order_notification',
+                    success_count=1 if result['success'] else 0,
+                    failed_count=0 if result['success'] else 1,
+                    status='success' if result['success'] else 'failed',
+                    error_detail=None if result['success'] else result.get('error'),
+                )
+                if result['success']:
+                    messages.success(request, f'Order #{order.id} updated to {new_status}, and the customer was notified via WhatsApp.')
+                else:
+                    messages.warning(request, f'Order #{order.id} updated to {new_status}, but the WhatsApp notification failed — check Sync Logs for details.')
     return redirect(request.META.get('HTTP_REFERER', 'order_list'))
 
 

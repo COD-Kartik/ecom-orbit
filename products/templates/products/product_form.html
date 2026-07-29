@@ -153,29 +153,55 @@
         <p class="text-muted mb-4" style="font-size:0.82rem;">
           Add variants like size, color or material with individual price and stock.
         </p>
-        
+
         <div id="variantsContainer">
-          <div class="variant-row row g-2 mb-2 align-items-center">
-            <div class="col-sm-5">
-              <input type="text" name="variant_name[]" class="form-control form-control-sm"
-                     placeholder="Variant Name (e.g. Size L)">
+          {% if product and product.variants.all %}
+            {% for variant in product.variants.all %}
+            <div class="variant-row row g-2 mb-2 align-items-center">
+              <input type="hidden" name="variant_id[]" value="{{ variant.id }}">
+              <div class="col-sm-5">
+                <input type="text" name="variant_name[]" class="form-control form-control-sm"
+                      placeholder="Variant Name (e.g. Size L)" value="{{ variant.name }}">
+              </div>
+              <div class="col-sm-3">
+                <input type="number" name="variant_price[]" class="form-control form-control-sm"
+                      placeholder="Price (₹)" step="0.01" min="0" value="{{ variant.price }}">
+              </div>
+              <div class="col-sm-3">
+                <input type="number" name="variant_stock[]" class="form-control form-control-sm"
+                      placeholder="Stock" min="0" value="{{ variant.stock }}">
+              </div>
+              <div class="col-sm-1 text-center">
+                <button type="button" class="btn btn-light border text-danger btn-sm remove-variant p-2 d-inline-flex align-items-center justify-content-center" style="border-radius: 8px; width: 34px; height: 34px;">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
             </div>
-            <div class="col-sm-3">
-              <input type="number" name="variant_price[]" class="form-control form-control-sm"
-                     placeholder="Price (₹)" step="0.01" min="0">
+            {% endfor %}
+          {% else %}
+            <div class="variant-row row g-2 mb-2 align-items-center">
+              <input type="hidden" name="variant_id[]" value="">
+              <div class="col-sm-5">
+                <input type="text" name="variant_name[]" class="form-control form-control-sm"
+                      placeholder="Variant Name (e.g. Size L)">
+              </div>
+              <div class="col-sm-3">
+                <input type="number" name="variant_price[]" class="form-control form-control-sm"
+                      placeholder="Price (₹)" step="0.01" min="0">
+              </div>
+              <div class="col-sm-3">
+                <input type="number" name="variant_stock[]" class="form-control form-control-sm"
+                      placeholder="Stock" min="0">
+              </div>
+              <div class="col-sm-1 text-center">
+                <button type="button" class="btn btn-light border text-danger btn-sm remove-variant p-2 d-inline-flex align-items-center justify-content-center" style="border-radius: 8px; width: 34px; height: 34px;">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
             </div>
-            <div class="col-sm-3">
-              <input type="number" name="variant_stock[]" class="form-control form-control-sm"
-                     placeholder="Stock" min="0">
-            </div>
-            <div class="col-sm-1 text-center">
-              <button type="button" class="btn btn-light border text-danger btn-sm remove-variant p-2 d-inline-flex align-items-center justify-content-center" style="border-radius: 8px; width: 34px; height: 34px;">
-                <i class="bi bi-trash"></i>
-              </button>
-            </div>
-          </div>
+          {% endif %}
         </div>
-        
+
         <button type="button" id="addVariant" class="btn btn-outline-primary btn-sm mt-3" style="border-color:#4f46e5; color:#4f46e5; font-weight:600; border-radius:8px; padding: 8px 16px;">
           <i class="bi bi-plus-lg me-1"></i> Add Another Variant
         </button>
@@ -273,27 +299,28 @@
   });
 
   // Add variant row logic
-  document.getElementById('addVariant').addEventListener('click', function() {
-    const container = document.getElementById('variantsContainer');
-    const row = document.createElement('div');
-    row.className = 'variant-row row g-2 mb-2 align-items-center';
-    row.innerHTML = `
-      <div class="col-sm-5">
-        <input type="text" name="variant_name[]" class="form-control form-control-sm" placeholder="Variant Name (e.g. Size L)">
-      </div>
-      <div class="col-sm-3">
-        <input type="number" name="variant_price[]" class="form-control form-control-sm" placeholder="Price (₹)" step="0.01" min="0">
-      </div>
-      <div class="col-sm-3">
-        <input type="number" name="variant_stock[]" class="form-control form-control-sm" placeholder="Stock" min="0">
-      </div>
-      <div class="col-sm-1 text-center">
-        <button type="button" class="btn btn-light border text-danger btn-sm remove-variant p-2 d-inline-flex align-items-center justify-content-center" style="border-radius: 8px; width: 34px; height: 34px;">
-          <i class="bi bi-trash"></i>
-        </button>
-      </div>`;
-    container.appendChild(row);
-  });
+document.getElementById('addVariant').addEventListener('click', function() {
+  const container = document.getElementById('variantsContainer');
+  const row = document.createElement('div');
+  row.className = 'variant-row row g-2 mb-2 align-items-center';
+  row.innerHTML = `
+    <input type="hidden" name="variant_id[]" value="">
+    <div class="col-sm-5">
+      <input type="text" name="variant_name[]" class="form-control form-control-sm" placeholder="Variant Name (e.g. Size L)">
+    </div>
+    <div class="col-sm-3">
+      <input type="number" name="variant_price[]" class="form-control form-control-sm" placeholder="Price (₹)" step="0.01" min="0">
+    </div>
+    <div class="col-sm-3">
+      <input type="number" name="variant_stock[]" class="form-control form-control-sm" placeholder="Stock" min="0">
+    </div>
+    <div class="col-sm-1 text-center">
+      <button type="button" class="btn btn-light border text-danger btn-sm remove-variant p-2 d-inline-flex align-items-center justify-content-center" style="border-radius: 8px; width: 34px; height: 34px;">
+        <i class="bi bi-trash"></i>
+      </button>
+    </div>`;
+  container.appendChild(row);
+});
 
   // Remove variant row logic
   document.addEventListener('click', function(e) {

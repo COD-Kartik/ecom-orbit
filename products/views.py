@@ -325,6 +325,30 @@ def product_edit(request, pk):
         if request.FILES.get('image'):
             product.image = request.FILES.get('image')
         product.save()
+
+        # Sync variants: update existing, create new, delete removed
+        variant_ids = request.POST.getlist('variant_id[]')
+        names = request.POST.getlist('variant_name[]')
+        prices = request.POST.getlist('variant_price[]')
+        stocks = request.POST.getlist('variant_stock[]')
+
+        submitted_ids = set()
+        for vid, n, p, s in zip(variant_ids, names, prices, stocks):
+            if not n:
+                continue
+            if vid:
+                ProductVariant.objects.filter(id=vid, product=product).update(
+                    name=n, price=p or 0, stock=s or 0
+                )
+                submitted_ids.add(int(vid))
+            else:
+                new_variant = ProductVariant.objects.create(
+                    product=product, name=n, price=p or 0, stock=s or 0
+                )
+                submitted_ids.add(new_variant.id)
+
+        ProductVariant.objects.filter(product=product).exclude(id__in=submitted_ids).delete()
+
         # Push updated price/stock/details to any channel this product is already published on
         from channels_integration.models import ProductListing, SyncLog
         from channels_integration.whatsapp_client import sync_product_to_whatsapp
@@ -346,6 +370,7 @@ def product_edit(request, pk):
         'categories': categories,
         'business'  : business,
     })
+
 
 @login_required
 def product_delete(request, pk):

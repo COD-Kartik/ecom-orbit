@@ -109,3 +109,57 @@ def sync_product_to_whatsapp(product, method='CREATE'):
         return {'success': True, 'retailer_id': retailer_id, 'response': response.json()}
     else:
         return {'success': False, 'status_code': response.status_code, 'error': response.text}
+
+
+def send_order_status_notification(order, status):
+    """
+    Sends an order status update to the customer via WhatsApp using a
+    pre-approved message template. Templates (order_shipped, order_delivered,
+    order_cancelled) must exist and be approved in Meta Business Suite's
+    Message Templates section before this works — until then, this fails
+    gracefully with a clear error rather than raising.
+    """
+    if not order.customer_phone:
+        return {'success': False, 'error': 'No customer phone number on order.'}
+
+    template_map = {
+        'shipped': 'order_shipped',
+        'delivered': 'order_delivered',
+        'cancelled': 'order_cancelled',
+    }
+    template_name = template_map.get(status)
+    if not template_name:
+        return {'success': False, 'error': f'No template configured for status "{status}".'}
+
+    url = f"{settings.WHATSAPP_API_BASE_URL}/{settings.WHATSAPP_PHONE_NUMBER_ID}/messages"
+    headers = {
+        'Authorization': f'Bearer {settings.WHATSAPP_ACCESS_TOKEN}',
+        'Content-Type': 'application/json',
+    }
+    payload = {
+        'messaging_product': 'whatsapp',
+        'to': order.customer_phone,
+        'type': 'template',
+        'template': {
+            'name': template_name,
+            'language': {'code': 'en_US'},
+            'components': [
+                {
+                    'type': 'body',
+                    'parameters': [
+                        {'type': 'text', 'text': str(order.id)},
+                    ]
+                }
+            ]
+        },
+    }
+
+    response = requests.post(url, json=payload, headers=headers)
+    if response.status_code == 200:
+        data = response.json()
+        message_id = data.get('messages', [{}])[0].get('id')
+        return {'success': True, 'message_id': message_id}
+    else:
+        return {'success': False, 'status_code': response.status_code, 'error': response.text}
+
+    

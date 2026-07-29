@@ -52,8 +52,9 @@ class ProductListing(models.Model):
 
 class SyncLog(models.Model):
     ACTION_CHOICES = (
-        ('product_sync', 'Product Sync'),
-        ('order_import', 'Order Import'),
+    ('product_sync', 'Product Sync'),
+    ('order_import', 'Order Import'),
+    ('order_notification', 'Order Notification'),
     )
     channel = models.ForeignKey(Channel, on_delete=models.CASCADE, related_name='sync_logs')
     action = models.CharField(max_length=20, choices=ACTION_CHOICES)
