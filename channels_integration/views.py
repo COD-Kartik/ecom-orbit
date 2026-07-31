@@ -58,26 +58,28 @@ def channel_list(request):
     channels = Channel.objects.filter(business=business).order_by('-created_at')
 
     if request.method == 'POST':
+        platform_type = request.POST.get('platform_type')
+        api_credentials = {}
+        if platform_type == 'whatsapp':
+            api_credentials = {
+                'phone_number_id': request.POST.get('phone_number_id', '').strip(),
+                'access_token': request.POST.get('access_token', '').strip(),
+                'catalog_id': request.POST.get('catalog_id', '').strip(),
+            }
+
         Channel.objects.create(
             name=request.POST.get('name'),
-            platform_type=request.POST.get('platform_type'),
+            platform_type=platform_type,
             is_active=request.POST.get('is_active') == 'true',
             business=business,
+            api_credentials=api_credentials,
         )
         return redirect('channel_list')
 
-    # Get healthy channels count (connected + active)
     healthy_channels = channels.filter(is_active=True, connection_status='connected').count()
-    
-    # Get pending synchronizations count (listings that are pending)
     pending_syncs = ProductListing.objects.filter(channel__in=channels, status='pending').count()
-    
-    # Get synced products count (listings that are published)
     synced_today = ProductListing.objects.filter(channel__in=channels, status='published').count()
-
-    # Get recent sync logs
     sync_logs = SyncLog.objects.filter(channel__in=channels).order_by('-created_at')[:5]
-
     attention_needed = channels.filter(connection_status='error').count()
 
     return render(request, 'channels/channel_list.html', {
@@ -93,7 +95,6 @@ def channel_list(request):
         'platform_choices'  : Channel.PLATFORM_CHOICES,
         'business'          : business,
     })
-
 @login_required
 def channel_delete(request, pk):
     business = get_user_business(request.user)
@@ -190,7 +191,7 @@ def publish_product(request, product_id):
 
         if channel.platform_type == 'whatsapp':
             method = 'UPDATE' if listing.external_id else 'CREATE'
-            result = sync_product_to_whatsapp(product, method=method)
+            result = sync_product_to_whatsapp(product, channel, method=method)
             if result['success']:
                 listing.external_id = result['retailer_id']
                 listing.status = 'published'
@@ -430,11 +431,11 @@ def test_whatsapp_connection(request, pk):
     business = get_user_business(request.user)
     channel = get_object_or_404(Channel, pk=pk, business=business)
 
-    result = check_whatsapp_connection()
+    result = check_whatsapp_connection(channel)
     channel.last_sync_attempt = timezone.now()
 
     if result['success']:
-        channel.connection_status = 'active'
+        channel.connection_status = 'connected'
         channel.last_sync_error = None
         channel.sync_expires_at = timezone.now() + timedelta(hours=24)
         messages.success(request, f'"{channel.name}" connected successfully to WhatsApp ({result.get("display_phone_number")}).')
@@ -446,6 +447,7 @@ def test_whatsapp_connection(request, pk):
     channel.save()
     return redirect('channel_list')
 
+
 @csrf_exempt
 def whatsapp_webhook(request):
     """
@@ -455,6 +457,12 @@ def whatsapp_webhook(request):
     GET: one-time verification handshake Meta performs when you register
     this URL in the dashboard.
     POST: real incoming events (messages, orders) once verified.
+
+    Since every seller shares this ONE webhook URL, we identify which
+    seller's Channel an event belongs to by matching the incoming
+    metadata.phone_number_id against each channel's own stored
+    api_credentials — not by grabbing "the first WhatsApp channel"
+    (which would silently misattribute every order in a multi-seller setup).
     """
     if request.method == 'GET':
         mode = request.GET.get('hub.mode')
@@ -476,33 +484,39 @@ def whatsapp_webhook(request):
         print(json.dumps(payload, indent=2))
         print("==================================")
 
-        whatsapp_channel = Channel.objects.filter(platform_type='whatsapp').first()
-        event_type = 'unknown'
-        try:
-            entries = payload.get('entry', [])
-            for entry in entries:
-                for change in entry.get('changes', []):
-                    event_type = change.get('field', 'unknown')
-        except Exception:
-            pass
-
-        WebhookLog.objects.create(
-            channel=whatsapp_channel,
-            event_type=event_type,
-            raw_payload=payload,
-        )
-
         try:
             entries = payload.get('entry', [])
             for entry in entries:
                 for change in entry.get('changes', []):
                     value = change.get('value', {})
-                    messages = value.get('messages', [])
-                    contacts = value.get('contacts', [])
+                    event_type = change.get('field', 'unknown')
 
+                    # Identify which seller's channel this event belongs to
+                    # by matching the phone number the message came IN on.
+                    incoming_phone_number_id = value.get('metadata', {}).get('phone_number_id')
+                    channel = None
+                    if incoming_phone_number_id:
+                        channel = Channel.objects.filter(
+                            platform_type='whatsapp',
+                            api_credentials__phone_number_id=incoming_phone_number_id
+                        ).first()
+
+                    WebhookLog.objects.create(
+                        channel=channel,
+                        event_type=event_type,
+                        raw_payload=payload,
+                    )
+
+                    if not channel:
+                        print(f"No matching channel found for phone_number_id={incoming_phone_number_id} — event logged but not processed.")
+                        continue
+
+                    business = channel.business
+                    messages_list = value.get('messages', [])
+                    contacts = value.get('contacts', [])
                     contact_name = contacts[0]['profile']['name'] if contacts else 'WhatsApp Customer'
 
-                    for message in messages:
+                    for message in messages_list:
                         if message.get('type') != 'order':
                             print(f"Skipped non-order message type: {message.get('type')}")
                             continue
@@ -515,13 +529,6 @@ def whatsapp_webhook(request):
                         if not product_items:
                             print("Order message had no product_items — skipping.")
                             continue
-
-                        channel = Channel.objects.filter(platform_type='whatsapp').first()
-                        if not channel:
-                            print("No WhatsApp channel found — cannot attach order.")
-                            continue
-
-                        business = channel.business
 
                         total_amount = 0
                         line_items_to_create = []
@@ -561,8 +568,6 @@ def whatsapp_webhook(request):
                                 'unit_price': item_price,
                             })
 
-                        # Decrement stock for each product/variant and push the
-                        # updated availability back to WhatsApp's catalog automatically.
                         for line_item in line_items_to_create:
                             product = line_item['product']
                             variant = line_item['variant']
@@ -578,7 +583,7 @@ def whatsapp_webhook(request):
                                     product=product, channel=channel, status='published'
                                 ).first()
                                 if listing:
-                                    sync_result = sync_product_to_whatsapp(product, method='UPDATE')
+                                    sync_result = sync_product_to_whatsapp(product, channel, method='UPDATE')
                                     SyncLog.objects.create(
                                         channel=channel,
                                         action='product_sync',
@@ -624,6 +629,7 @@ def whatsapp_webhook(request):
         return JsonResponse({'status': 'received'}, status=200)
 
     return HttpResponse(status=405)
+
 
 @login_required
 def webhook_logs_view(request):

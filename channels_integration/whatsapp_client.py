@@ -1,59 +1,60 @@
 import requests
+import json
 from django.conf import settings
 
 
-def send_whatsapp_test_message(recipient_number):
-    """
-    Sends Meta's pre-approved 'hello_world' template message to verify
-    that our WhatsApp credentials (token, phone number ID) are valid
-    and the connection actually works end-to-end.
+def _get_credentials(channel):
+    """Pulls this specific channel's own WhatsApp credentials, stored at
+    connect-time in api_credentials. Returns (phone_number_id, access_token,
+    catalog_id) — any of these may be None if not yet configured."""
+    creds = channel.api_credentials or {}
+    return creds.get('phone_number_id'), creds.get('access_token'), creds.get('catalog_id')
 
-    recipient_number must be in international format, no '+', no spaces
-    (e.g. '917737057335').
-    """
-    url = f"{settings.WHATSAPP_API_BASE_URL}/{settings.WHATSAPP_PHONE_NUMBER_ID}/messages"
 
+def send_whatsapp_test_message(channel, recipient_number):
+    """
+    Sends Meta's pre-approved 'hello_world' template message using this
+    channel's own credentials, to verify the connection works end-to-end.
+    recipient_number must be in international format, no '+', no spaces.
+    """
+    phone_number_id, access_token, _ = _get_credentials(channel)
+    if not phone_number_id or not access_token:
+        return {'success': False, 'error': 'This channel is missing WhatsApp credentials. Add them first.'}
+
+    url = f"{settings.WHATSAPP_API_BASE_URL}/{phone_number_id}/messages"
     headers = {
-        'Authorization': f'Bearer {settings.WHATSAPP_ACCESS_TOKEN}',
+        'Authorization': f'Bearer {access_token}',
         'Content-Type': 'application/json',
     }
-
     payload = {
         'messaging_product': 'whatsapp',
         'to': recipient_number,
         'type': 'template',
-        'template': {
-            'name': 'hello_world',
-            'language': {'code': 'en_US'},
-        },
+        'template': {'name': 'hello_world', 'language': {'code': 'en_US'}},
     }
 
     response = requests.post(url, json=payload, headers=headers)
-
     if response.status_code == 200:
         data = response.json()
         message_id = data.get('messages', [{}])[0].get('id')
         return {'success': True, 'message_id': message_id, 'response': data}
     else:
         return {'success': False, 'status_code': response.status_code, 'error': response.text}
-    
 
-def check_whatsapp_connection():
-    """
-    Verifies WhatsApp credentials are valid with zero side effects —
-    a GET request to fetch our own phone number's metadata. No message
-    is sent, unlike send_whatsapp_test_message(). This mirrors what
-    get_flipkart_access_token() does for Flipkart: prove the connection
-    works without spamming anyone.
-    """
-    url = f"{settings.WHATSAPP_API_BASE_URL}/{settings.WHATSAPP_PHONE_NUMBER_ID}"
 
-    headers = {
-        'Authorization': f'Bearer {settings.WHATSAPP_ACCESS_TOKEN}',
-    }
+def check_whatsapp_connection(channel):
+    """
+    Verifies this channel's own credentials are valid with zero side effects —
+    a GET request to fetch its phone number's metadata.
+    """
+    phone_number_id, access_token, _ = _get_credentials(channel)
+    if not phone_number_id or not access_token:
+        return {'success': False, 'error': 'This channel is missing WhatsApp credentials. Add them first.'}
+
+    url = f"{settings.WHATSAPP_API_BASE_URL}/{phone_number_id}"
+    headers = {'Authorization': f'Bearer {access_token}'}
 
     response = requests.get(url, headers=headers)
-
     if response.status_code == 200:
         data = response.json()
         return {
@@ -63,28 +64,24 @@ def check_whatsapp_connection():
         }
     else:
         return {'success': False, 'status_code': response.status_code, 'error': response.text}
-    
 
 
-def sync_product_to_whatsapp(product, method='CREATE'):
+def sync_product_to_whatsapp(product, channel, method='CREATE'):
     """
-    Creates, updates, or deletes a product (and its variants, if any) in the
-    Meta Commerce Catalog via items_batch. method: 'CREATE', 'UPDATE', or 'DELETE'.
+    Creates, updates, or deletes a product (and its variants, if any) in
+    THIS SPECIFIC CHANNEL's Meta Commerce Catalog — each seller's channel
+    has its own catalog_id/access_token, stored on the channel itself, so
+    multiple sellers never touch each other's catalogs.
 
-    If the product has variants, each variant becomes its own catalog item
-    (retailer_id like ECOMORBIT-8-V3), grouped under item_group_id ECOMORBIT-8
-    so customers can select and order variants independently. If no variants
-    exist, the product itself is synced as a single item.
-
-    Any extra photos in product.extra_images are sent as additional_image_urls
-    so customers can browse a full gallery — this is unrelated to variant
-    selection, which is driven by item_group_id/title, not images.
-
-    Uses product.image.url / gallery image URLs directly — Cloudinary storage
-    already returns full public HTTPS URLs, so no base_url needs prepending.
+    Variants become separate catalog items grouped via item_group_id.
+    Extra gallery photos are sent as additional_image_urls.
     """
-    url = f"{settings.WHATSAPP_API_BASE_URL}/{settings.WHATSAPP_CATALOG_ID}/items_batch"
-    headers = {'Authorization': f'Bearer {settings.WHATSAPP_ACCESS_TOKEN}'}
+    phone_number_id, access_token, catalog_id = _get_credentials(channel)
+    if not access_token or not catalog_id:
+        return {'success': False, 'error': 'This channel is missing WhatsApp credentials. Add them first.'}
+
+    url = f"{settings.WHATSAPP_API_BASE_URL}/{catalog_id}/items_batch"
+    headers = {'Authorization': f'Bearer {access_token}'}
     base_retailer_id = f"ECOMORBIT-{product.id}"
 
     if not product.image and method != 'DELETE':
@@ -134,7 +131,6 @@ def sync_product_to_whatsapp(product, method='CREATE'):
             item_data['additional_image_urls'] = gallery_urls
         payload_requests.append({'method': method, 'data': item_data})
 
-    import json
     response = requests.post(
         url,
         headers=headers,
@@ -150,17 +146,15 @@ def sync_product_to_whatsapp(product, method='CREATE'):
     else:
         return {'success': False, 'status_code': response.status_code, 'error': response.text}
 
-    
 
-    
-def send_order_status_notification(order, status):
+def send_order_status_notification(channel, order, status):
     """
-    Sends an order status update to the customer via WhatsApp using a
-    pre-approved message template. Templates (order_shipped, order_delivered,
-    order_cancelled) must exist and be approved in Meta Business Suite's
-    Message Templates section before this works — until then, this fails
-    gracefully with a clear error rather than raising.
+    Sends an order status update to the customer via WhatsApp using this
+    channel's own credentials and a pre-approved message template.
     """
+    phone_number_id, access_token, _ = _get_credentials(channel)
+    if not phone_number_id or not access_token:
+        return {'success': False, 'error': 'This channel is missing WhatsApp credentials.'}
     if not order.customer_phone:
         return {'success': False, 'error': 'No customer phone number on order.'}
 
@@ -173,9 +167,9 @@ def send_order_status_notification(order, status):
     if not template_name:
         return {'success': False, 'error': f'No template configured for status "{status}".'}
 
-    url = f"{settings.WHATSAPP_API_BASE_URL}/{settings.WHATSAPP_PHONE_NUMBER_ID}/messages"
+    url = f"{settings.WHATSAPP_API_BASE_URL}/{phone_number_id}/messages"
     headers = {
-        'Authorization': f'Bearer {settings.WHATSAPP_ACCESS_TOKEN}',
+        'Authorization': f'Bearer {access_token}',
         'Content-Type': 'application/json',
     }
     payload = {
@@ -185,14 +179,7 @@ def send_order_status_notification(order, status):
         'template': {
             'name': template_name,
             'language': {'code': 'en_US'},
-            'components': [
-                {
-                    'type': 'body',
-                    'parameters': [
-                        {'type': 'text', 'text': str(order.id)},
-                    ]
-                }
-            ]
+            'components': [{'type': 'body', 'parameters': [{'type': 'text', 'text': str(order.id)}]}]
         },
     }
 
@@ -203,5 +190,3 @@ def send_order_status_notification(order, status):
         return {'success': True, 'message_id': message_id}
     else:
         return {'success': False, 'status_code': response.status_code, 'error': response.text}
-
-    

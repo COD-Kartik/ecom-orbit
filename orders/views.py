@@ -152,7 +152,7 @@ def order_status_update(request, pk):
                 from channels_integration.whatsapp_client import send_order_status_notification
                 from channels_integration.models import SyncLog
 
-                result = send_order_status_notification(order, new_status)
+                result = send_order_status_notification(order.channel, order, new_status)
                 SyncLog.objects.create(
                     channel=order.channel,
                     action='order_notification',

@@ -311,13 +311,29 @@
             </div>
             <div class="mb-3">
               <label class="form-label">Marketplace Channel</label>
-              <select name="platform_type" class="form-input" required>
+              <select name="platform_type" class="form-input" id="platformSelect" onchange="toggleWhatsAppFields(this.value)" required>
                 <option value="" disabled selected>Select Marketplace</option>
                 {% for value, label in platform_choices %}
                 <option value="{{ value }}">{{ label }}</option>
                 {% endfor %}
               </select>
             </div>
+
+            <div id="whatsappCredentialFields" style="display: none;">
+              <div class="mb-3">
+                <label class="form-label">WhatsApp Phone Number ID</label>
+                <input type="text" name="phone_number_id" class="form-input" placeholder="From your Meta Developer app">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">WhatsApp Access Token</label>
+                <input type="text" name="access_token" class="form-input" placeholder="From your Meta Developer app">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">WhatsApp Catalog ID</label>
+                <input type="text" name="catalog_id" class="form-input" placeholder="From Meta Commerce Manager">
+              </div>
+            </div>
+
             <div class="mb-4">
               <label class="form-label">Default Status</label>
               <select name="is_active" class="form-input">
@@ -456,6 +472,20 @@ window.filterChannels = function(platform, clickedBtn) {
         clickedBtn.classList.add('active');
     }
 
+    // filter cards
+    document.querySelectorAll('.channel-card-item').forEach(card => {
+        if (platform === 'all' || card.getAttribute('data-platform') === platform) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+};
+
+function toggleWhatsAppFields(platform) {
+    document.getElementById('whatsappCredentialFields').style.display = platform === 'whatsapp' ? 'block' : 'none';
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     const params = new URLSearchParams(window.location.search);
     const openSyncId = params.get('open_sync');
@@ -473,15 +503,5 @@ document.addEventListener('DOMContentLoaded', function() {
         dropdown.show();
     }
 });
-
-    // filter cards
-    document.querySelectorAll('.channel-card-item').forEach(card => {
-        if (platform === 'all' || card.getAttribute('data-platform') === platform) {
-            card.style.display = 'block';
-        } else {
-            card.style.display = 'none';
-        }
-    });
-};
 </script>
 {% endblock %}

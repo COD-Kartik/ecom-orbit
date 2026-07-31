@@ -360,7 +360,7 @@ def product_edit(request, pk):
         published_listings = ProductListing.objects.filter(product=product, status='published').select_related('channel')
         for listing in published_listings:
             if listing.channel.platform_type == 'whatsapp':
-                result = sync_product_to_whatsapp(product, method='UPDATE')
+                result = sync_product_to_whatsapp(product, listing.channel, method='UPDATE')
                 if result['success']:
                     SyncLog.objects.create(channel=listing.channel, action='product_sync', success_count=1, failed_count=0, status='success')
                 else:
@@ -387,7 +387,7 @@ def product_delete(request, pk):
     published_listings = ProductListing.objects.filter(product=product, status='published').select_related('channel')
     for listing in published_listings:
         if listing.channel.platform_type == 'whatsapp' and listing.external_id:
-            result = sync_product_to_whatsapp(product, method='DELETE')
+            result = sync_product_to_whatsapp(product, listing.channel, method='DELETE')
             if result['success']:
                 SyncLog.objects.create(channel=listing.channel, action='product_sync', success_count=1, failed_count=0, status='success')
             else:
