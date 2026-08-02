@@ -56,7 +56,12 @@ class ProductListingViewSet(viewsets.ModelViewSet):
 def channel_list(request):
     business = get_user_business(request.user)
     channels = Channel.objects.filter(business=business).order_by('-created_at')
-
+    from accounts.plans import can_add_channel
+    if request.method == 'POST':
+        if not can_add_channel(business):
+            messages.error(request, 'You\'ve reached your plan\'s connected-channel limit. Upgrade to connect more.')
+            return redirect('channel_list')
+        
     if request.method == 'POST':
         platform_type = request.POST.get('platform_type')
         api_credentials = {}
@@ -180,7 +185,14 @@ def publish_product(request, product_id):
         sync_expires_at__lt=now,
     )
     healthy_channels = channels.exclude(id__in=expired_channels.values_list('id', flat=True))
+    from accounts.plans import channel_can_sync
+    sync_blocked_channels = [c for c in healthy_channels if not channel_can_sync(c)]
+    healthy_channels = [c for c in healthy_channels if channel_can_sync(c)]
 
+    if sync_blocked_channels:
+        blocked_names = ', '.join(c.name for c in sync_blocked_channels)
+        messages.warning(request, f'{blocked_names} — sync not available on your current plan. Upgrade to enable syncing on more channels.')
+        
     published_count = 0
     for channel in healthy_channels:
         listing, created = ProductListing.objects.get_or_create(

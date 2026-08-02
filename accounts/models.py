@@ -29,6 +29,15 @@ class BusinessProfile(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     business_phone = models.CharField(max_length=20, blank=True, null=True)
     notifications_last_viewed = models.DateTimeField(blank=True, null=True)
+    PLAN_CHOICES = (
+    ('free', 'Free Plan'),
+    ('starter', 'Starter'),
+    ('pro', 'Pro Seller'),
+    ('enterprise', 'Enterprise'),
+    )
+    plan = models.CharField(max_length=20, choices=PLAN_CHOICES, default='free')
+    unlimited_access = models.BooleanField(default=False)  # bypasses every limit below — for your own account
+
     def __str__(self):
         return self.business_name
 

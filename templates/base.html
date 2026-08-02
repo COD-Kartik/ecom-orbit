@@ -201,7 +201,7 @@
 
     <div class="plan-card">
         <div class="plan-title">Current Plan</div>
-        <div class="plan-name">Pro Seller</div>
+        <div class="plan-name">{% if business %}{{ business.get_plan_display }}{% else %}Free Plan{% endif %}</div>
         <a href="{% url 'pricing_page' %}" class="plan-btn" style="text-decoration:none; display:block; text-align:center;">View Plan Details</a>
     </div>
 
