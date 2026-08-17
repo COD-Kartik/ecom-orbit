@@ -66,15 +66,18 @@ def check_whatsapp_connection(channel):
         return {'success': False, 'status_code': response.status_code, 'error': response.text}
 
 
+import time
+
+
 def sync_product_to_whatsapp(product, channel, method='CREATE'):
     """
     Creates, updates, or deletes a product (and its variants, if any) in
-    THIS SPECIFIC CHANNEL's Meta Commerce Catalog — each seller's channel
-    has its own catalog_id/access_token, stored on the channel itself, so
-    multiple sellers never touch each other's catalogs.
+    THIS SPECIFIC CHANNEL's Meta Commerce Catalog.
 
-    Variants become separate catalog items grouped via item_group_id.
-    Extra gallery photos are sent as additional_image_urls.
+    items_batch is ASYNCHRONOUS — a 200 response only means Meta accepted
+    and queued the request, not that it succeeded. We capture the returned
+    handle and poll check_batch_request_status to confirm real completion
+    before reporting success.
     """
     phone_number_id, access_token, catalog_id = _get_credentials(channel)
     if not access_token or not catalog_id:
@@ -137,15 +140,39 @@ def sync_product_to_whatsapp(product, channel, method='CREATE'):
         data={'item_type': 'PRODUCT_ITEM', 'requests': json.dumps(payload_requests)}
     )
 
-    if response.status_code == 200:
-        if variants and method != 'DELETE':
-            for v, req in zip(variants, payload_requests):
-                v.external_id = req['data']['id']
-                v.save(update_fields=['external_id'])
-        return {'success': True, 'retailer_id': base_retailer_id, 'response': response.json()}
-    else:
+    if response.status_code != 200:
         return {'success': False, 'status_code': response.status_code, 'error': response.text}
 
+    handle = response.json().get('handle')
+    if not handle:
+        return {'success': False, 'error': 'No batch handle returned — cannot verify processing.'}
+
+    # Poll for real completion — up to ~6 seconds
+    status_url = f"{settings.WHATSAPP_API_BASE_URL}/{catalog_id}/check_batch_request_status"
+    for _ in range(4):
+        time.sleep(1.5)
+        status_response = requests.get(status_url, headers=headers, params={'handle': handle})
+        if status_response.status_code != 200:
+            continue
+        status_data = status_response.json()
+        handles_data = status_data.get('data', status_data.get('handles', []))
+        if isinstance(handles_data, list) and handles_data:
+            entry = handles_data[0]
+            errors = entry.get('errors') or []
+            state = entry.get('status', '')
+            if state and state.lower() in ('finished', 'completed', 'succeeded'):
+                if errors:
+                    return {'success': False, 'error': f"Batch completed with errors: {errors}"}
+                if variants and method != 'DELETE':
+                    for v, req in zip(variants, payload_requests):
+                        v.external_id = req['data']['id']
+                        v.save(update_fields=['external_id'])
+                return {'success': True, 'retailer_id': base_retailer_id, 'response': status_data}
+            if state.lower() == 'failed':
+                return {'success': False, 'error': f"Batch failed: {status_data}"}
+            # else still in progress — loop again
+
+    return {'success': False, 'error': 'Batch still processing after polling — check Commerce Manager manually before assuming success.'}
 
 def send_order_status_notification(channel, order, status):
     """
