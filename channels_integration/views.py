@@ -21,6 +21,8 @@ from .models import Channel, ProductListing, SyncLog, WebhookLog
 from datetime import timedelta
 from .whatsapp_client import sync_product_to_whatsapp
 from products.models import Product, ProductVariant
+from channels_integration.whatsapp_client import sync_product_to_whatsapp
+from django.utils import timezone
 
 def get_user_business(user):
     try:
@@ -133,21 +135,41 @@ def select_channels_to_publish(request, product_id):
             return redirect('select_channels_to_publish', product_id=product.id)
 
         selected_channels = channels.filter(id__in=selected_ids)
+        synced_count = 0
         for channel in selected_channels:
             listing, created = ProductListing.objects.get_or_create(
                 product=product,
                 channel=channel,
                 defaults={'status': 'published'}
             )
-            if not created and listing.status != 'published':
-                listing.status = 'published'
-                listing.save()
+
+            if channel.platform_type == 'whatsapp':
+                method = 'UPDATE' if listing.external_id else 'CREATE'
+                result = sync_product_to_whatsapp(product, channel, method=method)
+                if result['success']:
+                    listing.external_id = result['retailer_id']
+                    listing.status = 'published'
+                    listing.published_at = timezone.now()
+                    listing.save()
+                    SyncLog.objects.create(channel=channel, action='product_sync', success_count=1, failed_count=0, status='success')
+                    synced_count += 1
+                else:
+                    listing.status = 'failed'
+                    listing.save()
+                    SyncLog.objects.create(channel=channel, action='product_sync', success_count=0, failed_count=1, status='failed', error_detail=result.get('error'))
+                    messages.error(request, f'Failed to sync "{product.title}" to {channel.name}: {result.get("error", "Unknown error")}')
+            else:
+                if not created and listing.status != 'published':
+                    listing.status = 'published'
+                    listing.save()
+                synced_count += 1
 
         # Unpublish from channels that were unchecked but previously published
         unselected_channels = channels.exclude(id__in=selected_ids)
         ProductListing.objects.filter(product=product, channel__in=unselected_channels, status='published').update(status='pending')
 
-        messages.success(request, f'"{product.title}" updated across {selected_channels.count()} channel(s).')
+        if synced_count:
+            messages.success(request, f'"{product.title}" published to {synced_count} channel(s).')
         return redirect('listing_list')
 
     # GET — show checkboxes with current publish status per channel
