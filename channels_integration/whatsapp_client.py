@@ -143,7 +143,8 @@ def sync_product_to_whatsapp(product, channel, method='CREATE'):
     if response.status_code != 200:
         return {'success': False, 'status_code': response.status_code, 'error': response.text}
 
-    handle = response.json().get('handle')
+    handles = response.json().get('handles')
+    handle = handles[0] if handles else None
     if not handle:
         return {'success': False, 'error': 'No batch handle returned — cannot verify processing.'}
 
