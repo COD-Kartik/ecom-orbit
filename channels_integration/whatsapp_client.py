@@ -157,7 +157,7 @@ def sync_product_to_whatsapp(product, channel, method='CREATE'):
     last_status_response_text = None
     last_status_data = None
 
-    for _ in range(4):
+    for _ in range(8):
         time.sleep(1.5)
         status_response = requests.get(status_url, headers=headers, params={'handle': handle})
         if status_response.status_code != 200:
