@@ -279,10 +279,6 @@ def product_list(request):
 def product_add(request):
     business   = get_user_business(request.user)
     categories = Category.objects.filter(business=business)
-    from accounts.plans import can_add_product
-    if request.method == 'POST' and not can_add_product(business):
-        messages.error(request, 'You\'ve reached your plan\'s product limit. Upgrade to add more products.')
-        return redirect('product_list')
     
     if request.method == 'POST':
         title       = request.POST.get('title')
@@ -363,15 +359,17 @@ def product_edit(request, pk):
         from channels_integration.whatsapp_client import sync_product_to_whatsapp
 
         published_listings = ProductListing.objects.filter(product=product, status='published').select_related('channel')
-        from accounts.plans import channel_can_sync
-        for listing in published_listings:
-            if listing.channel.platform_type == 'whatsapp' and channel_can_sync(listing.channel):
-                result = sync_product_to_whatsapp(product, listing.channel, method='UPDATE')
-                if result['success']:
-                    SyncLog.objects.create(channel=listing.channel, action='product_sync', success_count=1, failed_count=0, status='success')
-                else:
-                    SyncLog.objects.create(channel=listing.channel, action='product_sync', success_count=0, failed_count=1, status='failed', error_detail=result.get('error'))
-                    messages.warning(request, f'Product saved, but failed to sync stock/price update to {listing.channel.name}.')
+        if not published_listings.exists():
+            messages.info(request, "This product isn't published to any channel yet — use Publish from the product list or Channel Listings page first.")
+        else:
+            for listing in published_listings:
+                if listing.channel.platform_type == 'whatsapp':
+                    result = sync_product_to_whatsapp(product, listing.channel, method='UPDATE')
+                    if result['success']:
+                        SyncLog.objects.create(channel=listing.channel, action='product_sync', success_count=1, failed_count=0, status='success')
+                    else:
+                        SyncLog.objects.create(channel=listing.channel, action='product_sync', success_count=0, failed_count=1, status='failed', error_detail=result.get('error'))
+                        messages.warning(request, f'Product saved, but failed to sync stock/price update to {listing.channel.name}.')
 
         messages.success(request, f'"{product.title}" updated successfully.')
         return redirect('product_list')

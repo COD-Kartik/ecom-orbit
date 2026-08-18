@@ -863,10 +863,6 @@ def print_invoices(request):
 @login_required
 def discounts_view(request):
     business = get_user_business(request.user)
-    from accounts.plans import discounts_enabled
-    if not discounts_enabled(business):
-        messages.error(request, 'Discount codes are available on Pro and Enterprise plans. Upgrade to unlock this feature.')
-        return redirect('dashboard')
     discounts = Discount.objects.filter(business=business).order_by('-created_at') if business else Discount.objects.none()
 
     today = timezone.now().date()
@@ -897,10 +893,6 @@ def discounts_view(request):
 @login_required
 def discount_create(request):
     business = get_user_business(request.user)
-    from accounts.plans import discounts_enabled
-    if not discounts_enabled(business):
-        messages.error(request, 'Discount codes are available on Pro and Enterprise plans. Upgrade to unlock this feature.')
-        return redirect('dashboard')
     if request.method == 'POST' and business:
         code = request.POST.get('code', '').strip().upper()
         if Discount.objects.filter(business=business, code=code).exists():

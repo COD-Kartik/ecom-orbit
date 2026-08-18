@@ -69,6 +69,10 @@ def check_whatsapp_connection(channel):
 import time
 
 
+import logging
+logger = logging.getLogger(__name__)
+
+
 def sync_product_to_whatsapp(product, channel, method='CREATE'):
     """
     Creates, updates, or deletes a product (and its variants, if any) in
@@ -150,30 +154,56 @@ def sync_product_to_whatsapp(product, channel, method='CREATE'):
 
     # Poll for real completion — up to ~6 seconds
     status_url = f"{settings.WHATSAPP_API_BASE_URL}/{catalog_id}/check_batch_request_status"
+    last_status_response_text = None
+    last_status_data = None
+
     for _ in range(4):
         time.sleep(1.5)
         status_response = requests.get(status_url, headers=headers, params={'handle': handle})
         if status_response.status_code != 200:
+            last_status_response_text = f"HTTP {status_response.status_code}: {status_response.text}"
+            logger.warning(f"check_batch_request_status HTTP error {status_response.status_code}: {status_response.text}")
             continue
-        status_data = status_response.json()
+        
+        last_status_response_text = status_response.text
+        try:
+            status_data = status_response.json()
+            last_status_data = status_data
+        except Exception as e:
+            logger.warning(f"check_batch_request_status JSON parse error: {e}. Raw response: {status_response.text}")
+            continue
+
         handles_data = status_data.get('data', status_data.get('handles', []))
+        if isinstance(handles_data, dict):
+            handles_data = [handles_data]
+        elif not isinstance(handles_data, list) and isinstance(status_data, dict) and 'status' in status_data:
+            handles_data = [status_data]
+
         if isinstance(handles_data, list) and handles_data:
             entry = handles_data[0]
             errors = entry.get('errors') or []
             state = entry.get('status', '')
             if state and state.lower() in ('finished', 'completed', 'succeeded'):
                 if errors:
-                    return {'success': False, 'error': f"Batch completed with errors: {errors}"}
+                    return {'success': False, 'error': f"Batch completed with errors: {errors}", 'response': status_data}
                 if variants and method != 'DELETE':
                     for v, req in zip(variants, payload_requests):
                         v.external_id = req['data']['id']
                         v.save(update_fields=['external_id'])
                 return {'success': True, 'retailer_id': base_retailer_id, 'response': status_data}
-            if state.lower() == 'failed':
-                return {'success': False, 'error': f"Batch failed: {status_data}"}
+            if state and state.lower() == 'failed':
+                return {'success': False, 'error': f"Batch failed: {status_data}", 'response': status_data}
             # else still in progress — loop again
+        else:
+            logger.warning(f"check_batch_request_status response missing expected 'data' or 'handles' keys. Raw response: {status_response.text}")
 
-    return {'success': False, 'error': 'Batch still processing after polling — check Commerce Manager manually before assuming success.'}
+    logger.warning(f"Batch polling completed without final status. Last raw response: {last_status_response_text}")
+    if last_status_data and ('data' in last_status_data or 'handles' in last_status_data):
+        return {'success': False, 'error': f"Batch still processing after polling — check Commerce Manager manually before assuming success. Last status: {last_status_data}"}
+    elif last_status_response_text:
+        return {'success': False, 'error': f"Batch status check returned unexpected response format. Raw response: {last_status_response_text}"}
+    else:
+        return {'success': False, 'error': 'Batch still processing after polling — check Commerce Manager manually before assuming success.'}
 
 def send_order_status_notification(channel, order, status):
     """
